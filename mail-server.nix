@@ -27,4 +27,8 @@ let
 in
 {
   networking.hostName = host_prefix + "." + domain;
+  
+  environment.systemPackages = with pkgs; [
+    dovecot opendkim openssh postfix clamav rspamd rmilter
+  ];
 }
