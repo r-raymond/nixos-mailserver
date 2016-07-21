@@ -36,4 +36,7 @@ in
   users.groups = {
     vmail = { gid = vmail_id_start; };
   };
+  
+  # define all users
+  users.extraUsers = vmail_user ++ mail_user;
 }
