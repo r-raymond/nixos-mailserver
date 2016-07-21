@@ -8,3 +8,4 @@
  * rmilter
  * rspamd
  * clamav
+ * pam
