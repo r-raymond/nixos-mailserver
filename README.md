@@ -1,6 +1,8 @@
 # nixos-mailserver
 ![license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)
 
+## Work in progress...
+
 ## A Complete Mail Server Without Moving Parts
 
 ### Used Technologies
