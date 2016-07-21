@@ -35,5 +35,5 @@ in
   # set the vmail gid to a specific value
   users.groups = {
     vmail = { gid = vmail_id_start; };
-  }
+  };
 }
