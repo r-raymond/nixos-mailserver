@@ -26,4 +26,5 @@ let
   mail_user = map accountsToUser login_accounts;
 in
 {
+  networking.hostName = host_prefix + "." + domain;
 }
