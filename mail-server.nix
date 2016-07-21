@@ -31,4 +31,9 @@ in
   environment.systemPackages = with pkgs; [
     dovecot opendkim openssh postfix clamav rspamd rmilter
   ];
+  
+  # set the vmail gid to a specific value
+  users.groups = {
+    vmail = { gid = vmail_id_start; };
+  }
 }
