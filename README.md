@@ -19,6 +19,8 @@
  * unlimited aliases for every mail account
  * spam and virus checking
  * dkim signing of outgoing emails
+ * imap (optionally pop3)
+ * startTLS
 
 ### Nonfeatures
  * moving parts
