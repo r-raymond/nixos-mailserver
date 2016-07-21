@@ -1,4 +1,5 @@
 # nixos-mailserver
+![license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)
 
 ## A Complete Mail Server Without Moving Parts
 
