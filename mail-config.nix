@@ -20,6 +20,18 @@ let
   domain = "example.com";
   host_prefix = "mail";
   login_accounts = [ "user1" "user2" ];
+  valiases = [
+    { from = "info";
+      to = "user1";
+    }
+    { from = "postmaster";
+      to = "user1";
+    }
+    { from = "abuse";
+      to = "user1";
+    }
+  ];
+  extra_vaccounts = [ "localuser" "user1" ];
   vmail_id_start = 5000;
   vmail_user_name = "vmail";
   vmail_group_name = "vmail";
