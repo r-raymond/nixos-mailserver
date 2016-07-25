@@ -24,6 +24,8 @@ let
   mail_dir = "/var/vmail";
   cert_file = "mail-server.crt";
   key_file = "mail-server.key";
+  enable_imap = true;
+  enable_pop3 = false;
 in
 let
   vmail_user = [{
@@ -70,6 +72,8 @@ in
   # dovecot
    services.dovecot2 = {
     enable = true;
+    enableImap = enable_imap;
+    enablePop3 = enable_pop3;
    };
 
 }
