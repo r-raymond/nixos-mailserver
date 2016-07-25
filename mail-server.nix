@@ -71,7 +71,10 @@ in
   };
   
   # dovecot
-   services.dovecot2 = {
+  # set the correct permissions for dovecot vmail folder. see
+  # http://wiki2.dovecot.org/SharedMailboxes/Permissions
+  systemd.services.dovecot2.preStart = "chmod 02770 /var/vmail";
+  services.dovecot2 = {
     enable = true;
     enableImap = enable_imap;
     enablePop3 = enable_pop3;
