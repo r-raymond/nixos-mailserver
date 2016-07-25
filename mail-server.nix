@@ -28,6 +28,7 @@ let
   enable_pop3 = false;
 in
 let
+  dovecot_maildir = "maildir:" + mail_dir + "/%d/%n/";
   vmail_user = [{
     name = vmail_user_name;
     isNormalUser = false;
@@ -74,6 +75,8 @@ in
     enable = true;
     enableImap = enable_imap;
     enablePop3 = enable_pop3;
+    mailGroup = vmail_group_name;
+    mailUser = vmail_user_name;
+    mailLocation = dovecot_maildir;
    };
-
 }
