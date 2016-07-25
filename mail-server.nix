@@ -48,17 +48,14 @@ in
   # define all users
   users.extraUsers = vmail_user ++ mail_user;
   
-  # postfix
-  services.postfix = {
-    enable = true;
-    networksStyle = "host";
-  };
-  
+ 
   # rspamd
   services.rspamd = {
     enable = true;
   };
-  
-  # dovecot
-  imports = [ ./mail-server/dovecot.nix ];
+
+  imports = [ 
+    ./mail-server/dovecot.nix  # dovecot
+    ./mail-server/postfix.nix  # postfix
+  ];
 }
