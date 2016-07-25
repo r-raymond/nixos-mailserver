@@ -66,5 +66,10 @@ in
   services.rspamd = {
     enable = true;
   };
+  
+  # dovecot
+   services.dovecot2 = {
+    enable = true;
+   };
 
 }
