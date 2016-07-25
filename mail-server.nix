@@ -26,12 +26,22 @@ let
     createHome = true;
     group = vmail_group_name;
   }];
+
+  # accountsToUser :: String -> UserRecord
   accountsToUser = x: {
     name = x + "@" + domain;
     isNormalUser = false;
     group = vmail_group_name;
   };
+
+  # mail_user :: [ UserRecord ]
   mail_user = map accountsToUser login_accounts;
+
+  # valiasToString :: { from = "..."; to = "..." } -> String
+  valiasToString = x: x.from + "@" + domain + " " + x.to "@" + domain + "\n";
+
+  # valiasFile :: [ String ]
+  valiasFile = map valiasToString valiases;
 in
 {
   networking.hostName = host_prefix + "." + domain;
