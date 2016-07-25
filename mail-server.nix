@@ -61,4 +61,10 @@ in
     enable = true;
     networksStyle = "host";
   };
+  
+  # rspamd
+  services.rspamd = {
+    enable = true;
+  };
+
 }
