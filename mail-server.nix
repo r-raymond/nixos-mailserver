@@ -14,19 +14,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-let
-  domain = "example.com";
-  host_prefix = "mail";
-  login_accounts = [ "user1" "user2" ];
-  vmail_id_start = 5000;
-  vmail_user_name = "vmail";
-  vmail_group_name = "vmail";
-  mail_dir = "/var/vmail";
-  cert_file = "mail-server.crt";
-  key_file = "mail-server.key";
-  enable_imap = true;
-  enable_pop3 = false;
-in
+{ config, pkgs, ... }:
+
 let
   dovecot_maildir = "maildir:" + mail_dir + "/%d/%n/";
   vmail_user = [{
