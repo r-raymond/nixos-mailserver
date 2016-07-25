@@ -17,8 +17,8 @@
  * pam
 
 ### Features
- * unlimited domains
- * unlimited mail accounts for every domain
+ * one domain
+ * unlimited mail accounts
  * unlimited aliases for every mail account
  * spam and virus checking
  * dkim signing of outgoing emails
