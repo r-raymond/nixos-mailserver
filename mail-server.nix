@@ -60,4 +60,5 @@ in
   };
   
   # dovecot
+  imports = [ ./mail-server/dovecot.nix ];
 }
