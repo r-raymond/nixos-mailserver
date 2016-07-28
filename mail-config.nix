@@ -40,6 +40,8 @@ let
   key_file = "mail-server.key";
   enable_imap = true;
   enable_pop3 = false;
+  imap_ssl = false;
+  pop3_ssl = false;
 in
 {
   imports = [ ./mail-server.nix ];
