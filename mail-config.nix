@@ -42,6 +42,7 @@ let
   enable_pop3 = false;
   imap_ssl = false;
   pop3_ssl = false;
+  virus_scanning = false;
 in
 {
   imports = [ ./mail-server.nix ];
