@@ -65,6 +65,12 @@ in
     enable = true;
   };
 
+  # firewall
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 25 143 587 ]; # < TODO: make this flexible
+  };
+
   imports = [ 
     ./mail-server/dovecot.nix  # dovecot
     ./mail-server/postfix.nix  # postfix
