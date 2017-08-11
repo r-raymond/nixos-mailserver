@@ -14,7 +14,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ config, pkgs, ... }:
+{ config, pkgs, vmail_group_name, vmail_user_name, dovecot_maildir, enable_imap,
+enable_pop3, ... }:
 {
   # Set the correct permissions for dovecot vmail folder. See
   # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>. We choose

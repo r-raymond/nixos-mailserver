@@ -14,7 +14,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ config, pkgs, ... }:
+{ config, pkgs, mail_dir, vmail_user_name, vmail_id_start, vmail_group_name,
+domain, login_accounts, valiases, host_prefix, ... }:
 
 let
   dovecot_maildir = "maildir:" + mail_dir + "/%d/%n/";
