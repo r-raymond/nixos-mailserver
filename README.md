@@ -3,6 +3,22 @@
 
 ## Work in progress...
 
+### How to Test
+
+You can test the setup via `nixops`. After installation, do
+
+```
+nixops create nixops/single-server.nix nixops/vbox.nix -d mail
+nixops deploy -d mail
+nixops info -d mail
+```
+
+You can then test the server via e.g. `telnet`. To log into it, use
+
+```
+nixops ssh -d mail mailserver
+```
+
 ## A Complete Mail Server Without Moving Parts
 
 ### Used Technologies
