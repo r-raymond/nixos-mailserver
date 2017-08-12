@@ -1,5 +1,5 @@
 #  nixos-mailserver: a simple mail server
-#  Copyright (C) 2016  Robin Raymond
+#  Copyright (C) 2016-2017  Robin Raymond
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -45,5 +45,24 @@ let
   virus_scanning = false;
 in
 {
-  imports = [ ./mail-server.nix ];
+  services = import ./mail-server/services.nix {
+    inherit mail_dir vmail_user_name vmail_id_start vmail_group_name
+            login_accounts valiases domain enable_imap enable_pop3;
+  };
+
+  environment = import ./mail-server/environment.nix {
+    inherit pkgs;
+  };
+
+  networking = import ./mail-server/networking.nix {
+    inherit domain host_prefix;
+  };
+
+  # TODO: Move to /mail-server/systemd.nix
+  # TODO: Respect setting of maildir
+  # Set the correct permissions for dovecot vmail folder. See
+  # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>. We choose
+  # to use the systemd service to set the folder permissions whenever
+  # dovecot gets started.
+  systemd.services.dovecot2.preStart = "chmod 02770 /var/vmail";
 }

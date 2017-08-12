@@ -14,13 +14,13 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ vmail_group_name, vmail_user_name, dovecot_maildir, enable_imap, enable_pop3,
-... }:
+{ domain, host_prefix, ... }:
+
 {
-  enable = true;
-  enableImap = enable_imap;
-  enablePop3 = enable_pop3;
-  mailGroup = vmail_group_name;
-  mailUser = vmail_user_name;
-  mailLocation = dovecot_maildir;  # maildir in format "/${domain}/${user}/"
+  hostName = host_prefix + "." + domain;
+
+  firewall = {
+    enable = true;
+    allowedTCPPorts = [ 25 143 587 ]; # < TODO: make this flexible
+  };
 }

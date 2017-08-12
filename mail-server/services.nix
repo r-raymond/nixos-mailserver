@@ -1,5 +1,5 @@
 #  nixos-mailserver: a simple mail server
-#  Copyright (C) 2016  Robin Raymond
+#  Copyright (C) 2016-2017  Robin Raymond
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ config, pkgs, mail_dir, vmail_user_name, vmail_id_start, vmail_group_name,
-domain, login_accounts, valiases, host_prefix, ... }:
+{ mail_dir, vmail_user_name, vmail_id_start, vmail_group_name, login_accounts,
+valiases, domain, enable_imap, enable_pop3 }:
 
 let
   dovecot_maildir = "maildir:" + mail_dir + "/%d/%n/";
@@ -41,38 +41,21 @@ let
   # valiasToString :: { from = "..."; to = "..." } -> String
   valiasToString = x: x.from + "@" + domain + " " + x.to "@" + domain + "\n";
 
-  # valiasFile :: [ String ]
-  valiasFile = map valiasToString valiases;
+  # valias_file :: [ String ]
+  valiases_file = map valiasToString valiases;
 in
 {
-  networking.hostName = host_prefix + "." + domain;
-  
-  environment.systemPackages = with pkgs; [
-    dovecot opendkim openssh postfix clamav rspamd rmilter
-  ];
-  
-  # set the vmail gid to a specific value
-  users.groups = {
-    vmail = { gid = vmail_id_start; };
-  };
-  
-  # define all users
-  users.extraUsers = vmail_user ++ mail_user;
-  
- 
   # rspamd
-  services.rspamd = {
+  rspamd = {
     enable = true;
   };
 
-  # firewall
-  networking.firewall = {
-    enable = true;
-    allowedTCPPorts = [ 25 143 587 ]; # < TODO: make this flexible
+  postfix = import ./postfix.nix {
+    valiases_file = ""; vaccounts_file = ""; #< TODO: FIX
   };
 
-  imports = [ 
-    ./mail-server/dovecot.nix  # dovecot
-    ./mail-server/postfix.nix  # postfix
-  ];
+  dovecot2 = import ./dovecot.nix {
+    inherit vmail_group_name vmail_user_name dovecot_maildir enable_imap
+            enable_pop3;
+  };
 }
