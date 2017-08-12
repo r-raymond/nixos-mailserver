@@ -14,14 +14,36 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ vmail_id_start, vmail_user, mail_user }:
+{ vmail_id_start, vmail_user_name, vmail_group_name, domain, mail_dir,
+login_accounts }:
 
+let
+  vmail_user = [{
+    name = vmail_user_name;
+    isNormalUser = false;
+    uid = vmail_id_start;
+    home = mail_dir;
+    createHome = true;
+    group = vmail_group_name;
+  }];
+
+  # accountsToUser :: String -> UserRecord
+  accountsToUser = x: {
+    name = x + "@" + domain;
+    isNormalUser = false;
+    group = vmail_group_name;
+  };
+
+  # mail_user :: [ UserRecord ]
+  mail_user = map accountsToUser login_accounts;
+
+in
 {
   # set the vmail gid to a specific value
-  users.groups = {
+  groups = {
     vmail = { gid = vmail_id_start; };
   };
 
   # define all users
-  users.extraUsers = vmail_user ++ mail_user;
+  extraUsers = vmail_user ++ mail_user;
 }

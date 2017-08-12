@@ -46,8 +46,8 @@ let
 in
 {
   services = import ./mail-server/services.nix {
-    inherit mail_dir vmail_user_name vmail_id_start vmail_group_name
-            login_accounts valiases domain enable_imap enable_pop3;
+    inherit mail_dir vmail_user_name vmail_group_name valiases domain
+            enable_imap enable_pop3;
   };
 
   environment = import ./mail-server/environment.nix {
@@ -59,6 +59,11 @@ in
   };
 
   systemd = import ./mail-server/systemd.nix {
-    inherit mail_dir;
+    inherit mail_dir vmail_group_name;
+  };
+
+  users = import ./mail-server/users.nix {
+    inherit vmail_id_start vmail_user_name vmail_group_name domain mail_dir
+            login_accounts;
   };
 }

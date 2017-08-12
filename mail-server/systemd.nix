@@ -14,12 +14,17 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ mail_dir }:
+{ mail_dir, vmail_group_name }:
 
 {
   # Set the correct permissions for dovecot vmail folder. See
   # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>. We choose
   # to use the systemd service to set the folder permissions whenever
   # dovecot gets started.
-  services.dovecot2.preStart = ("mkdir -p " + mail_dir + "; chmod 02770 " + mail_dir);
+  services.dovecot2.preStart =
+  ''
+    mkdir -p ${mail_dir}
+    chgrp ${vmail_group_name} ${mail_dir}
+    chmod 02770 ${mail_dir}
+  '';
 }

@@ -14,30 +14,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ mail_dir, vmail_user_name, vmail_id_start, vmail_group_name, login_accounts,
-valiases, domain, enable_imap, enable_pop3 }:
+{ mail_dir, vmail_user_name, vmail_group_name, valiases, domain, enable_imap,
+enable_pop3 }:
 
 let
-  dovecot_maildir = "maildir:" + mail_dir + "/%d/%n/";
-  vmail_user = [{
-    name = vmail_user_name;
-    isNormalUser = false;
-    uid = vmail_id_start;
-    home = mail_dir;
-    createHome = true;
-    group = vmail_group_name;
-  }];
-
-  # accountsToUser :: String -> UserRecord
-  accountsToUser = x: {
-    name = x + "@" + domain;
-    isNormalUser = false;
-    group = vmail_group_name;
-  };
-
-  # mail_user :: [ UserRecord ]
-  mail_user = map accountsToUser login_accounts;
-
   # valiasToString :: { from = "..."; to = "..." } -> String
   valiasToString = x: x.from + "@" + domain + " " + x.to "@" + domain + "\n";
 
@@ -55,7 +35,7 @@ in
   };
 
   dovecot2 = import ./dovecot.nix {
-    inherit vmail_group_name vmail_user_name dovecot_maildir enable_imap
+    inherit vmail_group_name vmail_user_name mail_dir enable_imap
             enable_pop3;
   };
 }
