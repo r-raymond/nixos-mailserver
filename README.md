@@ -6,15 +6,15 @@
 ## A Complete Mail Server Without Moving Parts
 
 ### Used Technologies
- * nixos 16.03
- * nixpkgs
- * dovecot
- * postfix
- * rmilter
- * rspamd
- * clamav
- * opendkim
- * pam
+ * Nixos
+ * Nixpkgs
+ * Dovecot
+ * Postfix
+ * Rmilter
+ * Rspamd
+ * Clamav
+ * Opendkim
+ * Pam
 
 ### Features
  * one domain
