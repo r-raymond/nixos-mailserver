@@ -17,13 +17,6 @@
 { mail_dir, vmail_user_name, vmail_group_name, valiases, domain, enable_imap,
 enable_pop3 }:
 
-let
-  # valiasToString :: { from = "..."; to = "..." } -> String
-  valiasToString = x: x.from + "@" + domain + " " + x.to "@" + domain + "\n";
-
-  # valias_file :: [ String ]
-  valiases_file = map valiasToString valiases;
-in
 {
   # rspamd
   rspamd = {
@@ -31,7 +24,7 @@ in
   };
 
   postfix = import ./postfix.nix {
-    valiases_file = ""; vaccounts_file = ""; #< TODO: FIX
+    inherit mail_dir domain valiases;
   };
 
   dovecot2 = import ./dovecot.nix {
