@@ -58,11 +58,7 @@ in
     inherit domain host_prefix;
   };
 
-  # TODO: Move to /mail-server/systemd.nix
-  # TODO: Respect setting of maildir
-  # Set the correct permissions for dovecot vmail folder. See
-  # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>. We choose
-  # to use the systemd service to set the folder permissions whenever
-  # dovecot gets started.
-  systemd.services.dovecot2.preStart = "chmod 02770 /var/vmail";
+  systemd = import ./mail-server/systemd.nix {
+    inherit mail_dir;
+  };
 }
