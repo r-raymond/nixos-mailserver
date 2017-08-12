@@ -14,26 +14,42 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ mail_dir, vmail_user_name, vmail_group_name, valiases, domain, enable_imap,
-enable_pop3, virus_scanning, dkim_signing, certificate_scheme, cert_file,
-key_file }:
+{ domain, virus_scanning, dkim_signing }:
 
+let
+  clamav = if virus_scanning
+           then
+           ''
+             clamav {
+               servers = /var/run/clamav/clam.ctl;
+             };
+           ''
+           else "";
+  dkim = if dkim_signing
+         then
+         ''
+            dkim {
+              domain {
+                key = /etc/nixos/dkim/${domain}.pem;
+                domain = "${domain}";
+                selector = "dkim";
+              };
+              sign_alg = sha256;
+              auth_only = yes;
+            }
+         ''
+         else "";
+in
 {
-  # rspamd
-  rspamd = {
-    enable = true;
-  };
+  enable = true;
+  # debug = true;
+  postfix.enable = true;
+  rspamd.enable = true;
+  extraConfig =
+  ''
+    ${clamav}
 
-  rmilter = import ./rmilter.nix {
-    inherit domain virus_scanning dkim_signing;
-  };
-
-  postfix = import ./postfix.nix {
-    inherit mail_dir domain valiases certificate_scheme cert_file key_file;
-  };
-
-  dovecot2 = import ./dovecot.nix {
-    inherit vmail_group_name vmail_user_name mail_dir enable_imap
-            enable_pop3 certificate_scheme cert_file key_file;
-  };
+    ${dkim}
+  '';
 }
+

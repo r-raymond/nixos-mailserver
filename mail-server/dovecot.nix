@@ -15,10 +15,22 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
 { vmail_group_name, vmail_user_name, mail_dir, enable_imap, enable_pop3,
-... }:
+certificate_scheme, cert_file, key_file }:
 let
   # maildir in format "/${domain}/${user}/"
   dovecot_maildir = "maildir:${mail_dir}/%d/%n/";
+
+  # cert :: PATH
+  cert = if certificate_scheme == 1
+         then cert_file
+         else "";
+
+  # key :: PATH
+  key = if certificate_scheme == 1
+        then key_file
+        else "";
+
+
 in
 {
   enable = true;
@@ -27,8 +39,8 @@ in
   mailGroup = vmail_group_name;
   mailUser = vmail_user_name;
   mailLocation = dovecot_maildir;
-  #sslServerCert = "/etc/nixos/cert/${cert_file}"; // TODO: Define
-  #sslServerKey = "/etc/nixos/cert/${key_file}";   // TODO: Define
+  sslServerCert = cert;
+  sslServerKey = key;
   enableLmtp = true;
   extraConfig = ''
     #Extra Config

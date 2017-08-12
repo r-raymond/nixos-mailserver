@@ -89,6 +89,9 @@ let
   cert_file = "/root/mail-server.crt";
   key_file = "/root/mail-server.key";
 
+  # Sceme 2)
+  cert_folder = "/root/certs";
+
   #
   # Whether to enable imap / pop3. Both variants are only supported in the
   # (sane) startTLS configuration. (TODO: Allow SSL ports). The ports are
@@ -119,7 +122,8 @@ in
 {
   services = import ./mail-server/services.nix {
     inherit mail_dir vmail_user_name vmail_group_name valiases domain
-            enable_imap enable_pop3;
+            enable_imap enable_pop3 virus_scanning dkim_signing
+            certificate_scheme cert_file key_file;
   };
 
   environment = import ./mail-server/environment.nix {
