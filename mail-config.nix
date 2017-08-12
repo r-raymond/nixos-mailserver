@@ -17,9 +17,31 @@
 { config, pkgs, ... }:
 
 let
+
+  #
+  # The domain that this mail server serves. So far only one domain is supported
+  #
   domain = "example.com";
+
+  #
+  # The prefix of the FQDN of the server. In this example the FQDN of the server
+  # is given by 'mail.example.com'
+  #
   host_prefix = "mail";
+
+  #
+  # The login account of the domain. Every account is mapped to a unix user,
+  # e.g. `user1@example.com`. 
+  #
   login_accounts = [ "user1" "user2" ];
+
+  #
+  # Virtual Aliases. A virtual alias { from = "info"; to = "user1"; } means that
+  # all mail to `info@example.com` is forwarded to `user1@example.com`. Note
+  # that it is expected that `postmaster@example.com` and `abuse@example.com` is
+  # forwarded to some valid email address. (Alternatively you can create login
+  # accounts for `postmaster` and (or) `abuse`).
+  #
   valiases = [
     { from = "info";
       to = "user1";
@@ -31,17 +53,53 @@ let
       to = "user1";
     }
   ];
-  extra_vaccounts = [ "localuser" "user1" ];
+
+  #
+  # The unix UID where the login_accounts are created. 5000 means that the first
+  # user will get 5000, the second 5001, ...
+  #
   vmail_id_start = 5000;
+
+  #
+  # The user name and group name of the user that owns the directory where all
+  # the mail is stored.
+  #
   vmail_user_name = "vmail";
   vmail_group_name = "vmail";
+
+  #
+  # Where to store the mail.
+  #
   mail_dir = "/var/vmail";
+
+  #
+  # Certificate Files. There are three options for these.
+  #
+  # 1) You specify locations and manually copy certificates there.
+  # 2) You let the server create new (self signed) certificates on the fly.
+  # 3) You let the server create a certificate via `Let's Encrypt`. Not that
+  #    this implies that a stripped down webserver has to be started.
+  #
   cert_file = "mail-server.crt";
   key_file = "mail-server.key";
+
+  #
+  # Whether to enable imap / pop3. Both variants are only supported in the
+  # (sane) startTLS configuration. (TODO: Allow SSL ports). The ports are
+  #
+  # 110 - Pop3
+  # 143 - IMAP
+  # 587 - SMTP with login
+  #
   enable_imap = true;
   enable_pop3 = false;
   imap_ssl = false;
   pop3_ssl = false;
+
+  #
+  # Whether to activate virus scanning. Note that virus scanning is _very_
+  # expensive memory wise.
+  #
   virus_scanning = false;
 in
 {

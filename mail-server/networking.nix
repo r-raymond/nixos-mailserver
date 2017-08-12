@@ -14,10 +14,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ domain, host_prefix, ... }:
+{ domain, host_prefix }:
 
 {
-  hostName = host_prefix + "." + domain;
+  hostName = "${host_prefix}.${domain}";
 
   firewall = {
     enable = true;
