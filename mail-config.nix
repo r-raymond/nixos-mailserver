@@ -77,11 +77,17 @@ let
   #
   # 1) You specify locations and manually copy certificates there.
   # 2) You let the server create new (self signed) certificates on the fly.
-  # 3) You let the server create a certificate via `Let's Encrypt`. Not that
-  #    this implies that a stripped down webserver has to be started.
+  # 3) You let the server create a certificate via `Let's Encrypt`. Note that
+  #    this implies that a stripped down webserver has to be started. This also
+  #    implies that the FQDN must be set as an `A` record to point to the IP of
+  #    the server. TODO: Explain more details
   #
-  cert_file = "mail-server.crt";
-  key_file = "mail-server.key";
+  # TODO: Only certificate scheme 1) works as of yet.
+  certificate_scheme = 1;
+
+  # Sceme 1)
+  cert_file = "/root/mail-server.crt";
+  key_file = "/root/mail-server.key";
 
   #
   # Whether to enable imap / pop3. Both variants are only supported in the
@@ -102,6 +108,13 @@ let
   # TODO: Implement
   #
   virus_scanning = false;
+
+  #
+  # Whether to activate dkim signing.
+  # TODO: Explain how to put signature into domain record
+  # TODO: Implement
+  #
+  dkim_signing = true;
 in
 {
   services = import ./mail-server/services.nix {
