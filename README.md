@@ -13,7 +13,7 @@
     - [x] lmpto with postfix
     - [x] creates maildir folders, saves mails
     - [x] imap retrieval
-    - [ ] pop3 retrieval (to check)
+    - [x] pop3 retrieval
  * Certificates
     - [x] manual certificates
     - [x] on the fly creation
