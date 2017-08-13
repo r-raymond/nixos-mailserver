@@ -51,4 +51,8 @@ in
     inherit vmail_group_name vmail_user_name mail_dir enable_imap
             enable_pop3 cert key;
   };
+
+  clamav = import ./clamav.nix {
+    inherit virus_scanning;
+  };
 }

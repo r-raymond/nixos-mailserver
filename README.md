@@ -22,7 +22,7 @@
     - [x] scans emails
     - [ ] Dovecot moves spam to spam folder (to check)
  * Virus Scanning
-    - [ ] TODO: Implement
+    - [x] Checks incoming mail for viruses
  * DKIM Signing
     - [ ] TODO: Implement
  * User Management

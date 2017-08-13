@@ -61,8 +61,6 @@ in
     disable_vrfy_command = yes
     message_size_limit = 20971520
 
-    milter_rcpt_macros = i {rcpt_addr}
-
     # virtual mail system
     virtual_uid_maps = static:5000
     virtual_gid_maps = static:5000

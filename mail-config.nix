@@ -123,9 +123,8 @@ let
   #
   # Whether to activate virus scanning. Note that virus scanning is _very_
   # expensive memory wise.
-  # TODO: Implement
   #
-  virus_scanning = false;
+  virus_scanning = true;
 
   #
   # Whether to activate dkim signing.

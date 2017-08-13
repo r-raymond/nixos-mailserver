@@ -14,42 +14,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ domain, virus_scanning, dkim_signing }:
+{ virus_scanning }:
 
-let
-  clamav = if virus_scanning
-           then
-           ''
-             clamav {
-               servers = /var/run/clamav/clamd.ctl;
-             };
-           ''
-           else "";
-  dkim = if dkim_signing
-         then
-         ''
-            dkim {
-              domain {
-                key = /etc/nixos/dkim/${domain}.pem;
-                domain = "${domain}";
-                selector = "dkim";
-              };
-              sign_alg = sha256;
-              auth_only = yes;
-            }
-         ''
-         else "";
-in
 {
-  enable = true;
-  # debug = true;
-  postfix.enable = true;
-  rspamd.enable = true;
-  extraConfig =
-  ''
-    ${clamav}
-
-    ${dkim}
-  '';
+  daemon.enable = virus_scanning;
+  updater.enable = virus_scanning;
 }
 
