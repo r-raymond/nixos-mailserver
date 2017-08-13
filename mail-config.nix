@@ -105,8 +105,8 @@ let
   #
   enable_imap = true;
   enable_pop3 = false;
-  imap_ssl = false;
-  pop3_ssl = false;
+  # imap_ssl = false; #< TODO
+  # pop3_ssl = false; #< TODO
 
   #
   # Whether to activate virus scanning. Note that virus scanning is _very_
@@ -134,7 +134,7 @@ in
   };
 
   networking = import ./mail-server/networking.nix {
-    inherit domain host_prefix;
+    inherit domain host_prefix enable_imap enable_pop3;
   };
 
   systemd = import ./mail-server/systemd.nix {
