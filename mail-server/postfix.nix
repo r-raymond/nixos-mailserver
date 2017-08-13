@@ -34,14 +34,22 @@ let
   # vhosts_file :: Path
   vhosts_file = builtins.toFile "vhosts" domain;
 
+  # vaccounts_file :: Path
+  # see
+  # https://blog.grimneko.de/2011/12/24/a-bunch-of-tips-for-improving-your-postfix-setup/
+  # for details on how this file looks. By using the same file as valiases,
+  # every alias is owned (uniquely) by its user.
+  vaccounts_file = valiases_file;
+
 in
 {
   enable = true;
   networksStyle = "host";
   mapFiles."valias" = valiases_file;
-  #  mapFiles."vaccounts" = vaccounts_file; 
+  mapFiles."vaccounts" = vaccounts_file; 
   sslCert = cert;
   sslKey = key;
+  enableSubmission = true;
 
   extraConfig = 
   ''
@@ -70,19 +78,17 @@ in
     smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
   '';
 
-  extraMasterConf =
-  ''
-    # Extra Config
-    #submission inet n - n - - smtpd
-    #  -o smtpd_tls_security_level=encrypt
-    #  -o smtpd_sasl_auth_enable=yes
-    #  -o smtpd_sasl_type=dovecot
-    #  -o smtpd_sasl_path=private/auth
-    #  -o smtpd_sasl_security_options=noanonymous
-    #  -o smtpd_sasl_local_domain=$myhostname
-    #  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
-    #  -o smtpd_sender_login_maps=hash:/etc/postfix/virtual
-    #  -o smtpd_sender_restrictions=reject_sender_login_mismatch
-    #  -o smtpd_recipient_restrictions=reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject
-  '';
+  submissionOptions =
+  { 
+      smtpd_tls_security_level = "encrypt";
+      smtpd_sasl_auth_enable = "yes";
+      smtpd_sasl_type = "dovecot";
+      smtpd_sasl_path = "private/auth";
+      smtpd_sasl_security_options = "noanonymous";
+      smtpd_sasl_local_domain = "$myhostname";
+      smtpd_client_restrictions = "permit_sasl_authenticated,reject";
+      smtpd_sender_login_maps = "hash:/etc/postfix/vaccounts";
+      smtpd_sender_restrictions = "reject_sender_login_mismatch";
+      smtpd_recipient_restrictions = "reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject";
+  };
 }

@@ -7,7 +7,7 @@
  * Postfix
     - [x] starts
     - [x] receive email on port 25
-    - [ ] receive email on submission port 587 (to check)
+    - [x] receive email on submission port 587
     - [x] lmtp with dovecot
  * Dovecot
     - [x] lmpto with postfix
@@ -73,3 +73,7 @@ nixops ssh -d mail mailserver
  * configurations that need to be made after `nixos-rebuild switch`
  * complicated storage schemes
  * webclients / http-servers
+
+## Ideas for future releases
+ * Fine grained control over ownership of aliases
+ * More than one domain
