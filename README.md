@@ -3,6 +3,32 @@
 
 ## Work in progress...
 
+### What works and what is missing for first release
+ * Postfix
+    - [x] starts
+    - [x] receive email on port 25
+    - [ ] receive email on submission port 587 (to check)
+    - [x] lmtp with dovecot
+ * Dovecot
+    - [x] lmpto with postfix
+    - [x] creates maildir folders, saves mails
+    - [x] imap retrieval
+    - [ ] pop3 retrieval (to check)
+ * Certificates
+    - [x] manual certificates
+    - [x] on the fly creation
+    - [ ] TODO: Let's Encrypt
+ * Spam Filtering
+    - [x] scans emails
+    - [ ] Dovecot moves spam to spam folder (to check)
+ * Virus Scanning
+    - [ ] TODO: Implement
+ * DKIM Signing
+    - [ ] TODO: Implement
+ * User Management
+    - [x] Creates Users
+    - [ ] TODO: Set Passwords in config file
+
 ### How to Test
 
 You can test the setup via `nixops`. After installation, do
