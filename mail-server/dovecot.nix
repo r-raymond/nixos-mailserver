@@ -14,22 +14,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ vmail_group_name, vmail_user_name, mail_dir, enable_imap, enable_pop3,
-certificate_scheme, cert_file, key_file }:
+{ vmail_group_name, vmail_user_name, mail_dir, enable_imap, enable_pop3, cert,
+key }:
+
 let
   # maildir in format "/${domain}/${user}/"
   dovecot_maildir = "maildir:${mail_dir}/%d/%n/";
-
-  # cert :: PATH
-  cert = if certificate_scheme == 1
-         then cert_file
-         else "";
-
-  # key :: PATH
-  key = if certificate_scheme == 1
-        then key_file
-        else "";
-
 
 in
 {

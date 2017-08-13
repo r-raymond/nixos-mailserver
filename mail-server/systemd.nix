@@ -14,8 +14,29 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ mail_dir, vmail_group_name }:
+{ pkgs, mail_dir, vmail_group_name, certificate_scheme, cert_dir, host_prefix,
+domain }:
 
+let
+  create_certificate = if certificate_scheme == 2 then
+        ''
+          # Create certificates if they do not exist yet
+          dir="${cert_dir}"
+          fqdn="${host_prefix}.${domain}"
+          case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
+          key="''${dir}/key-${domain}.pem";
+          cert="''${dir}/cert-${domain}.pem";
+
+          if [ ! -f "''${key}" ] || [ ! -f "''${cert}" ]
+          then
+              mkdir -p "${cert_dir}"
+              (umask 077; "${pkgs.openssl}/bin/openssl" genrsa -out "''${key}" 2048) &&
+                  "${pkgs.openssl}/bin/openssl" req -new -key "''${key}" -x509 -subj "/CN=''${fqdn}" \
+                          -days 3650 -out "''${cert}"
+          fi
+        ''
+        else "";
+in
 {
   # Set the correct permissions for dovecot vmail folder. See
   # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>. We choose
@@ -23,8 +44,18 @@
   # dovecot gets started.
   services.dovecot2.preStart =
   ''
-    mkdir -p ${mail_dir}
-    chgrp ${vmail_group_name} ${mail_dir}
-    chmod 02770 ${mail_dir}
+    # Create mail directory and set permissions
+    mkdir -p "${mail_dir}"
+    chgrp "${vmail_group_name}" "${mail_dir}"
+    chmod 02770 "${mail_dir}"
+
+    ${create_certificate}
+  '';
+
+  # Check for certificate before both postfix and dovecot to make sure it
+  # exists.
+  services.postfix.preStart = 
+  ''
+    ${create_certificate}
   '';
 }

@@ -82,15 +82,18 @@ let
   #    implies that the FQDN must be set as an `A` record to point to the IP of
   #    the server. TODO: Explain more details
   #
-  # TODO: Only certificate scheme 1) works as of yet.
-  certificate_scheme = 1;
+  # TODO: Only certificate scheme 1) and 2) work as of yet.
+  certificate_scheme = 2;
 
   # Sceme 1)
   cert_file = "/root/mail-server.crt";
   key_file = "/root/mail-server.key";
 
   # Sceme 2)
-  cert_folder = "/root/certs";
+  # This is the folder where the certificate will be created. The name is
+  # hardcoded to "cert-${domain}.pem" and "key-${domain}.pem" and the
+  # certificate is valid for 10 years.
+  cert_dir = "/root/certs";
 
   #
   # Whether to enable imap / pop3. Both variants are only supported in the
@@ -123,11 +126,11 @@ in
   services = import ./mail-server/services.nix {
     inherit mail_dir vmail_user_name vmail_group_name valiases domain
             enable_imap enable_pop3 virus_scanning dkim_signing
-            certificate_scheme cert_file key_file;
-  };
+            certificate_scheme cert_file key_file cert_dir;
+ };
 
   environment = import ./mail-server/environment.nix {
-    inherit pkgs;
+    inherit pkgs certificate_scheme;
   };
 
   networking = import ./mail-server/networking.nix {
@@ -135,7 +138,8 @@ in
   };
 
   systemd = import ./mail-server/systemd.nix {
-    inherit mail_dir vmail_group_name;
+    inherit mail_dir vmail_group_name certificate_scheme cert_dir host_prefix
+            domain pkgs;
   };
 
   users = import ./mail-server/users.nix {

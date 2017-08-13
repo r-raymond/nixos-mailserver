@@ -16,8 +16,23 @@
 
 { mail_dir, vmail_user_name, vmail_group_name, valiases, domain, enable_imap,
 enable_pop3, virus_scanning, dkim_signing, certificate_scheme, cert_file,
-key_file }:
+key_file, cert_dir }:
 
+let
+  # cert :: PATH
+  cert = if certificate_scheme == 1
+         then cert_file
+         else if certificate_scheme == 2
+              then "${cert_dir}/cert-${domain}.pem"
+              else "";
+
+  # key :: PATH
+  key = if certificate_scheme == 1
+        then key_file
+        else if certificate_scheme == 2
+             then "${cert_dir}/key-${domain}.pem"
+             else "";
+in
 {
   # rspamd
   rspamd = {
@@ -29,11 +44,11 @@ key_file }:
   };
 
   postfix = import ./postfix.nix {
-    inherit mail_dir domain valiases certificate_scheme cert_file key_file;
+    inherit mail_dir domain valiases cert key;
   };
 
   dovecot2 = import ./dovecot.nix {
     inherit vmail_group_name vmail_user_name mail_dir enable_imap
-            enable_pop3 certificate_scheme cert_file key_file;
+            enable_pop3 cert key;
   };
 }

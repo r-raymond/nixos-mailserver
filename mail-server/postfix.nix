@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ mail_dir, domain, valiases, certificate_scheme, cert_file, key_file }:
+{ mail_dir, domain, valiases, cert, key }:
 
 let
   # valiasToString :: { from = "..."; to = "..." } -> String
@@ -33,16 +33,6 @@ let
 
   # vhosts_file :: Path
   vhosts_file = builtins.toFile "vhosts" domain;
-
-  # cert :: PATH
-  cert = if certificate_scheme == 1
-         then cert_file
-         else "";
-
-  # key :: PATH
-  key = if certificate_scheme == 1
-        then key_file
-        else "";
 
 in
 {
