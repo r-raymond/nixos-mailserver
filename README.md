@@ -10,7 +10,7 @@
     - [x] receive email on submission port 587
     - [x] lmtp with dovecot
  * Dovecot
-    - [x] lmpto with postfix
+    - [x] lmtp with postfix
     - [x] creates maildir folders, saves mails
     - [x] imap retrieval
     - [x] pop3 retrieval
@@ -27,7 +27,7 @@
     - [ ] TODO: Implement
  * User Management
     - [x] Creates Users
-    - [ ] TODO: Set Passwords in config file
+    - [x] Set Passwords in config file
 
 ### How to Test
 

@@ -31,9 +31,21 @@ let
 
   #
   # The login account of the domain. Every account is mapped to a unix user,
-  # e.g. `user1@example.com`. 
+  # e.g. `user1@example.com`. To generate the passwords use `mkpasswd` as
+  # follows
   #
-  login_accounts = [ "user1" "user2" ];
+  # ```
+  # mkpasswd -m sha-512 "super secret password"
+  # ```
+  #
+  login_accounts = [
+    { name = "user1";
+      password = "$6$evQJs5CFQyPAW09S$Cn99Y8.QjZ2IBnSu4qf1vBxDRWkaIZWOtmu1Ddsm3.H3CFpeVc0JU4llIq8HQXgeatvYhh5O33eWG3TSpjzu6/";
+    }
+    { name = "user2";
+      password = "$6$oE0ZNv2n7Vk9gOf$9xcZWCCLGdMflIfuA0vR1Q1Xblw6RZqPrP94mEit2/81/7AKj2bqUai5yPyWE.QYPyv6wLMHZvjw3Rlg7yTCD/";
+    }
+  ];
 
   #
   # Virtual Aliases. A virtual alias { from = "info"; to = "user1"; } means that

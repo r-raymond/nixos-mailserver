@@ -29,9 +29,10 @@ let
 
   # accountsToUser :: String -> UserRecord
   accountsToUser = x: {
-    name = x + "@" + domain;
+    name = x.name + "@" + domain;
     isNormalUser = false;
     group = vmail_group_name;
+    hashedPassword = x.password;
   };
 
   # mail_user :: [ UserRecord ]
