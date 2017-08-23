@@ -39,10 +39,6 @@ in
     enable = true;
   };
 
-  opendkim = import ./opendkim.nix {
-    inherit dkim_signing dkim_dir dkim_selector domain;
-  };
-
   rmilter = import ./rmilter.nix {
     inherit domain virus_scanning dkim_signing dkim_selector dkim_dir;
   };
