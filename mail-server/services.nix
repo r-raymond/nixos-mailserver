@@ -15,8 +15,8 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
 { mail_dir, vmail_user_name, vmail_group_name, valiases, domain, enable_imap,
-enable_pop3, virus_scanning, dkim_signing, certificate_scheme, cert_file,
-key_file, cert_dir }:
+enable_pop3, virus_scanning, dkim_signing, dkim_selector, dkim_dir,
+certificate_scheme, cert_file, key_file, cert_dir }:
 
 let
   # cert :: PATH
@@ -39,8 +39,12 @@ in
     enable = true;
   };
 
+  opendkim = import ./opendkim.nix {
+    inherit dkim_signing dkim_dir dkim_selector domain;
+  };
+
   rmilter = import ./rmilter.nix {
-    inherit domain virus_scanning dkim_signing;
+    inherit domain virus_scanning dkim_signing dkim_selector dkim_dir;
   };
 
   postfix = import ./postfix.nix {

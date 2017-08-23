@@ -105,7 +105,7 @@ let
   # This is the folder where the certificate will be created. The name is
   # hardcoded to "cert-${domain}.pem" and "key-${domain}.pem" and the
   # certificate is valid for 10 years.
-  cert_dir = "/root/certs";
+  cert_dir = "/var/certs";
 
   #
   # Whether to enable imap / pop3. Both variants are only supported in the
@@ -124,7 +124,7 @@ let
   # Whether to activate virus scanning. Note that virus scanning is _very_
   # expensive memory wise.
   #
-  virus_scanning = true;
+  virus_scanning = false;
 
   #
   # Whether to activate dkim signing.
@@ -132,12 +132,14 @@ let
   # TODO: Implement
   #
   dkim_signing = true;
+  dkim_selector = "mail";
+  dkim_dir = "/var/dkim";
 in
 {
   services = import ./mail-server/services.nix {
     inherit mail_dir vmail_user_name vmail_group_name valiases domain
-            enable_imap enable_pop3 virus_scanning dkim_signing
-            certificate_scheme cert_file key_file cert_dir;
+            enable_imap enable_pop3 virus_scanning dkim_signing dkim_selector
+            dkim_dir certificate_scheme cert_file key_file cert_dir;
  };
 
   environment = import ./mail-server/environment.nix {
@@ -150,7 +152,7 @@ in
 
   systemd = import ./mail-server/systemd.nix {
     inherit mail_dir vmail_group_name certificate_scheme cert_dir host_prefix
-            domain pkgs;
+            domain pkgs dkim_selector dkim_dir;
   };
 
   users = import ./mail-server/users.nix {

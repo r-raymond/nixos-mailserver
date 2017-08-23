@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ domain, virus_scanning, dkim_signing }:
+{ domain, virus_scanning, dkim_signing, dkim_dir, dkim_selector }:
 
 let
   clamav = if virus_scanning
@@ -30,9 +30,9 @@ let
          ''
             dkim {
               domain {
-                key = /etc/nixos/dkim/${domain}.pem;
-                domain = "${domain}";
-                selector = "dkim";
+                key = "${dkim_dir}";
+                domain = "*";
+                selector = "${dkim_selector}";
               };
               sign_alg = sha256;
               auth_only = yes;

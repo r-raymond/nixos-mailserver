@@ -15,7 +15,7 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
 { pkgs, mail_dir, vmail_group_name, certificate_scheme, cert_dir, host_prefix,
-domain }:
+domain, dkim_selector, dkim_dir}:
 
 let
   create_certificate = if certificate_scheme == 2 then
@@ -36,6 +36,24 @@ let
           fi
         ''
         else "";
+
+  dkim_key = "${dkim_dir}/${dkim_selector}.private";
+  dkim_txt = "${dkim_dir}/${dkim_selector}.txt";
+  create_dkim_cert =
+        ''
+          # Create dkim dir
+          mkdir -p "${dkim_dir}"
+          chown opendkim:rmilter "${dkim_dir}"
+
+          if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
+          then
+
+              ${pkgs.opendkim}/bin/opendkim-genkey -s "${dkim_selector}" \
+                                                   -d ${domain} \
+                                                   --directory="${dkim_dir}"
+              chown opendkim:rmilter "${dkim_key}"
+          fi
+        '';
 in
 {
   # Set the correct permissions for dovecot vmail folder. See
@@ -54,8 +72,12 @@ in
 
   # Check for certificate before both postfix and dovecot to make sure it
   # exists.
-  services.postfix.preStart = 
-  ''
-    ${create_certificate}
-  '';
+  services.postfix.after = ["dovecot2.service"];
+  services.opendkim = {
+    after = ["dovecot2.service"];
+    preStart =
+    ''
+      ${create_dkim_cert}
+    '';
+  };
 }
