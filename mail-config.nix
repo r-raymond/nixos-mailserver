@@ -129,7 +129,6 @@ let
   #
   # Whether to activate dkim signing.
   # TODO: Explain how to put signature into domain record
-  # TODO: Implement
   #
   dkim_signing = true;
   dkim_selector = "mail";

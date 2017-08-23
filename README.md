@@ -17,14 +17,13 @@
  * Certificates
     - [x] manual certificates
     - [x] on the fly creation
-    - [ ] TODO: Let's Encrypt
+    - [ ] TODO: Let's Encrypt (postponed to future release)
  * Spam Filtering
     - [x] scans emails
-    - [ ] Dovecot moves spam to spam folder (to check)
  * Virus Scanning
     - [x] Checks incoming mail for viruses
  * DKIM Signing
-    - [ ] TODO: Implement
+    - [x] Works
  * User Management
     - [x] Creates Users
     - [x] Set Passwords in config file
@@ -77,3 +76,4 @@ nixops ssh -d mail mailserver
 ## Ideas for future releases
  * Fine grained control over ownership of aliases
  * More than one domain
+ * Let's Encrypt
