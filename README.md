@@ -3,7 +3,7 @@
 
 ## Work in progress...
 
-### What works and what is missing for first release
+### What works and what is missing for first release v 1.0
  * Postfix
     - [x] starts
     - [x] receive email on port 25
@@ -27,6 +27,16 @@
  * User Management
     - [x] Creates Users
     - [x] Set Passwords in config file
+ * Update Documentation
+    - [ ] Remove all `TODO`s
+    - [ ] Write a Starter Guide
+    - [ ] Make a Small Homepage
+    - [ ] Flesh Out Documentation
+ * Test
+    - [ ] Test
+    - [ ] Squash Bugs
+    - [ ] Test
+    - [ ] ...
 
 ### How to Test
 
