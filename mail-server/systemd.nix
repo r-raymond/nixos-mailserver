@@ -77,7 +77,6 @@ in
   };
 
   services.rmilter = {
-    after = ["dovecot2.service"];
     preStart =
     ''
       ${create_dkim_cert}
