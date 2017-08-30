@@ -43,7 +43,7 @@ let
         ''
           # Create dkim dir
           mkdir -p "${dkim_dir}"
-          chown opendkim:rmilter "${dkim_dir}"
+          chown rmilter:rmilter "${dkim_dir}"
 
           if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
           then
@@ -51,7 +51,7 @@ let
               ${pkgs.opendkim}/bin/opendkim-genkey -s "${dkim_selector}" \
                                                    -d ${domain} \
                                                    --directory="${dkim_dir}"
-              chown opendkim:rmilter "${dkim_key}"
+              chown rmilter:rmilter "${dkim_key}"
           fi
         '';
 in
@@ -76,7 +76,7 @@ in
     '';
   };
 
-  services.opendkim = {
+  services.rmilter = {
     after = ["dovecot2.service"];
     preStart =
     ''
