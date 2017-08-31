@@ -20,7 +20,6 @@
   hostName = "${host_prefix}.${domain}";
 
   firewall = {
-    enable = true;
     allowedTCPPorts = [ 25 587 ]
       ++ (if enable_imap then [ 143 ] else [])
       ++ (if enable_pop3 then [ 110 ] else []);
