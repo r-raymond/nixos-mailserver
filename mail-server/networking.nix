@@ -17,7 +17,7 @@
 { domain, host_prefix, enable_imap, enable_pop3 }:
 
 {
-  #hostName = "${host_prefix}.${domain}";
+  hostName = "${host_prefix}.${domain}";
 
   firewall = {
     enable = true;
