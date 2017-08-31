@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ mail_dir, vmail_user_name, vmail_group_name, valiases, domain, enable_imap,
+{ lib, mail_dir, vmail_user_name, vmail_group_name, valiases, domain, enable_imap,
 enable_pop3, virus_scanning, dkim_signing, dkim_selector, dkim_dir,
 certificate_scheme, cert_file, key_file, cert_dir }:
 
@@ -44,7 +44,7 @@ in
   };
 
   postfix = import ./postfix.nix {
-    inherit mail_dir domain valiases cert key;
+    inherit lib mail_dir domain valiases cert key;
   };
 
   dovecot2 = import ./dovecot.nix {
