@@ -16,7 +16,6 @@
 
 import ./../../nixpkgs/nixos/tests/make-test.nix {
 
-  # Either the configuration of a single machine:
   machine =
     { config, pkgs, ... }:
     {
