@@ -252,6 +252,7 @@ in
     ./mail-server/users.nix
     ./mail-server/environment.nix
     ./mail-server/networking.nix
+    ./mail-server/systemd.nix
   ];
 
   config = mkIf cfg.enable {
@@ -262,11 +263,5 @@ in
               certificateScheme certificateFile keyFile certificateDirectory virusScanning;
     };
 
-    systemd = import ./mail-server/systemd.nix {
-      inherit pkgs;
-      inherit (cfg) mailDirectory vmailGroupName certificateScheme
-      certificateDirectory
-              hostPrefix domain dkimSelector dkimKeyDirectory;
-    };
   };
 }
