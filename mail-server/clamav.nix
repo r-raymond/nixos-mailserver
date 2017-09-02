@@ -14,10 +14,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ virus_scanning }:
+{ config, pkgs, lib, ... }:
 
+let
+  cfg = config.mailserver;
+in
 {
-  daemon.enable = virus_scanning;
-  updater.enable = virus_scanning;
+  config = lib.mkIf cfg.virus_scanning {
+    services.clamav.daemon.enable = true;
+    services.clamav.updater.enable = true;
+  };
 }
 

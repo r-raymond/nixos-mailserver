@@ -82,6 +82,7 @@ in
         mkpasswd -m sha-512 "super secret password"
         ```
       '';
+      default = {};
     };
 
     valiases = mkOption {
@@ -98,6 +99,7 @@ in
         forwarded to some valid email address. (Alternatively you can create login
         accounts for `postmaster` and (or) `abuse`).
       '';
+      default = {};
     };
 
     vmail_id_start = mkOption {
@@ -245,12 +247,16 @@ in
     };
   };
 
+  imports = [
+    ./mail-server/clamav.nix
+  ];
+
   config = mkIf cfg.enable {
     services = import ./mail-server/services.nix {
       inherit lib;
       inherit (cfg) mail_dir vmail_user_name vmail_group_name valiases domain
-              enable_imap enable_pop3 virus_scanning dkim_signing dkim_selector
-              dkim_dir certificate_scheme cert_file key_file cert_dir;
+              enable_imap enable_pop3 dkim_signing dkim_selector dkim_dir
+              certificate_scheme cert_file key_file cert_dir virus_scanning;
     };
 
     environment = import ./mail-server/environment.nix {
