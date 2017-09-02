@@ -14,27 +14,27 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ vmail_group_name, vmail_user_name, mail_dir, enable_imap, enable_pop3, cert,
+{ vmailGroupName, vmailUserName, mailDirectory, enable_imap, enable_pop3, cert,
 key }:
 
 let
   # maildir in format "/${domain}/${user}/"
-  dovecot_maildir = "maildir:${mail_dir}/%d/%n/";
+  dovecot_maildir = "maildir:${mailDirectory}/%d/%n/";
 
 in
 {
   enable = true;
   enableImap = enable_imap;
   enablePop3 = enable_pop3;
-  mailGroup = vmail_group_name;
-  mailUser = vmail_user_name;
+  mailGroup = vmailGroupName;
+  mailUser = vmailUserName;
   mailLocation = dovecot_maildir;
   sslServerCert = cert;
   sslServerKey = key;
   enableLmtp = true;
   extraConfig = ''
     #Extra Config
-    mail_access_groups = ${vmail_group_name}
+    mail_access_groups = ${vmailGroupName}
     ssl = required
 
     service lmtp {

@@ -32,7 +32,7 @@ in
       description = "The domain that this mail server serves. So far only one domain is supported";
     };
 
-    host_prefix = mkOption {
+    hostPrefix = mkOption {
       type = types.str;
       default = "mail";
       description = ''
@@ -41,7 +41,7 @@ in
       '';
     };
 
-    login_accounts = mkOption {
+    loginAccounts = mkOption {
       type = types.loaOf (types.submodule ({ name, ... }: {
         options = {
           name = mkOption {
@@ -85,8 +85,8 @@ in
       default = {};
     };
 
-    valiases = mkOption {
-      type = types.attrsOf (types.enum (builtins.attrNames cfg.login_accounts));
+    virtualAliases = mkOption {
+      type = types.attrsOf (types.enum (builtins.attrNames cfg.loginAccounts));
       example = {
         info = "user1";
         postmaster = "user1";
@@ -102,16 +102,16 @@ in
       default = {};
     };
 
-    vmail_id_start = mkOption {
+    vmailUIDStart = mkOption {
       type = types.int;
       default = 5000;
       description = ''
-        The unix UID where the login_accounts are created. 5000 means that the first
+        The unix UID where the loginAccounts are created. 5000 means that the first
         user will get 5000, the second 5001, ...
       '';
     };
 
-    vmail_user_name = mkOption {
+    vmailUserName = mkOption {
       type = types.str;
       default = "vmail";
       description = ''
@@ -120,7 +120,7 @@ in
       '';
     };
 
-    vmail_group_name = mkOption {
+    vmailGroupName = mkOption {
       type = types.str;
       default = "vmail";
       description = ''
@@ -129,7 +129,7 @@ in
       '';
     };
 
-    mail_dir = mkOption {
+    mailDirectory = mkOption {
       type = types.string;
       default = "/var/vmail";
       description = ''
@@ -137,7 +137,7 @@ in
       '';
     };
 
-    certificate_scheme = mkOption {
+    certificateScheme = mkOption {
       type = types.enum [ 1 2 ];
       default = 2;
       description = ''
@@ -154,7 +154,7 @@ in
       '';
     };
 
-    cert_file = mkOption {
+    certificateFile = mkOption {
       type = types.path;
       example = "/root/mail-server.crt";
       description = ''
@@ -163,7 +163,7 @@ in
       '';
     };
 
-    key_file = mkOption {
+    keyFile = mkOption {
       type = types.path;
       example = "/root/mail-server.key";
       description = ''
@@ -212,7 +212,7 @@ in
     # imapSsl = mkOption {} #< TODO
     # pop3Ssl = mkOption {} #< TODO
 
-    virus_scanning = mkOption {
+    virusScanning = mkOption {
       type = types.bool;
       default = false;
       description = ''
@@ -254,30 +254,31 @@ in
   config = mkIf cfg.enable {
     services = import ./mail-server/services.nix {
       inherit lib;
-      inherit (cfg) mail_dir vmail_user_name vmail_group_name valiases domain
+      inherit (cfg) mailDirectory vmailUserName vmailGroupName virtualAliases domain
               enable_imap enable_pop3 dkim_signing dkim_selector dkim_dir
-              certificate_scheme cert_file key_file cert_dir virus_scanning;
+              certificateScheme certificateFile keyFile cert_dir virusScanning;
     };
 
     environment = import ./mail-server/environment.nix {
       inherit pkgs;
-      inherit (cfg) certificate_scheme;
+      inherit (cfg) certificateScheme;
     };
 
     networking = import ./mail-server/networking.nix {
-      inherit (cfg) domain host_prefix enable_imap enable_pop3;
+      inherit (cfg) domain hostPrefix enable_imap enable_pop3;
     };
 
     systemd = import ./mail-server/systemd.nix {
       inherit pkgs;
-      inherit (cfg) mail_dir vmail_group_name certificate_scheme cert_dir host_prefix
-              domain dkim_selector dkim_dir;
+      inherit (cfg) mailDirectory vmailGroupName certificateScheme cert_dir
+              hostPrefix domain dkim_selector dkim_dir;
     };
 
     users = import ./mail-server/users.nix {
       inherit lib;
-      inherit (cfg) vmail_id_start vmail_user_name vmail_group_name domain mail_dir
-              login_accounts;
+      inherit (cfg) vmailUIDStart vmailUserName vmailGroupName domain
+      mailDirectory
+              loginAccounts;
     };
   };
 }

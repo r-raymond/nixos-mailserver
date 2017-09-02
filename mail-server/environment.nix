@@ -14,10 +14,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ pkgs, certificate_scheme }:
+{ pkgs, certificateScheme }:
 
 {
   systemPackages = with pkgs; [
     dovecot opendkim openssh postfix clamav rspamd rmilter
-  ] ++ (if certificate_scheme == 2 then [ openssl ] else []);
+  ] ++ (if certificateScheme == 2 then [ openssl ] else []);
 }

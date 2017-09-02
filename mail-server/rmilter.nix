@@ -14,10 +14,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ domain, virus_scanning, dkim_signing, dkim_dir, dkim_selector }:
+{ domain, virusScanning, dkim_signing, dkim_dir, dkim_selector }:
 
 let
-  clamav = if virus_scanning
+  clamav = if virusScanning
            then
            ''
              clamav {

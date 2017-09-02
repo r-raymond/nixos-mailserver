@@ -14,15 +14,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ lib, mail_dir, domain, valiases, cert, key }:
+{ lib, mailDirectory, domain, virtualAliases, cert, key }:
 
 let
   # valiases_postfix :: [ String ]
   valiases_postfix = map
     (from:
-      let to = valiases.${from};
+      let to = virtualAliases.${from};
       in "${from}@${domain} ${to}@${domain}")
-    (builtins.attrNames valiases);
+    (builtins.attrNames virtualAliases);
 
   # valiases_file :: Path
   valiases_file = builtins.toFile "valias" (lib.concatStringsSep "\n" valiases_postfix);
@@ -60,7 +60,7 @@ in
     # virtual mail system
     virtual_uid_maps = static:5000
     virtual_gid_maps = static:5000
-    virtual_mailbox_base = ${mail_dir}
+    virtual_mailbox_base = ${mailDirectory}
     virtual_mailbox_domains = ${vhosts_file}
     virtual_alias_maps = hash:/var/lib/postfix/conf/valias
     virtual_transport = lmtp:unix:private/dovecot-lmtp

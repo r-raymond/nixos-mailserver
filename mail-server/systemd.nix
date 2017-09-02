@@ -14,15 +14,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ pkgs, mail_dir, vmail_group_name, certificate_scheme, cert_dir, host_prefix,
+{ pkgs, mailDirectory, vmailGroupName, certificateScheme, cert_dir, hostPrefix,
 domain, dkim_selector, dkim_dir}:
 
 let
-  create_certificate = if certificate_scheme == 2 then
+  create_certificate = if certificateScheme == 2 then
         ''
           # Create certificates if they do not exist yet
           dir="${cert_dir}"
-          fqdn="${host_prefix}.${domain}"
+          fqdn="${hostPrefix}.${domain}"
           case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
           key="''${dir}/key-${domain}.pem";
           cert="''${dir}/cert-${domain}.pem";
@@ -68,9 +68,9 @@ in
     preStart = 
     ''
       # Create mail directory and set permissions
-      mkdir -p "${mail_dir}"
-      chgrp "${vmail_group_name}" "${mail_dir}"
-      chmod 02770 "${mail_dir}"
+      mkdir -p "${mailDirectory}"
+      chgrp "${vmailGroupName}" "${mailDirectory}"
+      chmod 02770 "${mailDirectory}"
 
       ${create_certificate}
     '';

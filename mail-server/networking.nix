@@ -14,10 +14,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ domain, host_prefix, enable_imap, enable_pop3 }:
+{ domain, hostPrefix, enable_imap, enable_pop3 }:
 
 {
-  #hostName = "${host_prefix}.${domain}";
+  #hostName = "${hostPrefix}.${domain}";
 
   firewall = {
     enable = true;
