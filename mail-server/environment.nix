@@ -14,10 +14,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ pkgs, certificateScheme }:
+{ config, pkgs, lib, ... }:
 
+let
+  cfg = config.mailserver;
+in
 {
-  systemPackages = with pkgs; [
-    dovecot opendkim openssh postfix clamav rspamd rmilter
-  ] ++ (if certificateScheme == 2 then [ openssl ] else []);
+  config = with cfg; lib.mkIf enable {
+    environment.systemPackages = with pkgs; [
+      dovecot opendkim openssh postfix clamav rspamd rmilter
+    ] ++ (if certificateScheme == 2 then [ openssl ] else []);
+  };
 }

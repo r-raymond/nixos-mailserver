@@ -250,6 +250,7 @@ in
   imports = [
     ./mail-server/clamav.nix
     ./mail-server/users.nix
+    ./mail-server/environment.nix
   ];
 
   config = mkIf cfg.enable {
@@ -258,11 +259,6 @@ in
       inherit (cfg) mailDirectory vmailUserName vmailGroupName virtualAliases domain
               enableImap enablePop3 dkimSigning dkimSelector dkimKeyDirectory
               certificateScheme certificateFile keyFile certificateDirectory virusScanning;
-    };
-
-    environment = import ./mail-server/environment.nix {
-      inherit pkgs;
-      inherit (cfg) certificateScheme;
     };
 
     networking = import ./mail-server/networking.nix {
