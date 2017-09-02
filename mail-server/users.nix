@@ -14,8 +14,9 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ lib, vmailUIDStart, vmailUserName, vmailGroupName, domain, mailDirectory,
-loginAccounts }:
+{ config, pkgs, lib, ... }:
+
+with config.mailserver;
 
 let
   vmail_user = [{
@@ -40,11 +41,14 @@ let
 
 in
 {
-  # set the vmail gid to a specific value
-  groups = {
-    vmail = { gid = vmailUIDStart; };
-  };
 
-  # define all users
-  extraUsers = vmail_user ++ mail_user;
+  config = lib.mkIf enable {
+    # set the vmail gid to a specific value
+    users.groups = {
+      vmail = { gid = vmailUIDStart; };
+    };
+
+    # define all users
+    users.extraUsers = vmail_user ++ mail_user;
+  };
 }

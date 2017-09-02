@@ -249,6 +249,7 @@ in
 
   imports = [
     ./mail-server/clamav.nix
+    ./mail-server/users.nix
   ];
 
   config = mkIf cfg.enable {
@@ -275,11 +276,5 @@ in
               hostPrefix domain dkimSelector dkimKeyDirectory;
     };
 
-    users = import ./mail-server/users.nix {
-      inherit lib;
-      inherit (cfg) vmailUIDStart vmailUserName vmailGroupName domain
-      mailDirectory
-              loginAccounts;
-    };
   };
 }
