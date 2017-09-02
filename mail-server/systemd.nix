@@ -56,18 +56,15 @@ let
         '';
 in
 {
-  # Set the correct permissions for dovecot vmail folder. See
-  # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>. We choose
-  # to use the systemd service to set the folder permissions whenever
-  # dovecot gets started.
+  # Make sure postfix gets started first, so that the certificates are in place
   services.dovecot2.after = [ "postfix.service" ];
 
-  # Check for certificate before both postfix and dovecot to make sure it
-  # exists.
+  # Create certificates and maildir folder
   services.postfix = {
     preStart = 
     ''
-      # Create mail directory and set permissions
+      # Create mail directory and set permissions. See
+      # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>.
       mkdir -p "${mail_dir}"
       chgrp "${vmail_group_name}" "${mail_dir}"
       chmod 02770 "${mail_dir}"
@@ -76,6 +73,7 @@ in
     '';
   };
 
+  # Create dkim certificates
   services.rmilter = {
     preStart =
     ''
