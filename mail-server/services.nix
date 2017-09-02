@@ -14,23 +14,24 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ lib, mailDirectory, vmailUserName, vmailGroupName, virtualAliases, domain, enable_imap,
-enable_pop3, virusScanning, dkim_signing, dkim_selector, dkim_dir,
-certificateScheme, certificateFile, keyFile, cert_dir }:
+{ lib, mailDirectory, vmailUserName, vmailGroupName, virtualAliases, domain,
+enableImap, enablePop3, virusScanning, dkimSigning, dkimSelector,
+dkimKeyDirectory, certificateScheme, certificateFile, keyFile,
+certificateDirectory }:
 
 let
   # cert :: PATH
   cert = if certificateScheme == 1
          then certificateFile
          else if certificateScheme == 2
-              then "${cert_dir}/cert-${domain}.pem"
+              then "${certificateDirectory}/cert-${domain}.pem"
               else "";
 
   # key :: PATH
   key = if certificateScheme == 1
         then keyFile
         else if certificateScheme == 2
-             then "${cert_dir}/key-${domain}.pem"
+             then "${certificateDirectory}/key-${domain}.pem"
              else "";
 in
 {
@@ -40,7 +41,7 @@ in
   };
 
   rmilter = import ./rmilter.nix {
-    inherit domain virusScanning dkim_signing dkim_selector dkim_dir;
+    inherit domain virusScanning dkimSigning dkimSelector dkimKeyDirectory;
   };
 
   postfix = import ./postfix.nix {
@@ -48,7 +49,7 @@ in
   };
 
   dovecot2 = import ./dovecot.nix {
-    inherit vmailGroupName vmailUserName mailDirectory enable_imap
-            enable_pop3 cert key;
+    inherit vmailGroupName vmailUserName mailDirectory enableImap
+            enablePop3 cert key;
   };
 }

@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ vmailGroupName, vmailUserName, mailDirectory, enable_imap, enable_pop3, cert,
+{ vmailGroupName, vmailUserName, mailDirectory, enableImap, enablePop3, cert,
 key }:
 
 let
@@ -24,8 +24,8 @@ let
 in
 {
   enable = true;
-  enableImap = enable_imap;
-  enablePop3 = enable_pop3;
+  enableImap = enableImap;
+  enablePop3 = enablePop3;
   mailGroup = vmailGroupName;
   mailUser = vmailUserName;
   mailLocation = dovecot_maildir;

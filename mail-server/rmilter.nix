@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ domain, virusScanning, dkim_signing, dkim_dir, dkim_selector }:
+{ domain, virusScanning, dkimSigning, dkimKeyDirectory, dkimSelector }:
 
 let
   clamav = if virusScanning
@@ -25,14 +25,14 @@ let
              };
            ''
            else "";
-  dkim = if dkim_signing
+  dkim = if dkimSigning
          then
          ''
             dkim {
               domain {
-                key = "${dkim_dir}";
+                key = "${dkimKeyDirectory}";
                 domain = "*";
-                selector = "${dkim_selector}";
+                selector = "${dkimSelector}";
               };
               sign_alg = sha256;
               auth_only = yes;

@@ -172,7 +172,7 @@ in
       '';
     };
 
-    cert_dir = mkOption {
+    certificateDirectory = mkOption {
       type = types.path;
       default = "/var/certs";
       description = ''
@@ -183,7 +183,7 @@ in
       '';
     };
 
-    enable_imap = mkOption {
+    enableImap = mkOption {
       type = types.bool;
       default = true;
       description = ''
@@ -196,7 +196,7 @@ in
       '';
     };
 
-    enable_pop3 = mkOption {
+    enablePop3 = mkOption {
       type = types.bool;
       default = false;
       description = ''
@@ -221,7 +221,7 @@ in
       '';
     };
 
-    dkim_signing = mkOption {
+    dkimSigning = mkOption {
       type = types.bool;
       default = true;
       description = ''
@@ -230,7 +230,7 @@ in
       '';
     };
 
-    dkim_selector = mkOption {
+    dkimSelector = mkOption {
       type = types.string;
       default = "mail";
       description = ''
@@ -238,7 +238,7 @@ in
       '';
     };
 
-    dkim_dir = mkOption {
+    dkimKeyDirectory = mkOption {
       type = types.path;
       default = "/var/dkim";
       description = ''
@@ -255,8 +255,8 @@ in
     services = import ./mail-server/services.nix {
       inherit lib;
       inherit (cfg) mailDirectory vmailUserName vmailGroupName virtualAliases domain
-              enable_imap enable_pop3 dkim_signing dkim_selector dkim_dir
-              certificateScheme certificateFile keyFile cert_dir virusScanning;
+              enableImap enablePop3 dkimSigning dkimSelector dkimKeyDirectory
+              certificateScheme certificateFile keyFile certificateDirectory virusScanning;
     };
 
     environment = import ./mail-server/environment.nix {
@@ -265,13 +265,14 @@ in
     };
 
     networking = import ./mail-server/networking.nix {
-      inherit (cfg) domain hostPrefix enable_imap enable_pop3;
+      inherit (cfg) domain hostPrefix enableImap enablePop3;
     };
 
     systemd = import ./mail-server/systemd.nix {
       inherit pkgs;
-      inherit (cfg) mailDirectory vmailGroupName certificateScheme cert_dir
-              hostPrefix domain dkim_selector dkim_dir;
+      inherit (cfg) mailDirectory vmailGroupName certificateScheme
+      certificateDirectory
+              hostPrefix domain dkimSelector dkimKeyDirectory;
     };
 
     users = import ./mail-server/users.nix {

@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ domain, hostPrefix, enable_imap, enable_pop3 }:
+{ domain, hostPrefix, enableImap, enablePop3 }:
 
 {
   #hostName = "${hostPrefix}.${domain}";
@@ -22,7 +22,7 @@
   firewall = {
     enable = true;
     allowedTCPPorts = [ 25 587 ]
-      ++ (if enable_imap then [ 143 ] else [])
-      ++ (if enable_pop3 then [ 110 ] else []);
+      ++ (if enableImap then [ 143 ] else [])
+      ++ (if enablePop3 then [ 110 ] else []);
   };
 }

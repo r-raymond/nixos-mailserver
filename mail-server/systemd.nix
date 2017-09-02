@@ -14,14 +14,14 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ pkgs, mailDirectory, vmailGroupName, certificateScheme, cert_dir, hostPrefix,
-domain, dkim_selector, dkim_dir}:
+{ pkgs, mailDirectory, vmailGroupName, certificateScheme, certificateDirectory, hostPrefix,
+domain, dkimSelector, dkimKeyDirectory}:
 
 let
   create_certificate = if certificateScheme == 2 then
         ''
           # Create certificates if they do not exist yet
-          dir="${cert_dir}"
+          dir="${certificateDirectory}"
           fqdn="${hostPrefix}.${domain}"
           case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
           key="''${dir}/key-${domain}.pem";
@@ -29,7 +29,7 @@ let
 
           if [ ! -f "''${key}" ] || [ ! -f "''${cert}" ]
           then
-              mkdir -p "${cert_dir}"
+              mkdir -p "${certificateDirectory}"
               (umask 077; "${pkgs.openssl}/bin/openssl" genrsa -out "''${key}" 2048) &&
                   "${pkgs.openssl}/bin/openssl" req -new -key "''${key}" -x509 -subj "/CN=''${fqdn}" \
                           -days 3650 -out "''${cert}"
@@ -37,20 +37,20 @@ let
         ''
         else "";
 
-  dkim_key = "${dkim_dir}/${dkim_selector}.private";
-  dkim_txt = "${dkim_dir}/${dkim_selector}.txt";
+  dkim_key = "${dkimKeyDirectory}/${dkimSelector}.private";
+  dkim_txt = "${dkimKeyDirectory}/${dkimSelector}.txt";
   create_dkim_cert =
         ''
           # Create dkim dir
-          mkdir -p "${dkim_dir}"
-          chown rmilter:rmilter "${dkim_dir}"
+          mkdir -p "${dkimKeyDirectory}"
+          chown rmilter:rmilter "${dkimKeyDirectory}"
 
           if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
           then
 
-              ${pkgs.opendkim}/bin/opendkim-genkey -s "${dkim_selector}" \
+              ${pkgs.opendkim}/bin/opendkim-genkey -s "${dkimSelector}" \
                                                    -d ${domain} \
-                                                   --directory="${dkim_dir}"
+                                                   --directory="${dkimKeyDirectory}"
               chown rmilter:rmilter "${dkim_key}"
           fi
         '';
