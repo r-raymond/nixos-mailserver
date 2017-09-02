@@ -5,7 +5,12 @@
     { config, pkgs, ... }:
     {
         imports = [
-            ./../mail-config.nix
+            ./../default.nix
         ];
+
+        mailserver = {
+          enable = true;
+          domain = "example.com";
+        };
     };
 }
