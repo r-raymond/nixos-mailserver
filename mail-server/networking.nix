@@ -14,15 +14,21 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ domain, hostPrefix, enableImap, enablePop3 }:
+{ config, pkgs, lib, ... }:
 
+let
+  cfg = config.mailserver;
+in
 {
-  #hostName = "${hostPrefix}.${domain}";
+  config = with cfg; lib.mkIf enable {
 
-  firewall = {
-    enable = true;
-    allowedTCPPorts = [ 25 587 ]
-      ++ (if enableImap then [ 143 ] else [])
-      ++ (if enablePop3 then [ 110 ] else []);
+    networking.hostName = "${hostPrefix}.${domain}";
+
+    networking.firewall = {
+      enable = true;
+      allowedTCPPorts = [ 25 587 ]
+        ++ (if enableImap then [ 143 ] else [])
+        ++ (if enablePop3 then [ 110 ] else []);
+    };
   };
 }

@@ -251,6 +251,7 @@ in
     ./mail-server/clamav.nix
     ./mail-server/users.nix
     ./mail-server/environment.nix
+    ./mail-server/networking.nix
   ];
 
   config = mkIf cfg.enable {
@@ -261,16 +262,11 @@ in
               certificateScheme certificateFile keyFile certificateDirectory virusScanning;
     };
 
-    networking = import ./mail-server/networking.nix {
-      inherit (cfg) domain hostPrefix enableImap enablePop3;
-    };
-
     systemd = import ./mail-server/systemd.nix {
       inherit pkgs;
       inherit (cfg) mailDirectory vmailGroupName certificateScheme
       certificateDirectory
               hostPrefix domain dkimSelector dkimKeyDirectory;
     };
-
   };
 }
