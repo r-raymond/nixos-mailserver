@@ -14,22 +14,18 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ mail_dir, domain, valiases, cert, key }:
+{ lib, mail_dir, domain, valiases, cert, key }:
 
 let
-  # valiasToString :: { from = "..."; to = "..." } -> String
-  valiasToString = x: "${x.from}@${domain} ${x.to}@${domain}\n";
-
   # valiases_postfix :: [ String ]
-  valiases_postfix = map valiasToString valiases;
-
-  # concatString :: [ String ] -> String
-  concatString = l: if l == []
-                    then ""
-                    else (builtins.head l) + (concatString (builtins.tail l));
+  valiases_postfix = map
+    (from:
+      let to = valiases.${from};
+      in "${from}@${domain} ${to}@${domain}")
+    (builtins.attrNames valiases);
 
   # valiases_file :: Path
-  valiases_file = builtins.toFile "valias" (concatString valiases_postfix);
+  valiases_file = builtins.toFile "valias" (lib.concatStringsSep "\n" valiases_postfix);
 
   # vhosts_file :: Path
   vhosts_file = builtins.toFile "vhosts" domain;
