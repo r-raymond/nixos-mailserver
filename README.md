@@ -87,3 +87,7 @@ nixops ssh -d mail mailserver
  * Fine grained control over ownership of aliases
  * More than one domain
  * Let's Encrypt
+
+## Contributors
+ * Special thanks to @Infinisil for the module rewrite
+ * @danbst
