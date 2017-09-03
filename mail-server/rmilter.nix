@@ -44,16 +44,18 @@ let
 in
 {
   config = with cfg; lib.mkIf enable {
-    services.rmilter.enable = true;
-    # services.rmilter.debug = true;
-    services.rmilter.postfix.enable = true;
-    services.rmilter.rspamd.enable = true;
-    services.rmilter.extraConfig =
-    ''
-    ${clamav}
+    services.rmilter = {
+      enable = true;
+      #debug = true;
+      postfix.enable = true;
+      rspamd.enable = true;
+      extraConfig =
+      ''
+      ${clamav}
 
-    ${dkim}
-    '';
+      ${dkim}
+      '';
+    };
   };
 }
 
