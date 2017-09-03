@@ -14,42 +14,31 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ lib, mailDirectory, vmailUserName, vmailGroupName, virtualAliases, domain,
-enableImap, enablePop3, virusScanning, dkimSigning, dkimSelector,
-dkimKeyDirectory, certificateScheme, certificateFile, keyFile,
-certificateDirectory }:
+
+{ config, pkgs, lib, ... }:
 
 let
+  cfg = config.mailserver;
+
   # cert :: PATH
-  cert = if certificateScheme == 1
-         then certificateFile
-         else if certificateScheme == 2
-              then "${certificateDirectory}/cert-${domain}.pem"
+  cert = if cfg.certificateScheme == 1
+         then cfg.certificateFile
+         else if cfg.certificateScheme == 2
+              then "${cfg.certificateDirectory}/cert-${cfg.domain}.pem"
               else "";
 
   # key :: PATH
-  key = if certificateScheme == 1
-        then keyFile
-        else if certificateScheme == 2
-             then "${certificateDirectory}/key-${domain}.pem"
+  key = if cfg.certificateScheme == 1
+        then cfg.keyFile
+        else if cfg.certificateScheme == 2
+             then "${cfg.certificateDirectory}/key-${cfg.domain}.pem"
              else "";
 in
 {
-  # rspamd
-  rspamd = {
-    enable = true;
-  };
-
-  rmilter = import ./rmilter.nix {
-    inherit domain virusScanning dkimSigning dkimSelector dkimKeyDirectory;
-  };
-
-  postfix = import ./postfix.nix {
-    inherit lib mailDirectory domain virtualAliases cert key;
-  };
-
-  dovecot2 = import ./dovecot.nix {
-    inherit vmailGroupName vmailUserName mailDirectory enableImap
-            enablePop3 cert key;
-  };
+  
+  imports = [
+    ./rmilter.nix
+    ./postfix.nix key
+    ./dovecot.nix
+  ];
 }

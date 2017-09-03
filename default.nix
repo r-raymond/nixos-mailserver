@@ -253,15 +253,8 @@ in
     ./mail-server/environment.nix
     ./mail-server/networking.nix
     ./mail-server/systemd.nix
+    ./mail-server/dovecot.nix
+    ./mail-server/postfix.nix
+    ./mail-server/rmilter.nix
   ];
-
-  config = mkIf cfg.enable {
-    services = import ./mail-server/services.nix {
-      inherit lib;
-      inherit (cfg) mailDirectory vmailUserName vmailGroupName virtualAliases domain
-              enableImap enablePop3 dkimSigning dkimSelector dkimKeyDirectory
-              certificateScheme certificateFile keyFile certificateDirectory virusScanning;
-    };
-
-  };
 }

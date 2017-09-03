@@ -14,73 +14,80 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ vmailGroupName, vmailUserName, mailDirectory, enableImap, enablePop3, cert,
-key }:
+{ config, pkgs, lib, ... }:
+
+with (import ./common.nix { inherit config; });
 
 let
+  cfg = config.mailserver;
+
   # maildir in format "/${domain}/${user}/"
-  dovecot_maildir = "maildir:${mailDirectory}/%d/%n/";
+  dovecot_maildir = "maildir:${cfg.mailDirectory}/%d/%n/";
 
 in
 {
-  enable = true;
-  enableImap = enableImap;
-  enablePop3 = enablePop3;
-  mailGroup = vmailGroupName;
-  mailUser = vmailUserName;
-  mailLocation = dovecot_maildir;
-  sslServerCert = cert;
-  sslServerKey = key;
-  enableLmtp = true;
-  extraConfig = ''
-    #Extra Config
-    mail_access_groups = ${vmailGroupName}
-    ssl = required
+  config = with cfg; lib.mkIf enable {
+    services.dovecot2 = {
+      enable = true;
+      enableImap = enableImap;
+      enablePop3 = enablePop3;
+      mailGroup = vmailGroupName;
+      mailUser = vmailUserName;
+      mailLocation = dovecot_maildir;
+      sslServerCert = certificatePath;
+      sslServerKey = keyPath;
+      enableLmtp = true;
+      extraConfig = ''
+        #Extra Config
+        mail_access_groups = ${vmailGroupName}
+        ssl = required
 
-    service lmtp {
-      unix_listener /var/lib/postfix/queue/private/dovecot-lmtp {
+        service lmtp {
+        unix_listener /var/lib/postfix/queue/private/dovecot-lmtp {
         group = postfix
         mode = 0600
         user = postfix  # TODO: < make variable
-      }
-    }
+        }
+        }
 
-    service auth {
-      unix_listener /var/lib/postfix/queue/private/auth {
+        service auth {
+        unix_listener /var/lib/postfix/queue/private/auth {
         mode = 0660
         user = postfix  # TODO: < make variable
         group = postfix  # TODO: < make variable
-      }
-    }
+        }
+        }
 
-    auth_mechanisms = plain login
+        auth_mechanisms = plain login
 
-    namespace inbox {
+        namespace inbox {
 
-    #prefix = INBOX.
-    # the namespace prefix isn't added again to the mailbox names.
-    inbox = yes
-    # ... 
+        #prefix = INBOX.
+        # the namespace prefix isn't added again to the mailbox names.
+        inbox = yes
+        # ... 
 
-    mailbox "Trash" {
-      auto = no
-      special_use = \Trash
-    }
+        mailbox "Trash" {
+        auto = no
+        special_use = \Trash
+        }
 
-    mailbox "Junk" {
-      auto = subscribe
-      special_use = \Junk
-    }
+        mailbox "Junk" {
+        auto = subscribe
+        special_use = \Junk
+        }
 
-    mailbox "Drafts" {
-      auto = subscribe
-      special_use = \Drafts
-    }
+        mailbox "Drafts" {
+        auto = subscribe
+        special_use = \Drafts
+        }
 
-    mailbox "Sent" {
-      auto = subscribe
-      special_use = \Sent
-      }
-    }
-  '';
+        mailbox "Sent" {
+        auto = subscribe
+        special_use = \Sent
+        }
+        }
+      '';
+    };
+  };
 }
