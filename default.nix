@@ -130,7 +130,7 @@ in
     };
 
     mailDirectory = mkOption {
-      type = types.string;
+      type = types.path;
       default = "/var/vmail";
       description = ''
         Where to store the mail.
@@ -231,7 +231,7 @@ in
     };
 
     dkimSelector = mkOption {
-      type = types.string;
+      type = types.str;
       default = "mail";
       description = ''
 
