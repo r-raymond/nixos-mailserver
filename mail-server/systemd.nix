@@ -20,22 +20,7 @@ let
   cfg = config.mailserver;
 
   create_certificate = if cfg.certificateScheme == 2 then
-        ''
-          # Create certificates if they do not exist yet
-          dir="${cfg.certificateDirectory}"
-          fqdn="${cfg.hostPrefix}.${cfg.domain}"
-          case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
-          key="''${dir}/key-${cfg.domain}.pem";
-          cert="''${dir}/cert-${cfg.domain}.pem";
-
-          if [ ! -f "''${key}" ] || [ ! -f "''${cert}" ]
-          then
-              mkdir -p "${cfg.certificateDirectory}"
-              (umask 077; "${pkgs.openssl}/bin/openssl" genrsa -out "''${key}" 2048) &&
-                  "${pkgs.openssl}/bin/openssl" req -new -key "''${key}" -x509 -subj "/CN=''${fqdn}" \
-                          -days 3650 -out "''${cert}"
-          fi
-        ''
+        builtins.readFile ./script/create_certificate
         else "";
 
   dkim_key = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private";
@@ -67,9 +52,9 @@ in
       ''
       # Create mail directory and set permissions. See
       # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>.
-      mkdir -p "${mail_dir}"
-      chgrp "${vmail_group_name}" "${mail_dir}"
-      chmod 02770 "${mail_dir}"
+      mkdir -p "${mailDirectory}"
+      chgrp "${vmailGroupName}" "${mailDirectory}"
+      chmod 02770 "${mailDirectory}"
 
         ${create_certificate}
       '';
