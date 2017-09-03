@@ -25,21 +25,7 @@ let
 
   dkim_key = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private";
   dkim_txt = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.txt";
-  create_dkim_cert =
-        ''
-          # Create dkim dir
-          mkdir -p "${cfg.dkimKeyDirectory}"
-          chown rmilter:rmilter "${cfg.dkimKeyDirectory}"
-
-          if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
-          then
-
-              ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
-                                                   -d ${cfg.domain} \
-                                                   --directory="${cfg.dkimKeyDirectory}"
-              chown rmilter:rmilter "${dkim_key}"
-          fi
-        '';
+  create_dkim_cert = builtins.readFile ./script/create_dkim_certificate;
 in
 {
   config = with cfg; lib.mkIf enable {

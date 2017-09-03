@@ -1,0 +1,14 @@
+# Create dkim dir
+mkdir -p "${cfg.dkimKeyDirectory}"
+chown rmilter:rmilter "${cfg.dkimKeyDirectory}"
+
+if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
+then
+
+  ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
+                                       -d ${cfg.domain} \
+                                       --directory="${cfg.dkimKeyDirectory}"
+  chown rmilter:rmilter "${dkim_key}"
+fi
+
+# vim: set filetype=sh
