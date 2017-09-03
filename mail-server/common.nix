@@ -14,31 +14,23 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-
-{ config, pkgs, lib, ... }:
+{ config }:
 
 let
   cfg = config.mailserver;
-
+in
+{
   # cert :: PATH
-  cert = if cfg.certificateScheme == 1
-         then cfg.certificateFile
-         else if cfg.certificateScheme == 2
-              then "${cfg.certificateDirectory}/cert-${cfg.domain}.pem"
-              else "";
+  certificatePath = if cfg.certificateScheme == 1
+             then cfg.certificateFile
+             else if cfg.certificateScheme == 2
+                  then "${cfg.certificateDirectory}/cert-${cfg.domain}.pem"
+                  else "";
 
   # key :: PATH
-  key = if cfg.certificateScheme == 1
+  keyPath = if cfg.certificateScheme == 1
         then cfg.keyFile
         else if cfg.certificateScheme == 2
              then "${cfg.certificateDirectory}/key-${cfg.domain}.pem"
              else "";
-in
-{
-  
-  imports = [
-    ./rmilter.nix
-    ./postfix.nix key
-    ./dovecot.nix
-  ];
 }

@@ -14,22 +14,23 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ pkgs, mail_dir, vmail_group_name, certificate_scheme, cert_dir, host_prefix,
-domain, dkim_selector, dkim_dir}:
+{ config, pkgs, lib, ... }:
 
 let
-  create_certificate = if certificate_scheme == 2 then
+  cfg = config.mailserver;
+
+  create_certificate = if cfg.certificateScheme == 2 then
         ''
           # Create certificates if they do not exist yet
-          dir="${cert_dir}"
-          fqdn="${host_prefix}.${domain}"
+          dir="${cfg.certificateDirectory}"
+          fqdn="${cfg.hostPrefix}.${cfg.domain}"
           case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
-          key="''${dir}/key-${domain}.pem";
-          cert="''${dir}/cert-${domain}.pem";
+          key="''${dir}/key-${cfg.domain}.pem";
+          cert="''${dir}/cert-${cfg.domain}.pem";
 
           if [ ! -f "''${key}" ] || [ ! -f "''${cert}" ]
           then
-              mkdir -p "${cert_dir}"
+              mkdir -p "${cfg.certificateDirectory}"
               (umask 077; "${pkgs.openssl}/bin/openssl" genrsa -out "''${key}" 2048) &&
                   "${pkgs.openssl}/bin/openssl" req -new -key "''${key}" -x509 -subj "/CN=''${fqdn}" \
                           -days 3650 -out "''${cert}"
@@ -37,47 +38,50 @@ let
         ''
         else "";
 
-  dkim_key = "${dkim_dir}/${dkim_selector}.private";
-  dkim_txt = "${dkim_dir}/${dkim_selector}.txt";
+  dkim_key = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private";
+  dkim_txt = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.txt";
   create_dkim_cert =
         ''
           # Create dkim dir
-          mkdir -p "${dkim_dir}"
-          chown rmilter:rmilter "${dkim_dir}"
+          mkdir -p "${cfg.dkimKeyDirectory}"
+          chown rmilter:rmilter "${cfg.dkimKeyDirectory}"
 
           if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
           then
 
-              ${pkgs.opendkim}/bin/opendkim-genkey -s "${dkim_selector}" \
-                                                   -d ${domain} \
-                                                   --directory="${dkim_dir}"
+              ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
+                                                   -d ${cfg.domain} \
+                                                   --directory="${cfg.dkimKeyDirectory}"
               chown rmilter:rmilter "${dkim_key}"
           fi
         '';
 in
 {
-  # Make sure postfix gets started first, so that the certificates are in place
-  services.dovecot2.after = [ "postfix.service" ];
+  config = with cfg; lib.mkIf enable {
+    # Make sure postfix gets started first, so that the certificates are in place
+    systemd.services.dovecot2.after = [ "postfix.service" ];
 
-  # Create certificates and maildir folder
-  services.postfix = {
-    preStart = 
-    ''
+    # Create certificates and maildir folder
+    systemd.services.postfix = {
+      preStart = 
+      ''
       # Create mail directory and set permissions. See
       # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>.
       mkdir -p "${mail_dir}"
       chgrp "${vmail_group_name}" "${mail_dir}"
       chmod 02770 "${mail_dir}"
 
-      ${create_certificate}
-    '';
-  };
+        ${create_certificate}
+      '';
+    };
 
-  # Create dkim certificates
-  services.rmilter = {
-    preStart =
-    ''
-      ${create_dkim_cert}
-    '';
+    # Create dkim certificates
+    systemd.services.rmilter = {
+      preStart =
+      ''
+        ${create_dkim_cert}
+      '';
+    };
+
   };
 }

@@ -14,10 +14,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ domain, virus_scanning, dkim_signing, dkim_dir, dkim_selector }:
+{ config, pkgs, lib, ... }:
 
 let
-  clamav = if virus_scanning
+  cfg = config.mailserver;
+
+  clamav = if cfg.virusScanning
            then
            ''
              clamav {
@@ -25,14 +27,14 @@ let
              };
            ''
            else "";
-  dkim = if dkim_signing
+  dkim = if cfg.dkimSigning
          then
          ''
             dkim {
               domain {
-                key = "${dkim_dir}";
+                key = "${cfg.dkimKeyDirectory}";
                 domain = "*";
-                selector = "${dkim_selector}";
+                selector = "${cfg.dkimSelector}";
               };
               sign_alg = sha256;
               auth_only = yes;
@@ -41,15 +43,19 @@ let
          else "";
 in
 {
-  enable = true;
-  # debug = true;
-  postfix.enable = true;
-  rspamd.enable = true;
-  extraConfig =
-  ''
-    ${clamav}
+  config = with cfg; lib.mkIf enable {
+    services.rmilter = {
+      enable = true;
+      #debug = true;
+      postfix.enable = true;
+      rspamd.enable = true;
+      extraConfig =
+      ''
+      ${clamav}
 
-    ${dkim}
-  '';
+      ${dkim}
+      '';
+    };
+  };
 }
 

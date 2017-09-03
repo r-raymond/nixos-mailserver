@@ -14,37 +14,41 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ vmail_id_start, vmail_user_name, vmail_group_name, domain, mail_dir,
-login_accounts }:
+{ config, pkgs, lib, ... }:
+
+with config.mailserver;
 
 let
   vmail_user = [{
-    name = vmail_user_name;
+    name = vmailUserName;
     isNormalUser = false;
-    uid = vmail_id_start;
-    home = mail_dir;
+    uid = vmailUIDStart;
+    home = mailDirectory;
     createHome = true;
-    group = vmail_group_name;
+    group = vmailGroupName;
   }];
 
   # accountsToUser :: String -> UserRecord
-  accountsToUser = x: {
-    name = x.name + "@" + domain;
+  accountsToUser = account: {
+    name = account.name + "@" + domain;
     isNormalUser = false;
-    group = vmail_group_name;
-    hashedPassword = x.password;
+    group = vmailGroupName;
+    inherit (account) hashedPassword;
   };
 
   # mail_user :: [ UserRecord ]
-  mail_user = map accountsToUser login_accounts;
+  mail_user = map accountsToUser (lib.attrValues loginAccounts);
 
 in
 {
-  # set the vmail gid to a specific value
-  groups = {
-    vmail = { gid = vmail_id_start; };
-  };
 
-  # define all users
-  extraUsers = vmail_user ++ mail_user;
+  config = lib.mkIf enable {
+    # set the vmail gid to a specific value
+    users.groups = {
+      vmail = { gid = vmailUIDStart; };
+    };
+
+    # define all users
+    users.extraUsers = vmail_user ++ mail_user;
+  };
 }
