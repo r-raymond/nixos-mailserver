@@ -20,12 +20,41 @@ let
   cfg = config.mailserver;
 
   create_certificate = if cfg.certificateScheme == 2 then
-        builtins.readFile ./script/create_certificate
+        ''
+          # Create certificates if they do not exist yet
+          dir="${cfg.certificateDirectory}"
+          fqdn="${cfg.hostPrefix}.${cfg.domain}"
+          case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
+          key="''${dir}/key-${cfg.domain}.pem";
+          cert="''${dir}/cert-${cfg.domain}.pem";
+
+          if [ ! -f "''${key}" ] || [ ! -f "''${cert}" ]
+          then
+              mkdir -p "${cfg.certificateDirectory}"
+              (umask 077; "${pkgs.openssl}/bin/openssl" genrsa -out "''${key}" 2048) &&
+                  "${pkgs.openssl}/bin/openssl" req -new -key "''${key}" -x509 -subj "/CN=''${fqdn}" \
+                          -days 3650 -out "''${cert}"
+          fi
+        ''
         else "";
 
   dkim_key = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private";
   dkim_txt = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.txt";
-  create_dkim_cert = builtins.readFile ./script/create_dkim_certificate;
+  create_dkim_cert =
+        ''
+          # Create dkim dir
+          mkdir -p "${cfg.dkimKeyDirectory}"
+          chown rmilter:rmilter "${cfg.dkimKeyDirectory}"
+
+          if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
+          then
+
+              ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
+                                                   -d ${cfg.domain} \
+                                                   --directory="${cfg.dkimKeyDirectory}"
+              chown rmilter:rmilter "${dkim_key}"
+          fi
+        '';
 in
 {
   config = with cfg; lib.mkIf enable {
