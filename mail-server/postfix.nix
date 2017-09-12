@@ -56,7 +56,7 @@ in
 
       extraConfig = 
       ''
-      # Extra Config
+        # Extra Config
 
         smtpd_banner = $myhostname ESMTP NO UCE
         smtpd_tls_auth_only = yes
