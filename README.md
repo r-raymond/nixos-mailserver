@@ -1,44 +1,51 @@
 # nixos-mailserver
 ![license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)
 
-## Work in progress...
+## Stable Releases
 
-### What works and what is missing for first release v 1.0
- * Postfix
-    - [x] starts
-    - [x] receive email on port 25
-    - [x] receive email on submission port 587
+None so far.
+
+## Features
+### v1.1
+ * Postfix MTA
+    - [x] smtp on port 25
+    - [x] submission port 587
     - [x] lmtp with dovecot
  * Dovecot
-    - [x] lmtp with postfix
-    - [x] creates maildir folders, saves mails
-    - [x] imap retrieval
-    - [x] pop3 retrieval
+    - [x] maildir folders
+    - [x] imap starttls on port 143
+    - [x] pop3 starttls on port 110
  * Certificates
     - [x] manual certificates
     - [x] on the fly creation
-    - [ ] TODO: Let's Encrypt (postponed to future release)
  * Spam Filtering
-    - [x] scans emails
+    - [x] via rspamd
+    - [x] hard coded sieve script to move spam into Junk folder
  * Virus Scanning
-    - [x] Checks incoming mail for viruses
+    - [x] via clamav
  * DKIM Signing
-    - [x] Works
+    - [x] via opendkim
  * User Management
-    - [x] Creates Users
-    - [x] Set Passwords in config file
- * Update Documentation
-    - [ ] Remove all `TODO`s
-    - [ ] Write a Starter Guide
-    - [ ] Make a Small Homepage
-    - [ ] Flesh Out Documentation
- * Test
-    - [ ] Write Tests to ensure integrity
+    - [x] declarative user management
+    - [x] declarative password management
+
+
+### v1.2
+  * Certificates
+    - [ ] Let's Encrypt
+  * Sieves
+    - [ ] Allow user defined sieve scripts
+  * User Aliases
+    - [ ] More complete alias support
+
+### v2.0
+  * [ ] Multiple Domains
 
 ### Changelog
 
 #### v1.0 -> v1.1
  * Changed structure to Nix Modules
+ * Adds Sieve support
 
 ### How to Test
 
@@ -56,7 +63,12 @@ You can then test the server via e.g. `telnet`. To log into it, use
 nixops ssh -d mail mailserver
 ```
 
-To test imap manually openssl s_client -host mail.example.com -port 143 -starttls imap
+To test imap manually use
+
+```
+openssl s_client -host mail.example.com -port 143 -starttls imap
+```
+
 
 ## A Complete Mail Server Without Moving Parts
 
@@ -86,11 +98,6 @@ To test imap manually openssl s_client -host mail.example.com -port 143 -starttl
  * configurations that need to be made after `nixos-rebuild switch`
  * complicated storage schemes
  * webclients / http-servers
-
-## Ideas for future releases
- * Fine grained control over ownership of aliases
- * More than one domain
- * Let's Encrypt
 
 ## Contributors
  * Special thanks to @Infinisil for the module rewrite
