@@ -20,7 +20,7 @@ import ./../../nixpkgs/nixos/tests/make-test.nix {
     { config, pkgs, ... }:
     {
         imports = [
-            ./../mail-config.nix
+            ./../default.nix
         ];
     };
 
