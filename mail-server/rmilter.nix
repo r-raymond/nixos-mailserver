@@ -44,11 +44,18 @@ let
 in
 {
   config = with cfg; lib.mkIf enable {
+    services.rspamd = {
+        enable = true;
+    };
+
     services.rmilter = {
       enable = true;
       #debug = true;
       postfix.enable = true;
-      rspamd.enable = true;
+      rspamd = {
+        enable = true;
+        extraConfig = "extended_spam_headers = yes;";
+      };
       extraConfig =
       ''
       use_redis = true;
