@@ -77,11 +77,12 @@ in
 
     # Create dkim certificates
     systemd.services.rmilter = {
+      requires = [ "rmilter.socket" ];
+      after = [ "rmilter.socket" ];
       preStart =
       ''
         ${create_dkim_cert}
       '';
     };
-
   };
 }
