@@ -1,5 +1,6 @@
-# nixos-mailserver
+# ![Simple Nixos MailServer][logo]
 ![license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)
+
 
 ## Stable Releases
 
@@ -103,3 +104,12 @@ openssl s_client -host mail.example.com -port 143 -starttls imap
  * Special thanks to @Infinisil for the module rewrite
  * @danbst
  * @phdoerfler
+
+
+### Credits
+ * send mail graphic by [tnp_dreamingmao](https://thenounproject.com/dreamingmao)
+   from [TheNounProject](https://thenounproject.com/) is licensed under
+   [CC BY 3.0](http://creativecommons.org/~/3.0/)
+ * Logo made with [Logomakr.com](https://logomakr.com)
+
+[logo]: logo/logo.png
