@@ -51,6 +51,9 @@ in
       rspamd.enable = true;
       extraConfig =
       ''
+      use_redis = true;
+      max_size = 20M;
+
       ${clamav}
 
       ${dkim}
