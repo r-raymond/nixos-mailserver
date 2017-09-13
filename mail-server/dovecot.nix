@@ -37,6 +37,7 @@ in
       sslServerCert = certificatePath;
       sslServerKey = keyPath;
       enableLmtp = true;
+      modules = [ pkgs.dovecot_pigeonhole ];
       extraConfig = ''
         #Extra Config
         mail_access_groups = ${vmailGroupName}
