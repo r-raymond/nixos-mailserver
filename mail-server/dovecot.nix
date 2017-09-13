@@ -38,8 +38,23 @@ in
       sslServerKey = keyPath;
       enableLmtp = true;
       modules = [ pkgs.dovecot_pigeonhole ];
+      protocols = [ "sieve" ];
+
+      sieveScripts = {
+        before = builtins.toFile "spam.sieve"
+            ''
+            require "fileinto";
+
+            if header :is "X-Spam" "Yes" {
+                fileinto "Junk";
+                stop;
+            }
+            '';
+      };
+
       extraConfig = ''
         #Extra Config
+        #mail_debug = yes
         mail_access_groups = ${vmailGroupName}
         ssl = required
 
@@ -49,6 +64,10 @@ in
         mode = 0600
         user = postfix  # TODO: < make variable
         }
+        }
+
+        protocol lmtp {
+        mail_plugins = $mail_plugins sieve
         }
 
         service auth {
