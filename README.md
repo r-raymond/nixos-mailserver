@@ -33,10 +33,12 @@
     - [ ] Make a Small Homepage
     - [ ] Flesh Out Documentation
  * Test
-    - [ ] Test
-    - [ ] Squash Bugs
-    - [ ] Test
-    - [ ] ...
+    - [ ] Write Tests to ensure integrity
+
+### Changelog
+
+#### v1.0 -> v1.1
+ * Changed structure to Nix Modules
 
 ### How to Test
 
@@ -53,6 +55,8 @@ You can then test the server via e.g. `telnet`. To log into it, use
 ```
 nixops ssh -d mail mailserver
 ```
+
+To test imap manually openssl s_client -host mail.example.com -port 143 -starttls imap
 
 ## A Complete Mail Server Without Moving Parts
 
@@ -91,3 +95,4 @@ nixops ssh -d mail mailserver
 ## Contributors
  * Special thanks to @Infinisil for the module rewrite
  * @danbst
+ * @phdoerfler
