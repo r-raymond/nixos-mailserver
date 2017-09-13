@@ -81,11 +81,7 @@ in
         auth_mechanisms = plain login
 
         namespace inbox {
-
-        #prefix = INBOX.
-        # the namespace prefix isn't added again to the mailbox names.
         inbox = yes
-        # ... 
 
         mailbox "Trash" {
         auto = no
