@@ -28,6 +28,12 @@ let
       in "${from}@${cfg.domain} ${to}@${cfg.domain}")
     (builtins.attrNames cfg.virtualAliases);
 
+  # accountToIdentity :: User -> String
+  accountToIdentity = account: "${account.name}@${cfg.domain} ${account.name}@${cfg.domain}";
+
+  # vaccounts_identity :: [ String ]
+  vaccounts_identity = map accountToIdentity (lib.attrValues cfg.loginAccounts);
+
   # valiases_file :: Path
   valiases_file = builtins.toFile "valias" (lib.concatStringsSep "\n" valiases_postfix);
 
@@ -38,8 +44,9 @@ let
   # see
   # https://blog.grimneko.de/2011/12/24/a-bunch-of-tips-for-improving-your-postfix-setup/
   # for details on how this file looks. By using the same file as valiases,
-  # every alias is owned (uniquely) by its user.
-  vaccounts_file = valiases_file;
+  # every alias is owned (uniquely) by its user. We have to add the users own
+  # address though
+  vaccounts_file = builtins.toFile "vaccounts" (lib.concatStringsSep "\n" (vaccounts_identity ++ valiases_postfix));
 
 in
 {
