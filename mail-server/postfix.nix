@@ -97,6 +97,26 @@ in
         smtpd_sender_login_maps = "hash:/etc/postfix/vaccounts";
         smtpd_sender_restrictions = "reject_sender_login_mismatch";
         smtpd_recipient_restrictions = "reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject";
+        cleanup_service_name = "submission-header-cleanup";
+      };
+      
+      extraMasterConf = ''
+        submission-header-cleanup unix n - n    -       0       cleanup
+            -o header_checks=regexp:/etc/postfixsupport/submission_header_cleanup
+      '';
+    };
+    
+    environment.etc = {
+      "postfixsupport/submission_header_cleanup" = {
+        text = ''
+          ### Removes sensitive headers from mails handed in via the submission port.
+          ### Thanks to https://thomas-leister.de/mailserver-debian-stretch/
+
+          /^Received:/            IGNORE
+          /^X-Originating-IP:/    IGNORE
+          /^X-Mailer:/            IGNORE
+          /^User-Agent:/          IGNORE
+        '';
       };
     };
   };
