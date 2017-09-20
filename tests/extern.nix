@@ -90,6 +90,7 @@ import ./../../nixpkgs/nixos/tests/make-test.nix {
       $client->waitForUnit("multi-user.target");
 
       subtest "imap retrieving mail", sub {
+          $client->succeed("mkdir ~/mail");
           $client->succeed("echo '${fetchmailRc}' > ~/.fetchmailrc");
           $client->succeed("echo '${procmailRc}' > ~/.procmailrc");
           $client->succeed("sed -i s/SERVER/`getent hosts server | awk '{ print \$1 }'`/g ~/.fetchmailrc");
@@ -109,8 +110,16 @@ import ./../../nixpkgs/nixos/tests/make-test.nix {
       };
 
       subtest "imap retrieving mail 2", sub {
+          # give the mail server some time to process the mail
+          $client->succeed("sleep 5");
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->succeed("fetchmail -v >&2");
+      };
+
+      subtest "remove sensitive information on submission port", sub {
+        $client->succeed("cat ~/mail/* >&2");
+        # make sure our IP is _not_ in the email header
+        $client->fail("grep `ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print \$2}' | cut -f1  -d'/'` ~/mail/*");
       };
     '';
 }
