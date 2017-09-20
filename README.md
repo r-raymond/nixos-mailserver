@@ -6,6 +6,8 @@
 
 None so far.
 
+[Latest Release Candidate](https://github.com/r-raymond/nixos-mailserver/releases/latest)
+
 ## Features
 ### v1.1
  * Postfix MTA
