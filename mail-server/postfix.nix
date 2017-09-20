@@ -66,7 +66,6 @@ in
         # Extra Config
 
         smtpd_banner = $myhostname ESMTP NO UCE
-        smtpd_tls_auth_only = yes
         disable_vrfy_command = yes
         message_size_limit = 20971520
 
@@ -83,6 +82,21 @@ in
         smtpd_sasl_path = private/auth
         smtpd_sasl_auth_enable = yes
         smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
+        
+        # TLS settings, inspired by https://github.com/jeaye/nix-files
+        smtpd_tls_security_level = may       # Submission by mail clients is handled in submissionOptions
+        smtpd_tls_eecdh_grade = ultra        # strong might suffice and is computationally less expensive
+        smtpd_tls_protocols = !SSLv2, !SSLv3 # Disable predecessors to TLS
+        smtpd_tls_auth_only = yes            # Allowing AUTH on a non encrypted connection poses a security risk
+        smtpd_tls_loglevel = 1               # Log only a summary message on TLS handshake completion
+        
+        # Disable weak ciphers as reported by https://ssl-tools.net
+        # https://serverfault.com/questions/744168/how-to-disable-rc4-on-postfix
+        smtpd_tls_exclude_ciphers = RC4, aNULL
+        smtp_tls_exclude_ciphers = RC4, aNULL
+
+        # Configure a non blocking source of randomness
+        tls_random_source = dev:/dev/urandom
       '';
 
       submissionOptions =
