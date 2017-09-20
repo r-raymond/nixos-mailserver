@@ -47,7 +47,18 @@ let
   # every alias is owned (uniquely) by its user. We have to add the users own
   # address though
   vaccounts_file = builtins.toFile "vaccounts" (lib.concatStringsSep "\n" (vaccounts_identity ++ valiases_postfix));
+  
+  submissionHeaderCleanupRules = pkgs.writeText "submission_header_cleanup_rules" ''
+     ### Removes sensitive headers from mails handed in via the submission port.
+     ### See https://thomas-leister.de/mailserver-debian-stretch/
+     ### Uses "pcre" style regex.
 
+     /^Received:/            IGNORE
+     /^X-Originating-IP:/    IGNORE
+     /^X-Mailer:/            IGNORE
+     /^User-Agent:/          IGNORE
+     /^X-Enigmail:/          IGNORE
+  '';
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -99,25 +110,11 @@ in
         smtpd_recipient_restrictions = "reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject";
         cleanup_service_name = "submission-header-cleanup";
       };
-      
+
       extraMasterConf = ''
         submission-header-cleanup unix n - n    -       0       cleanup
-            -o header_checks=regexp:/etc/postfixsupport/submission_header_cleanup
+            -o header_checks=pcre:${submissionHeaderCleanupRules}
       '';
-    };
-    
-    environment.etc = {
-      "postfixsupport/submission_header_cleanup" = {
-        text = ''
-          ### Removes sensitive headers from mails handed in via the submission port.
-          ### Thanks to https://thomas-leister.de/mailserver-debian-stretch/
-
-          /^Received:/            IGNORE
-          /^X-Originating-IP:/    IGNORE
-          /^X-Mailer:/            IGNORE
-          /^User-Agent:/          IGNORE
-        '';
-      };
     };
   };
 }
