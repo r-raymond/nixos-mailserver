@@ -1,0 +1,4 @@
+language: nix
+script:
+    - nix-build tests/intern.nix
+    - nix-build tests/extern.nix
