@@ -25,7 +25,7 @@ let
     uid = vmailUIDStart;
     home = mailDirectory;
     createHome = true;
-    group = vmailGroupName;
+    #group = vmailGroupName;
   }];
 
   # accountsToUser :: String -> UserRecord
