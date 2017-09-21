@@ -1,5 +1,6 @@
 # ![Simple Nixos MailServer][logo]
 ![license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)
+![status](https://travis-ci.org/r-raymond/nixos-mailserver.svg?branch=master)
 
 
 ## Stable Releases
