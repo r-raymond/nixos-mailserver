@@ -22,8 +22,6 @@ in
 {
   config = with cfg; lib.mkIf enable {
 
-    networking.hostName = "${hostPrefix}.${domain}";
-
     networking.firewall = {
       allowedTCPPorts = [ 25 587 ]
         ++ (if enableImap then [ 143 ] else [])
