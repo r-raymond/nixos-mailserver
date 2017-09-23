@@ -36,7 +36,7 @@ None so far.
 
 ### v1.2
   * Certificates
-    - [ ] Let's Encrypt
+    - [x] Let's Encrypt
   * Sieves
     - [ ] Allow user defined sieve scripts
   * User Aliases
