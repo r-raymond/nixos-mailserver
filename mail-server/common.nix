@@ -25,12 +25,16 @@ in
              then cfg.certificateFile
              else if cfg.certificateScheme == 2
                   then "${cfg.certificateDirectory}/cert-${cfg.domain}.pem"
-                  else "";
+                  else if cfg.certificateScheme == 3
+                       then "/var/lib/acme/acme-challenge/${cfg.hostPrefix}.${cfg.domain}/fullchain.pem"
+                       else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
 
   # key :: PATH
   keyPath = if cfg.certificateScheme == 1
         then cfg.keyFile
         else if cfg.certificateScheme == 2
              then "${cfg.certificateDirectory}/key-${cfg.domain}.pem"
-             else "";
+              else if cfg.certificateScheme == 3
+                   then "/var/lib/acme/acme-challenge/${cfg.hostPrefix}.${cfg.domain}/privkey.pem"
+                   else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
 }

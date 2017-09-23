@@ -49,9 +49,9 @@ let
   vaccounts_file = builtins.toFile "vaccounts" (lib.concatStringsSep "\n" (vaccounts_identity ++ valiases_postfix));
   
   submissionHeaderCleanupRules = pkgs.writeText "submission_header_cleanup_rules" ''
-     ### Removes sensitive headers from mails handed in via the submission port.
-     ### See https://thomas-leister.de/mailserver-debian-stretch/
-     ### Uses "pcre" style regex.
+     # Removes sensitive headers from mails handed in via the submission port.
+     # See https://thomas-leister.de/mailserver-debian-stretch/
+     # Uses "pcre" style regex.
 
      /^Received:/            IGNORE
      /^X-Originating-IP:/    IGNORE

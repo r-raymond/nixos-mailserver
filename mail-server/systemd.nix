@@ -63,6 +63,7 @@ in
 
     # Create certificates and maildir folder
     systemd.services.postfix = {
+      after = (if (certificateScheme == 3) then [ "nginx.service" ] else []);
       preStart = 
       ''
       # Create mail directory and set permissions. See

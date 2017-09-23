@@ -138,7 +138,7 @@ in
     };
 
     certificateScheme = mkOption {
-      type = types.enum [ 1 2 ];
+      type = types.enum [ 1 2 3 ];
       default = 2;
       description = ''
         Certificate Files. There are three options for these.
@@ -149,8 +149,6 @@ in
            this implies that a stripped down webserver has to be started. This also
            implies that the FQDN must be set as an `A` record to point to the IP of
            the server. TODO: Explain more details
-
-        TODO: Only certificate scheme 1) and 2) work as of yet.
       '';
     };
 
@@ -256,5 +254,6 @@ in
     ./mail-server/dovecot.nix
     ./mail-server/postfix.nix
     ./mail-server/rmilter.nix
+    ./mail-server/nginx.nix
   ];
 }
