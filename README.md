@@ -53,7 +53,7 @@ None so far.
 
 ### How to Deploy
 
-```
+```nix
 { config, pkgs, ... }:
 {
   imports = [
