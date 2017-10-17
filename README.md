@@ -69,7 +69,7 @@ None so far.
         hashedPassword = "$6$Mmmx1U68$Twd8acMxqHoqFyfz3SPz1pzjY/D36gayAdpUTFMvfrHQUwObF3acuLz2GYAGFzsjHLEK/dPIv3pCwj3kZ5T2u.";
       };
     };
-    valiases = {
+    virtualAliases = {
       admin = "user1";
     };
   };
