@@ -36,7 +36,7 @@ None so far.
 
 ### v1.2
   * Certificates
-    - [ ] Let's Encrypt
+    - [x] Let's Encrypt
   * Sieves
     - [ ] Allow user defined sieve scripts
   * User Aliases
@@ -50,6 +50,34 @@ None so far.
 #### v1.0 -> v1.1
  * Changed structure to Nix Modules
  * Adds Sieve support
+
+### How to Deploy
+
+```nix
+{ config, pkgs, ... }:
+{
+  imports = [
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v1.1-rc2")
+  ];
+ 
+  mailserver = {
+    enable = true;
+    domain = "example.com";
+    login_accounts = {
+      user1 = {
+        name = "test";
+        hashedPassword = "$6$Mmmx1U68$Twd8acMxqHoqFyfz3SPz1pzjY/D36gayAdpUTFMvfrHQUwObF3acuLz2GYAGFzsjHLEK/dPIv3pCwj3kZ5T2u.";
+      };
+    };
+    virtualAliases = {
+      admin = "user1";
+    };
+  };
+}
+```
+
+For a complete list of options, see `default.nix`.
+
 
 ### How to Test
 
