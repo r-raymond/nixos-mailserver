@@ -20,12 +20,12 @@ with config.mailserver;
 
 let
   vmail_user = [{
-    name = vmailUserName;
+    name = "vmail";
     isNormalUser = false;
     uid = vmailUIDStart;
     home = mailDirectory;
     createHome = true;
-    group = vmailGroupName;
+    group = "vmail";
   }];
 
   # accountsToUser :: String -> UserRecord
