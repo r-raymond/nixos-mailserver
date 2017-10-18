@@ -113,7 +113,7 @@ in
 
     vmailUserName = mkOption {
       type = types.str;
-      default = "vmail";
+      default = "virtualMail";
       description = ''
         The user name and group name of the user that owns the directory where all
         the mail is stored.
@@ -122,7 +122,7 @@ in
 
     vmailGroupName = mkOption {
       type = types.str;
-      default = "vmail";
+      default = "virtualMail";
       description = ''
         The user name and group name of the user that owns the directory where all
         the mail is stored.
