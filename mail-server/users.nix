@@ -19,14 +19,14 @@
 with config.mailserver;
 
 let
-  vmail_user = [{
+  vmail_user = {
     name = vmailUserName;
     isNormalUser = false;
     uid = vmailUIDStart;
     home = mailDirectory;
     createHome = true;
     group = vmailGroupName;
-  }];
+  };
 
   # accountsToUser :: String -> UserRecord
   accountsToUser = account: {
@@ -36,8 +36,9 @@ let
     inherit (account) hashedPassword;
   };
 
-  # mail_user :: [ UserRecord ]
-  mail_user = map accountsToUser (lib.attrValues loginAccounts);
+  # mail_users :: { [String]: UserRecord }
+  mail_users = lib.foldl (prev: next: prev // { "${next.name}" = next; }) {}
+    (map accountsToUser (lib.attrValues loginAccounts));
 
 in
 {
@@ -49,6 +50,8 @@ in
     };
 
     # define all users
-    users.extraUsers = vmail_user ++ mail_user;
+    users.users = mail_users // {
+      "${vmail_user.name}" = lib.mkForce vmail_user;
+    };
   };
 }
