@@ -59,7 +59,7 @@ None so far.
   imports = [
     (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v1.1-rc2")
   ];
- 
+
   mailserver = {
     enable = true;
     domain = "example.com";
@@ -135,6 +135,7 @@ openssl s_client -host mail.example.com -port 143 -starttls imap
  * Special thanks to @Infinisil for the module rewrite
  * @danbst
  * @phdoerfler
+ * @eqyiel
 
 
 ### Credits
