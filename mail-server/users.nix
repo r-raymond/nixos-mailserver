@@ -45,7 +45,7 @@ in
   config = lib.mkIf enable {
     # set the vmail gid to a specific value
     users.groups = {
-      vmail = { gid = vmailUIDStart; };
+      "${vmailGroupName}" = { gid = vmailUIDStart; };
     };
 
     # define all users
