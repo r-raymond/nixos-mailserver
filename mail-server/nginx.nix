@@ -17,11 +17,12 @@
 
 { config, pkgs, lib, ... }:
 
-with (import ./common.nix { inherit config; });
+with (import ./common.nix { inherit config lib; });
 
 let
   cfg = config.mailserver;
 in
+
 {
   config = with cfg; lib.mkIf (certificateScheme == 3) {
 
@@ -29,7 +30,7 @@ in
       enable = true;
       virtualHosts = { 
         domain = {
-            serverName = "${hostPrefix}.${domain}";
+            serverName = fqdn;
             forceSSL = true;
             enableACME = true;
             locations."/" = {
