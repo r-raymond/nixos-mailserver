@@ -46,6 +46,8 @@ in
       # @todo should we reload postfix here?
       postRun = ''
         systemctl reload nginx
+        systemctl reload postfix
+        systemctl reload dovecot2
       '';
     };
   };
