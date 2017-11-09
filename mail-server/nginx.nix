@@ -26,11 +26,11 @@ let
   acmeRoot = "/var/lib/acme/acme-challenge";
 in
 {
-  config = with cfg; lib.mkIf (certificateScheme == 3) {
+  config = lib.mkIf (cfg.certificateScheme == 3) {
     services.nginx = {
       enable = true;
-      virtualHosts = genAttrs allDomains (domain: {
-           serverName = "${hostPrefix}.${domain}";
+      virtualHosts = genAttrs (map (domain: "${cfg.hostPrefix}.${domain}") allDomains) (domain: {
+           serverName = "${domain}";
            forceSSL = true;
            enableACME = true;
            locations."/" = {
@@ -40,11 +40,8 @@ in
        });
     };
     security.acme.certs."mailserver" = {
-      # @todo what user/group should this run as?
-      user = "postfix"; # cfg.user;
-      group = "postfix"; # lib.mkDefault cfg.group;
-      domain = "${hostPrefix}.${domain}";
-      extraDomains = map (domain: "${hostPrefix}.${domain}") extraDomains;
+      domain = "${cfg.hostPrefix}.${cfg.domain}";
+      extraDomains = genAttrs (map (domain: "${cfg.hostPrefix}.${domain}") cfg.extraDomains) (domain: null);
       webroot = acmeRoot;
       # @todo should we reload postfix here?
       postRun = ''

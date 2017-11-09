@@ -14,10 +14,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ config }:
+{ config, lib }:
 
 let
   cfg = config.mailserver;
+  inherit (lib.strings) stringToCharacters;
 in
 {
   # cert :: PATH
@@ -37,4 +38,10 @@ in
               else if cfg.certificateScheme == 3
                    then "/var/lib/acme/mailserver/key.pem"
                    else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
+
+  # appends cfg.domain to argument if it does not contain "@"
+  qualifyUser = user: (
+        if (builtins.any (c: c == "@") (stringToCharacters user))
+        then user
+        else "${user}@${cfg.domain}");
 }

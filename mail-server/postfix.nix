@@ -16,7 +16,7 @@
 
 { config, pkgs, lib, ... }:
 
-with (import ./common.nix { inherit config; });
+with (import ./common.nix { inherit config lib; });
 
 let
   inherit (lib.strings) concatStringsSep;
@@ -27,11 +27,11 @@ let
   valiases_postfix = map
     (from:
       let to = cfg.virtualAliases.${from};
-      in "${from} ${to}")
+      in "${qualifyUser from} ${qualifyUser to}")
     (builtins.attrNames cfg.virtualAliases);
 
   # accountToIdentity :: User -> String
-  accountToIdentity = account: "${account.name} ${account.name}";
+  accountToIdentity = account: "${qualifyUser account.name} ${qualifyUser account.name}";
 
   # vaccounts_identity :: [ String ]
   vaccounts_identity = map accountToIdentity (lib.attrValues cfg.loginAccounts);

@@ -35,6 +35,7 @@ in
     extraDomains = mkOption {
       type = types.listOf types.str;
       example = "[ example.com ]";
+      default = [];
       description = "Extra domains that this mail server serves.";
     };
 
