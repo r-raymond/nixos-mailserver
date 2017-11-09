@@ -21,23 +21,34 @@ with (import ./common.nix { inherit config; });
 
 let
   cfg = config.mailserver;
+  allDomains = [ cfg.domain ] ++ cfg.extraDomains;
+  acmeRoot = "/var/lib/acme/acme-challenge";
 in
 {
   config = with cfg; lib.mkIf (certificateScheme == 3) {
-
     services.nginx = {
       enable = true;
-      virtualHosts = { 
-        domain = {
-            serverName = "${hostPrefix}.${domain}";
-            forceSSL = true;
-            enableACME = true;
-            locations."/" = {
-              root = "/var/www";
-            };
-            acmeRoot = "/var/lib/acme/acme-challenge";
-        };
-      };
+      virtualHosts = genAttrs allDomains (domain: {
+           serverName = "${hostPrefix}.${domain}";
+           forceSSL = true;
+           enableACME = true;
+           locations."/" = {
+             root = "/var/www";
+           };
+           acmeRoot = acmeRoot;
+       });
+    };
+    security.acme.certs."${hostPrefix}.${domain}" = {
+      # @todo what user/group should this run as?
+      user = "postfix"; # cfg.user;
+      group = "postfix"; # lib.mkDefault cfg.group;
+      domain = "${hostPrefix}.${domain}";
+      extraDomains = map (domain: "${hostPrefix}.${domain}") extraDomains;
+      webroot = acmeRoot;
+      # @todo should we reload postfix here?
+      postRun = ''
+        systemctl reload nginx
+      '';
     };
   };
 }

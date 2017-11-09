@@ -19,17 +19,19 @@
 with (import ./common.nix { inherit config; });
 
 let
+  inherit (lib.strings) concatStringsSep;
   cfg = config.mailserver;
+  allDomains = [ cfg.domain ] ++ cfg.extraDomains;
 
   # valiases_postfix :: [ String ]
   valiases_postfix = map
     (from:
       let to = cfg.virtualAliases.${from};
-      in "${from}@${cfg.domain} ${to}@${cfg.domain}")
+      in "${from} ${to}")
     (builtins.attrNames cfg.virtualAliases);
 
   # accountToIdentity :: User -> String
-  accountToIdentity = account: "${account.name}@${cfg.domain} ${account.name}@${cfg.domain}";
+  accountToIdentity = account: "${account.name} ${account.name}";
 
   # vaccounts_identity :: [ String ]
   vaccounts_identity = map accountToIdentity (lib.attrValues cfg.loginAccounts);
@@ -38,7 +40,7 @@ let
   valiases_file = builtins.toFile "valias" (lib.concatStringsSep "\n" valiases_postfix);
 
   # vhosts_file :: Path
-  vhosts_file = builtins.toFile "vhosts" cfg.domain;
+  vhosts_file = builtins.toFile "vhosts" (concatStringsSep ", " allDomains);
 
   # vaccounts_file :: Path
   # see
@@ -47,7 +49,7 @@ let
   # every alias is owned (uniquely) by its user. We have to add the users own
   # address though
   vaccounts_file = builtins.toFile "vaccounts" (lib.concatStringsSep "\n" (vaccounts_identity ++ valiases_postfix));
-  
+
   submissionHeaderCleanupRules = pkgs.writeText "submission_header_cleanup_rules" ''
      # Removes sensitive headers from mails handed in via the submission port.
      # See https://thomas-leister.de/mailserver-debian-stretch/
@@ -67,12 +69,12 @@ in
       enable = true;
       networksStyle = "host";
       mapFiles."valias" = valiases_file;
-      mapFiles."vaccounts" = vaccounts_file; 
+      mapFiles."vaccounts" = vaccounts_file;
       sslCert = certificatePath;
       sslKey = keyPath;
       enableSubmission = true;
 
-      extraConfig = 
+      extraConfig =
       ''
         # Extra Config
 
@@ -116,7 +118,7 @@ in
       '';
 
       submissionOptions =
-      { 
+      {
         smtpd_tls_security_level = "encrypt";
         smtpd_sasl_auth_enable = "yes";
         smtpd_sasl_type = "dovecot";

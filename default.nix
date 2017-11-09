@@ -28,8 +28,14 @@ in
 
     domain = mkOption {
       type = types.str;
-      example = "example.com";
-      description = "The domain that this mail server serves. So far only one domain is supported";
+      example = "[ example.com ]";
+      description = "The primary domain that this mail server serves.";
+    };
+
+    extraDomains = mkOption {
+      type = types.listOf types.str;
+      example = "[ example.com ]";
+      description = "Extra domains that this mail server serves.";
     };
 
     hostPrefix = mkOption {

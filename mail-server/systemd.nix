@@ -64,7 +64,7 @@ in
     # Create certificates and maildir folder
     systemd.services.postfix = {
       after = (if (certificateScheme == 3) then [ "nginx.service" ] else []);
-      preStart = 
+      preStart =
       ''
       # Create mail directory and set permissions. See
       # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>.
