@@ -20,6 +20,7 @@
 with (import ./common.nix { inherit config; });
 
 let
+  inherit (lib.attrsets) genAttrs;
   cfg = config.mailserver;
   allDomains = [ cfg.domain ] ++ cfg.extraDomains;
   acmeRoot = "/var/lib/acme/acme-challenge";
@@ -38,7 +39,7 @@ in
            acmeRoot = acmeRoot;
        });
     };
-    security.acme.certs."${hostPrefix}.${domain}" = {
+    security.acme.certs."mailserver" = {
       # @todo what user/group should this run as?
       user = "postfix"; # cfg.user;
       group = "postfix"; # lib.mkDefault cfg.group;

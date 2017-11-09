@@ -26,7 +26,7 @@ in
              else if cfg.certificateScheme == 2
                   then "${cfg.certificateDirectory}/cert-${cfg.domain}.pem"
                   else if cfg.certificateScheme == 3
-                       then "/var/lib/acme/${cfg.hostPrefix}.${cfg.domain}/fullchain.pem"
+                       then "/var/lib/acme/mailserver/fullchain.pem"
                        else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
 
   # key :: PATH
@@ -35,6 +35,6 @@ in
         else if cfg.certificateScheme == 2
              then "${cfg.certificateDirectory}/key-${cfg.domain}.pem"
               else if cfg.certificateScheme == 3
-                   then "/var/lib/acme/${cfg.hostPrefix}.${cfg.domain}/key.pem"
+                   then "/var/lib/acme/mailserver/key.pem"
                    else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
 }
