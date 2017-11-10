@@ -102,6 +102,40 @@ openssl s_client -host mail.example.com -port 143 -starttls imap
 ```
 
 
+## How to Set Up a 10/10 Mail Server
+Mail servers can be a tricky thing to set up. This guide is supposed to run you
+through the most important steps to achieve a 10/10 score on `mail-tester.com`.
+
+### Fully Qualified Domain Name
+No matter how many domains you want to serve on your mail server, you need to
+settle on a _Fully Qualified Domain Name_ (FQDN) where your server is reachable,
+so that other servers can find yours. Common FQDN include `mx.example.com`
+(where `example.com` is a domain you own) or `mail.example.com`.
+
+After you settled on a FQDN (we will assume `mx.example.com` henceforth) you
+need to
+  * Set a DNS entry on your domain to point to the IP of the server. For this
+    add a DNS record such as
+
+    | Name (Subdomain) | TTL   | Type | Priority | Value             |
+    | ---------------- | ----- | ---- | -------- | ----------------- |
+    | mx.example.com   | 10800 | A    |          | `xxx.xxx.xxx.xxx` |
+
+    to your domain, where `xxx.xxx.xxx.xxx` is the IP of your server.
+
+  * Set a `rDNS` (reverse DNS) entry for your FQDN. You need to do so wherever
+    you have rented your server. Make sure that `xxx.xxx.xxx.xxx` resolves to
+    `mx.example.com`.
+
+
+### Spf record
+
+TODO
+
+### DKIM signature
+
+TODO
+
 ## A Complete Mail Server Without Moving Parts
 
 ### Used Technologies
