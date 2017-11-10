@@ -130,21 +130,21 @@ need to
 
 ### MX Record
 
-    | Name (Subdomain) | TTL   | Type | Priority | Value             |
-    | ---------------- | ----- | ---- | -------- | ----------------- |
-    | domain1.com      |       | MX   | 10       | mx.exmaple.com    |
+| Name (Subdomain) | TTL   | Type | Priority | Value             |
+| ---------------- | ----- | ---- | -------- | ----------------- |
+| domain1.com      |       | MX   | 10       | mx.exmaple.com    |
 
 ### Spf record
 
-    | Name (Subdomain) | TTL   | Type | Priority | Value                             |
-    | ---------------- | ----- | ---- | -------- | -----------------                 |
-    | domain1.com      | 10800 | TXT  |          | `v=spf1 ip4:xxx.xxx.xxx.xxx -all` |
+| Name (Subdomain) | TTL   | Type | Priority | Value                             |
+| ---------------- | ----- | ---- | -------- | -----------------                 |
+| domain1.com      | 10800 | TXT  |          | `v=spf1 ip4:xxx.xxx.xxx.xxx -all` |
 
 ### DKIM signature
 
-    | Name (Subdomain)            | TTL   | Type | Priority | Value                     |
-    | ----------------            | ----- | ---- | -------- | -----------------         |
-    | dkim._domainkey.domain1.com | 10800 | TXT  |          | `v=DKIM1; p=yyyyyyyyyyyy` |
+| Name (Subdomain)            | TTL   | Type | Priority | Value                     |
+| ----------------            | ----- | ---- | -------- | -----------------         |
+| dkim._domainkey.domain1.com | 10800 | TXT  |          | `v=DKIM1; p=yyyyyyyyyyyy` |
 
 where `yyyyyyyyyyyy` is the `DKIM` signature
 
