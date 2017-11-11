@@ -10,7 +10,8 @@ None so far.
 [Latest Release Candidate](https://github.com/r-raymond/nixos-mailserver/releases/latest)
 
 ## Features
-### v1.1
+### v2.0
+ * [x] Multiple Domains
  * Postfix MTA
     - [x] smtp on port 25
     - [x] submission port 587
@@ -22,6 +23,7 @@ None so far.
  * Certificates
     - [x] manual certificates
     - [x] on the fly creation
+    - [x] Let's Encrypt
  * Spam Filtering
     - [x] via rspamd
     - [x] hard coded sieve script to move spam into Junk folder
@@ -33,17 +35,13 @@ None so far.
     - [x] declarative user management
     - [x] declarative password management
 
-
-### v1.2
-  * Certificates
-    - [x] Let's Encrypt
+### In the future
   * Sieves
     - [ ] Allow user defined sieve scripts
   * User Aliases
     - [ ] More complete alias support
-
-### v2.0
-  * [ ] Multiple Domains
+  * DKIM Signing
+    - [ ] Allow a per domain selector
 
 ### Changelog
 
@@ -51,26 +49,37 @@ None so far.
  * Changed structure to Nix Modules
  * Adds Sieve support
 
+#### v1.1 -> v2.0
+ * rename domain to fqdn, seperate fqdn from domains
+ * multi domain support
+
 ### How to Deploy
 
 ```nix
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v1.1-rc3")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0-rc1")
   ];
 
   mailserver = {
     enable = true;
-    domain = "example.com";
-    login_accounts = {
-      user1 = {
-        name = "test";
-        hashedPassword = "$6$Mmmx1U68$Twd8acMxqHoqFyfz3SPz1pzjY/D36gayAdpUTFMvfrHQUwObF3acuLz2GYAGFzsjHLEK/dPIv3pCwj3kZ5T2u.";
-      };
+    fqdn = "mail.example.com";
+    domains = [ "example.com" "example2.com" ];
+    loginAccounts = {
+        "user1@example.com" = {
+            hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
+        };
     };
     virtualAliases = {
-      admin = "user1";
+        # address = forward address;
+        "info@example.com" = "user1@example.com";
+        "postmaster@example.com" = "user1@example.com";
+        "abuse@example.com" = "user1@example.com";
+        "user1@example2.com" = "user1@example.com";
+        "info@example2.com" = "user1@example.com";
+        "postmaster@example2.com" = "user1@example.com";
+        "abuse@example2.com" = "user1@example.com";
     };
   };
 }
@@ -162,7 +171,7 @@ where `yyyyyyyyyyyy` is the `DKIM` signature
  * Pam
 
 ### Features
- * one domain
+ * unlimited domain
  * unlimited mail accounts
  * unlimited aliases for every mail account
  * spam and virus checking
@@ -179,6 +188,7 @@ where `yyyyyyyyyyyy` is the `DKIM` signature
 
 ## Contributors
  * Special thanks to @Infinisil for the module rewrite
+ * Special thanks to @jbboehr for multidomain implementation
  * @danbst
  * @phdoerfler
  * @eqyiel
