@@ -25,11 +25,11 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
         mailserver = {
           enable = true;
-          domain = "example.com";
+          fqdn = "mail.example.com";
+          domains = [ "example.com" ];
 
-          hostPrefix = "mail";
           loginAccounts = {
-              user1 = {
+              "user1@example.com" = {
                   hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
               };
           };

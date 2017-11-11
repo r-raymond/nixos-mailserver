@@ -19,8 +19,6 @@
 with config.mailserver;
 
 let
-  qualifyUser = (import ./common.nix { inherit config lib; }).qualifyUser;
-
   vmail_user = {
     name = vmailUserName;
     isNormalUser = false;
@@ -32,14 +30,14 @@ let
 
   # accountsToUser :: String -> UserRecord
   accountsToUser = account: {
-    name = (qualifyUser account.name);
+    name = account.name;
     isNormalUser = false;
     group = vmailGroupName;
     inherit (account) hashedPassword;
   };
 
   # mail_users :: { [String]: UserRecord }
-  mail_users = lib.foldl (prev: next: prev // { "${qualifyUser next.name}" = next; }) {}
+  mail_users = lib.foldl (prev: next: prev // { "${next.name}" = next; }) {}
     (map accountsToUser (lib.attrValues loginAccounts));
 
 in

@@ -16,22 +16,21 @@
 
 { config, pkgs, lib, ... }:
 
-with (import ./common.nix { inherit config lib; });
+with (import ./common.nix { inherit config; });
 
 let
   inherit (lib.strings) concatStringsSep;
   cfg = config.mailserver;
-  allDomains = [ cfg.domain ] ++ cfg.extraDomains;
 
   # valiases_postfix :: [ String ]
   valiases_postfix = map
     (from:
       let to = cfg.virtualAliases.${from};
-      in "${qualifyUser from} ${qualifyUser to}")
+      in "${from} ${to}")
     (builtins.attrNames cfg.virtualAliases);
 
   # accountToIdentity :: User -> String
-  accountToIdentity = account: "${qualifyUser account.name} ${qualifyUser account.name}";
+  accountToIdentity = account: "${account.name} ${account.name}";
 
   # vaccounts_identity :: [ String ]
   vaccounts_identity = map accountToIdentity (lib.attrValues cfg.loginAccounts);
@@ -40,7 +39,7 @@ let
   valiases_file = builtins.toFile "valias" (lib.concatStringsSep "\n" valiases_postfix);
 
   # vhosts_file :: Path
-  vhosts_file = builtins.toFile "vhosts" (concatStringsSep ", " allDomains);
+  vhosts_file = builtins.toFile "vhosts" (concatStringsSep "\n" cfg.domains);
 
   # vaccounts_file :: Path
   # see

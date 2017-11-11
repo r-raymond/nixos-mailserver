@@ -14,34 +14,27 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ config, lib }:
+{ config }:
 
 let
   cfg = config.mailserver;
-  inherit (lib.strings) stringToCharacters;
 in
 {
   # cert :: PATH
   certificatePath = if cfg.certificateScheme == 1
              then cfg.certificateFile
              else if cfg.certificateScheme == 2
-                  then "${cfg.certificateDirectory}/cert-${cfg.domain}.pem"
+                  then "${cfg.certificateDirectory}/cert-${cfg.fqdn}.pem"
                   else if cfg.certificateScheme == 3
-                       then "/var/lib/acme/mailserver/fullchain.pem"
+                       then "/var/lib/acme/${cfg.fqdn}/fullchain.pem"
                        else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
 
   # key :: PATH
   keyPath = if cfg.certificateScheme == 1
         then cfg.keyFile
         else if cfg.certificateScheme == 2
-             then "${cfg.certificateDirectory}/key-${cfg.domain}.pem"
+             then "${cfg.certificateDirectory}/key-${cfg.fqdn}.pem"
               else if cfg.certificateScheme == 3
-                   then "/var/lib/acme/mailserver/key.pem"
+                   then "/var/lib/acme/${cfg.fqdn}/key.pem"
                    else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
-
-  # appends cfg.domain to argument if it does not contain "@"
-  qualifyUser = user: (
-        if (builtins.any (c: c == "@") (stringToCharacters user))
-        then user
-        else "${user}@${cfg.domain}");
 }

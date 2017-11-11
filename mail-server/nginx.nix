@@ -20,35 +20,29 @@
 with (import ./common.nix { inherit config; });
 
 let
-  inherit (lib.attrsets) genAttrs;
   cfg = config.mailserver;
-  allDomains = [ cfg.domain ] ++ cfg.extraDomains;
   acmeRoot = "/var/lib/acme/acme-challenge";
 in
 {
   config = lib.mkIf (cfg.certificateScheme == 3) {
     services.nginx = {
       enable = true;
-      virtualHosts = genAttrs (map (domain: "${cfg.hostPrefix}.${domain}") allDomains) (domain: {
-           serverName = "${domain}";
-           forceSSL = true;
-           enableACME = true;
-           locations."/" = {
-             root = "/var/www";
-           };
-           acmeRoot = acmeRoot;
-       });
+      virtualHosts."${cfg.fqdn}" = {
+        serverName = cfg.fqdn;
+        forceSSL = true;
+        enableACME = true;
+        acmeRoot = acmeRoot;
+      };
     };
-    security.acme.certs."mailserver" = {
-      domain = "${cfg.hostPrefix}.${cfg.domain}";
-      extraDomains = genAttrs (map (domain: "${cfg.hostPrefix}.${domain}") cfg.extraDomains) (domain: null);
-      webroot = acmeRoot;
-      # @todo should we reload postfix here?
-      postRun = ''
+    security.acme.certs."${cfg.fqdn}".postRun = #{
+ #     domain = "${cfg.fqdn}";
+#      webroot = acmeRoot;
+#      postRun = 
+      ''
         systemctl reload nginx
         systemctl reload postfix
         systemctl reload dovecot2
       '';
-    };
+#    };
   };
 }
