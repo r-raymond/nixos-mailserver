@@ -28,6 +28,8 @@ let
            ''
            else "";
   dkim = if cfg.dkimSigning
+  # Note: domain = "*"; causes Rmilter to try to search key in the key path
+  # as keypath/domain.selector.key for any domain.
          then
          ''
             dkim {

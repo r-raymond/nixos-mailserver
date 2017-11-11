@@ -38,22 +38,31 @@ let
         ''
         else "";
 
-  dkim_key = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private";
-  dkim_txt = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.txt";
+  createDomainDkimCert = dom:
+    let
+      dkim_key = "${cfg.dkimKeyDirectory}/${dom}.${cfg.dkimSelector}.key";
+      dkim_txt = "${cfg.dkimKeyDirectory}/${dom}.${cfg.dkimSelector}.txt";
+    in
+        ''
+          if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
+          then
+              ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
+                                                   -d "${dom}" \
+                                                   --directory="${cfg.dkimKeyDirectory}"
+              mv "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private" "${dkim_key}"
+              mv "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.txt" "${dkim_txt}"
+          fi
+        '';
+  createAllCerts = lib.concatStringsSep "\n" (map createDomainDkimCert cfg.domains);
   create_dkim_cert =
         ''
           # Create dkim dir
           mkdir -p "${cfg.dkimKeyDirectory}"
           chown rmilter:rmilter "${cfg.dkimKeyDirectory}"
 
-          if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
-          then
+          ${createAllCerts}
 
-              ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
-                                                   -d ${cfg.fqdn} \
-                                                   --directory="${cfg.dkimKeyDirectory}"
-              chown rmilter:rmilter "${dkim_key}"
-          fi
+          chown -R rmilter:rmilter "${cfg.dkimKeyDirectory}"
         '';
 in
 {
