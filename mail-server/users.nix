@@ -30,7 +30,7 @@ let
 
   # accountsToUser :: String -> UserRecord
   accountsToUser = account: {
-    name = account.name + "@" + domain;
+    name = account.name;
     isNormalUser = false;
     group = vmailGroupName;
     inherit (account) hashedPassword;

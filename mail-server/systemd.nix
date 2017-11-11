@@ -23,10 +23,10 @@ let
         ''
           # Create certificates if they do not exist yet
           dir="${cfg.certificateDirectory}"
-          fqdn="${cfg.hostPrefix}.${cfg.domain}"
+          fqdn="${cfg.fqdn}"
           case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
-          key="''${dir}/key-${cfg.domain}.pem";
-          cert="''${dir}/cert-${cfg.domain}.pem";
+          key="''${dir}/key-${cfg.fqdn}.pem";
+          cert="''${dir}/cert-${cfg.fqdn}.pem";
 
           if [ ! -f "''${key}" ] || [ ! -f "''${cert}" ]
           then
@@ -50,7 +50,7 @@ let
           then
 
               ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
-                                                   -d ${cfg.domain} \
+                                                   -d ${cfg.fqdn} \
                                                    --directory="${cfg.dkimKeyDirectory}"
               chown rmilter:rmilter "${dkim_key}"
           fi
@@ -64,7 +64,7 @@ in
     # Create certificates and maildir folder
     systemd.services.postfix = {
       after = (if (certificateScheme == 3) then [ "nginx.service" ] else []);
-      preStart = 
+      preStart =
       ''
       # Create mail directory and set permissions. See
       # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>.

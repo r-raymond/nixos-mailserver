@@ -26,19 +26,17 @@ in
   options.mailserver = {
     enable = mkEnableOption "nixos-mailserver";
 
-    domain = mkOption {
+    fqdn = mkOption {
       type = types.str;
-      example = "example.com";
-      description = "The domain that this mail server serves. So far only one domain is supported";
+      example = "[ example.com ]";
+      description = "The fully qualified domain name of the mail server.";
     };
 
-    hostPrefix = mkOption {
-      type = types.str;
-      default = "mail";
-      description = ''
-        The prefix of the FQDN of the server. In this example the FQDN of the server
-        is given by 'mail.example.com'
-      '';
+    domains = mkOption {
+      type = types.listOf types.str;
+      example = "[ example.com ]";
+      default = [];
+      description = "The domains that this mail server serves.";
     };
 
     loginAccounts = mkOption {

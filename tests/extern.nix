@@ -25,14 +25,14 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
             mailserver = {
               enable = true;
-              domain = "example.com";
+              fqdn = "mail.example.com";
+              domains = [ "example.com" ];
 
-              hostPrefix = "mail";
               loginAccounts = {
-                  user1 = {
+                  "user1@example.com" = {
                       hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
                   };
-                  user2 = {
+                  "user2@example.com" = {
                       hashedPassword = "$6$u61JrAtuI0a$nGEEfTP5.eefxoScUGVG/Tl0alqla2aGax4oTd85v3j3xSmhv/02gNfSemv/aaMinlv9j/ZABosVKBrRvN5Qv0";
                   };
               };

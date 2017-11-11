@@ -21,23 +21,28 @@ with (import ./common.nix { inherit config; });
 
 let
   cfg = config.mailserver;
+  acmeRoot = "/var/lib/acme/acme-challenge";
 in
 {
-  config = with cfg; lib.mkIf (certificateScheme == 3) {
-
+  config = lib.mkIf (cfg.certificateScheme == 3) {
     services.nginx = {
       enable = true;
-      virtualHosts = { 
-        domain = {
-            serverName = "${hostPrefix}.${domain}";
-            forceSSL = true;
-            enableACME = true;
-            locations."/" = {
-              root = "/var/www";
-            };
-            acmeRoot = "/var/lib/acme/acme-challenge";
-        };
+      virtualHosts."${cfg.fqdn}" = {
+        serverName = cfg.fqdn;
+        forceSSL = true;
+        enableACME = true;
+        acmeRoot = acmeRoot;
       };
     };
+    security.acme.certs."${cfg.fqdn}".postRun = #{
+ #     domain = "${cfg.fqdn}";
+#      webroot = acmeRoot;
+#      postRun = 
+      ''
+        systemctl reload nginx
+        systemctl reload postfix
+        systemctl reload dovecot2
+      '';
+#    };
   };
 }
