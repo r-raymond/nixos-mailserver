@@ -77,7 +77,7 @@ in
       ''
         # Extra Config
 
-        smtpd_banner = $myhostname ESMTP NO UCE
+        smtpd_banner = ${fqdn} ESMTP NO UCE
         disable_vrfy_command = yes
         message_size_limit = 20971520
 
