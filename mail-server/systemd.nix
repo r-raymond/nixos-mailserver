@@ -16,6 +16,8 @@
 
 { config, pkgs, lib, ... }:
 
+with (import ./common.nix { inherit config lib; });
+
 let
   cfg = config.mailserver;
 
@@ -23,7 +25,7 @@ let
         ''
           # Create certificates if they do not exist yet
           dir="${cfg.certificateDirectory}"
-          fqdn="${cfg.hostPrefix}.${cfg.domain}"
+          fqdn="${fqdn}"
           case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
           key="''${dir}/key-${cfg.domain}.pem";
           cert="''${dir}/cert-${cfg.domain}.pem";

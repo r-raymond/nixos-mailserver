@@ -33,7 +33,7 @@ in
     };
 
     hostPrefix = mkOption {
-      type = types.str;
+      type = types.nullOr types.str;
       default = "mail";
       description = ''
         The prefix of the FQDN of the server. In this example the FQDN of the server
