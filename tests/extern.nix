@@ -35,6 +35,9 @@ import <nixpkgs/nixos/tests/make-test.nix> {
                   "user2@example.com" = {
                       hashedPassword = "$6$u61JrAtuI0a$nGEEfTP5.eefxoScUGVG/Tl0alqla2aGax4oTd85v3j3xSmhv/02gNfSemv/aaMinlv9j/ZABosVKBrRvN5Qv0";
                   };
+                  "user@example2.com" = {
+                      hashedPassword = "$6$u61JrAtuI0a$nGEEfTP5.eefxoScUGVG/Tl0alqla2aGax4oTd85v3j3xSmhv/02gNfSemv/aaMinlv9j/ZABosVKBrRvN5Qv0";
+                  };
               };
 
               enableImap = true;
@@ -68,6 +71,13 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         from           user2\@example.com
         user           user2\@example.com
         password       user2
+
+        account        test2
+        host           SERVER
+        port           587
+        from           user\@example2.com
+        user           user\@example2.com
+        password       user2
     '';
     email1 =
     ''
@@ -81,6 +91,21 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         Hello User1,
 
         how are you doing today?
+    '';
+    email2 =
+    ''
+        From: User <user\@example2.com>
+        To: User1 <user1\@example.com>
+        Cc:
+        Bcc:
+        Subject: This is a test Email from user\@example2.com to user1
+        Reply-To:
+
+        Hello User1,
+
+        how are you doing today?
+
+        XOXO User1
     '';
   in
     ''
@@ -120,6 +145,20 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         $client->succeed("cat ~/mail/* >&2");
         # make sure our IP is _not_ in the email header
         $client->fail("grep `ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print \$2}' | cut -f1  -d'/'` ~/mail/*");
+      };
+
+      subtest "dkim singing, multiple domains", sub {
+          $client->succeed("rm ~/mail/*");
+          $client->succeed("rm mail.txt");
+          $client->succeed("echo '${email2}' > mail.txt");
+          # send email from user2 to user1
+          $client->succeed("msmtp -a test2 --tls=on --tls-certcheck=off --auth=on user1\@example.com < mail.txt >&2");
+          $client->succeed("sleep 5");
+          # fetchmail returns EXIT_CODE 0 when it retrieves mail
+          $client->succeed("fetchmail -v >&2");
+          $client->succeed("cat ~/mail/* >&2");
+          # make sure it is dkim signed
+          $client->succeed("grep DKIM ~/mail/*");
       };
     '';
 }
