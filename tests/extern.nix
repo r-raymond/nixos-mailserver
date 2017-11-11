@@ -155,7 +155,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           $client->succeed("msmtp -a test2 --tls=on --tls-certcheck=off --auth=on user1\@example.com < mail.txt >&2");
           $client->succeed("sleep 5");
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail -v >&2");
+          $client->succeed("fetchmail -v");
           $client->succeed("cat ~/mail/* >&2");
           # make sure it is dkim signed
           $client->succeed("grep DKIM ~/mail/*");
