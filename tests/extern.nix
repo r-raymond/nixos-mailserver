@@ -26,7 +26,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
             mailserver = {
               enable = true;
               fqdn = "mail.example.com";
-              domains = [ "example.com" ];
+              domains = [ "example.com" "example2.com" ];
 
               loginAccounts = {
                   "user1@example.com" = {
