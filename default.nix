@@ -28,13 +28,13 @@ in
 
     fqdn = mkOption {
       type = types.str;
-      example = "[ example.com ]";
+      example = "example.com";
       description = "The fully qualified domain name of the mail server.";
     };
 
     domains = mkOption {
       type = types.listOf types.str;
-      example = "[ example.com ]";
+      example = [ "example.com" ];
       default = [];
       description = "The domains that this mail server serves.";
     };
