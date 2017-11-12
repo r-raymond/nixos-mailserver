@@ -147,7 +147,7 @@ need to
 
 | Name (Subdomain) | TTL   | Type | Priority | Value                             |
 | ---------------- | ----- | ---- | -------- | -----------------                 |
-| domain1.com      | 10800 | TXT  |          | `v=spf1 ip4:xxx.xxx.xxx.xxx -all` |
+| domain1.com      | 10800 | TXT  |          | `v=spf1 ip4:xxx.xxx.xxx.xxx ~all` |
 
 ### DKIM signature
 
