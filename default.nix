@@ -184,11 +184,20 @@ in
       default = true;
       description = ''
         Whether to enable imap / pop3. Both variants are only supported in the
-        (sane) startTLS configuration. (TODO: Allow SSL ports). The ports are
+        (sane) startTLS configuration. The ports are
 
         110 - Pop3
         143 - IMAP
         587 - SMTP with login
+      '';
+    };
+
+    enableImapSsl = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to enable IMAPS, setting this option to true will open port 993
+        in the firewall.
       '';
     };
 
@@ -196,8 +205,8 @@ in
       type = types.bool;
       default = false;
       description = ''
-        Whether to enable POP3. Both variants are only supported in the
-        (sane) startTLS configuration. (TODO: Allow SSL ports). The ports are
+        Whether to enable POP3. Both variants are only supported in the (sane)
+        startTLS configuration. The ports are
 
         110 - Pop3
         143 - IMAP
@@ -205,8 +214,14 @@ in
       '';
     };
 
-    # imapSsl = mkOption {} #< TODO
-    # pop3Ssl = mkOption {} #< TODO
+    enablePop3Ssl = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to enable POP3S, setting this option to true will open port 995
+        in the firewall.
+      '';
+    };
 
     virusScanning = mkOption {
       type = types.bool;
