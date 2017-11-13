@@ -53,7 +53,7 @@ None so far.
  * rename domain to fqdn, seperate fqdn from domains
  * multi domain support
 
-### How to Deploy
+### Quick Start
 
 ```nix
 { config, pkgs, ... }:
@@ -88,7 +88,204 @@ None so far.
 For a complete list of options, see `default.nix`.
 
 
-### How to Test
+
+## How to Set Up a 10/10 Mail Server Guide
+Mail servers can be a tricky thing to set up. This guide is supposed to run you
+through the most important steps to achieve a 10/10 score on `mail-tester.com`.
+
+What you need:
+
+  * A server with a public IP (referred to as `server-IP`)
+  * A Fully Qualified Domain Name (`FQDN`) where your server is reachable. Note
+    so that other servers can find yours. Common FQDN include `mx.example.com`
+    (where `example.com` is a domain you own) or `mail.example.com`. The domain
+    is referred to as `server-domain` (`example.com` in the above example) and
+    the `FQDN` is referred to by `server-FQDN` (`mx.example.com` above).
+  * A list of domains you want to your email server to serve. (Note that this
+    does not have to include `server-domain`, but may of course). These will be
+    referred to as `domains`. As an example, `domains = [ example1.com,
+    example2.com ]`.
+
+### A) Setup server
+
+The following describes a server setup that is fairly complete. Even though
+there are more possible options (see `default.nix`), these should be the most
+common ones.
+
+```nix
+{ config, pkgs, ... }:
+{
+  imports = [
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0-rc1")
+  ];
+
+  mailserver = {
+    enable = true;
+    fqdn = <server-FQDN>;
+    domains = [ <domains> ];
+
+    # A list of all login accounts. To create the password hashes, use
+    # mkpasswd -m sha-512 "super secret password"
+    loginAccounts = {
+        "user1@example.com" = {
+            hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
+        };
+
+        "user2@example.com" = { ... };
+    };
+
+    # Virtual aliases. These are email addresses that are forwarded to
+    # loginAccounts addresses.
+    virtualAliases = {
+        # address = forward address;
+        "info@example.com" = "user1@example.com";
+        "postmaster@example.com" = "user1@example.com";
+        "abuse@example.com" = "user1@example.com";
+        "user1@example2.com" = "user1@example.com";
+    };
+  };
+
+  # User Let's Encrypt certificates
+  certificateScheme = 3;
+
+  # Enable IMAP and POP3
+  enableImap = true;
+  enablePop3 = true;
+  enableImapSsl = true;
+  enablePop3Ssl = true;
+
+  # whether to scan inbound emails for viruses (note that this requires at least
+  # 1 Gb RAM for the server. Without virus scanning 256 MB RAM should be plenty)
+  virusScanning = false;
+}
+```
+
+After a `nixos-rebuild switch --upgrade` your sever should be good to go. If
+you want to use `nixops` to deploy the server, look in the subfolder `nixops`
+for some inspiration.
+
+
+### B) Setup everything else
+
+#### Step 1: Set DNS entry for server
+
+Add a DNS record to the domain `server-domain` with the following entries
+
+| Name (Subdomain) | TTL   | Type | Priority | Value             |
+| ---------------- | ----- | ---- | -------- | ----------------- |
+| `server-FQDN`    | 10800 | A    |          | `server-IP`       |
+
+This resolved DNS equries for `server-FQDN` to `server-IP`. You can test if your
+setting is correct by
+
+```
+ping <server-FQDN>
+64 bytes from <server-FQDN> (<server-IP>): icmp_seq=1 ttl=46 time=21.3 ms
+...
+```
+
+Note that it can take a while until a DNS entry is propagated.
+
+#### Step 2: Set rDNS (reverse DNS) entry for server
+Wherever you have rented your server, you should be able to set reverse DNS
+entries for the IP's you own. Add an entry resolving `server-IP` to
+`server-FQDN`
+
+You can test if your setting is correct by
+
+```
+host <server-IP>
+<server-IP>.in-addr.arpa domain name pointer <server-FQDN>.
+```
+
+Note that it can take a while until a DNS entry is propagated.
+
+#### Step 3: Set `MX` Records
+
+For all `domain` in `domains` do:
+  * Add a `MX` record to the domain `domain`
+
+    | Name (Subdomain) | TTL   | Type | Priority | Value             |
+    | ---------------- | ----- | ---- | -------- | ----------------- |
+    | `domain`         |       | MX   | 10       | `server-FQDN`     |
+
+You can test this via
+```
+dig -t TXT <domain>
+
+...
+;; ANSWER SECTION:
+<domain>    10800   IN  MX  10 <server-FQDN>
+...
+```
+
+Note that it can take a while until a DNS entry is propagated.
+
+#### Step 4: Set `SPF` Records
+
+For all `domain` in `domains` do:
+  * Add a `SPF` record to the domain `domain`
+
+    | Name (Subdomain) | TTL   | Type | Priority | Value                         |
+    | ---------------- | ----- | ---- | -------- | -----------------             |
+    | `domain`         | 10800 | TXT  |          | `v=spf1 ip4:<server-IP> -all` |
+
+You can check this with `dig -t TXT <domain>` similar to the last section.
+
+Note that it can take a while until a DNS entry is propagated. If you want to
+use multiple servers for your email handling, don't forget to add all server
+IP's to this list.
+
+#### Step 5: Set `DKIM` signature
+
+For all `domain` in `domains` do:
+  * Go to your server and navigate to the dkim key directory (by default
+    `/var/dkim`. There you will find a public key for any domain in the
+    `domain.txt` file. It will look like
+    ```
+    mail._domainkey IN TXT "v=DKIM1; r=postmaster; g=*; k=rsa; p=<really-long-key>" ; ----- DKIM default for domain.tld
+    ```
+  * Add a `DKIM` record to the domain `domain`
+
+    | Name (Subdomain)         | TTL   | Type | Priority | Value                          |
+    | ----------------         | ----- | ---- | -------- | -----------------              |
+    | mail._domainkey.`domain` | 10800 | TXT  |          | `v=DKIM1; p=<really-long-key>` |
+
+
+You can check this with `dig -t TXT <domain>` similar to the last section.
+
+Note that it can take a while until a DNS entry is propagated.
+
+
+### C) Test your Setup
+
+Write an email to your aunt (who has been waiting for your reply far too long),
+and sign up for some of the finest newsletters the Internet has.
+
+Besides that, you can send an email to `mail-tester.com` and see how you score,
+and let `http://mxtoolbox.com/` take a look at your setup, but if you followed
+the steps closely then everything should be awesome!
+
+
+## How to Backup
+
+This is really easy. First off you should have a backup of your
+`configuration.nix` file where you have the server config (but that is already
+in a git repository right?)
+
+Next you need to backup `/var/vmail` or whatever you have specified for the
+option `mailDirectory`. This is where all the mails reside. Good options are a
+cron job with `rsync` or `scp`. But really anything works, as it is simply a
+folder with plenty of files in it. If your backup solution does not preserve the
+owner of the files don't forget to `chown` them to `virtualMail:virtualMail` if you copy
+them back (or whatever you specified as `vmailUserName`, and `vmailGoupName`).
+
+Finally you can (optionally) make a backup of `/var/dkim` (or whatever you
+specified as `dkimKeyDirectory`). If you should lose those don't worry, new ones
+will be created on the fly. But you will need to repeat step `B)5` and correct
+all the `dkim` keys.
+
+## How to Test for Development
 
 You can test the setup via `nixops`. After installation, do
 
@@ -110,52 +307,6 @@ To test imap manually use
 openssl s_client -host mail.example.com -port 143 -starttls imap
 ```
 
-
-## How to Set Up a 10/10 Mail Server
-Mail servers can be a tricky thing to set up. This guide is supposed to run you
-through the most important steps to achieve a 10/10 score on `mail-tester.com`.
-
-### Fully Qualified Domain Name
-No matter how many domains you want to serve on your mail server, you need to
-settle on a _Fully Qualified Domain Name_ (FQDN) where your server is reachable,
-so that other servers can find yours. Common FQDN include `mx.example.com`
-(where `example.com` is a domain you own) or `mail.example.com`.
-
-After you settled on a FQDN (we will assume `mx.example.com` henceforth) you
-need to
-  * Set a DNS entry on your domain to point to the IP of the server. For this
-    add a DNS record such as
-
-    | Name (Subdomain) | TTL   | Type | Priority | Value             |
-    | ---------------- | ----- | ---- | -------- | ----------------- |
-    | mx.example.com   | 10800 | A    |          | `xxx.xxx.xxx.xxx` |
-
-    to your domain, where `xxx.xxx.xxx.xxx` is the IP of your server.
-
-  * Set a `rDNS` (reverse DNS) entry for your FQDN. You need to do so wherever
-    you have rented your server. Make sure that `xxx.xxx.xxx.xxx` resolves to
-    `mx.example.com`.
-
-
-### MX Record
-
-| Name (Subdomain) | TTL   | Type | Priority | Value             |
-| ---------------- | ----- | ---- | -------- | ----------------- |
-| domain1.com      |       | MX   | 10       | mx.exmaple.com    |
-
-### Spf record
-
-| Name (Subdomain) | TTL   | Type | Priority | Value                             |
-| ---------------- | ----- | ---- | -------- | -----------------                 |
-| domain1.com      | 10800 | TXT  |          | `v=spf1 ip4:xxx.xxx.xxx.xxx -all` |
-
-### DKIM signature
-
-| Name (Subdomain)            | TTL   | Type | Priority | Value                     |
-| ----------------            | ----- | ---- | -------- | -----------------         |
-| dkim._domainkey.domain1.com | 10800 | TXT  |          | `v=DKIM1; p=yyyyyyyyyyyy` |
-
-where `yyyyyyyyyyyy` is the `DKIM` signature
 
 ## A Complete Mail Server Without Moving Parts
 
