@@ -56,7 +56,7 @@ in
       postfix.enable = true;
       rspamd = {
         enable = true;
-        extraConfig = "extended_spam_headers = yes;";
+        extraConfig = "password = \"trolol\";";
       };
       extraConfig =
       ''

@@ -241,6 +241,14 @@ in
 
       '';
     };
+
+    useDNSResolver = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Installs a local DNS resolver for faster and secure access.
+      '';
+    };
   };
 
   imports = [
