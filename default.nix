@@ -256,6 +256,16 @@ in
 
       '';
     };
+
+    debug = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to enable verbose logging for mailserver related services.  This
+        intended be used for development purposes only, you probably don't want
+        to enable this unless you're hacking on nixos-mailserver.
+      '';
+    };
   };
 
   imports = [
