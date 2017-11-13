@@ -76,6 +76,7 @@ in
       extraConfig =
       ''
         # Extra Config
+        mydestination = localhost
 
         smtpd_banner = ${fqdn} ESMTP NO UCE
         disable_vrfy_command = yes
