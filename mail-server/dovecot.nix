@@ -21,8 +21,8 @@ with (import ./common.nix { inherit config; });
 let
   cfg = config.mailserver;
 
-  # maildir in format "/${domain}/${user}/"
-  dovecot_maildir = "maildir:${cfg.mailDirectory}/%d/%n/";
+  # maildir in format "/${domain}/${user}"
+  dovecot_maildir = "maildir:${cfg.mailDirectory}/%d/%n";
 
 in
 {
