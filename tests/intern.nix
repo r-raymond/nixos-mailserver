@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-import ./../../nixpkgs/nixos/tests/make-test.nix {
+import <nixpkgs/nixos/tests/make-test.nix> {
 
   machine =
     { config, pkgs, ... }:
@@ -25,14 +25,17 @@ import ./../../nixpkgs/nixos/tests/make-test.nix {
 
         mailserver = {
           enable = true;
-          domain = "example.com";
+          fqdn = "mail.example.com";
+          domains = [ "example.com" ];
 
-          hostPrefix = "mail";
           loginAccounts = {
-              user1 = {
+              "user1@example.com" = {
                   hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
               };
           };
+
+          vmailGroupName = "vmail";
+          vmailUIDStart = 5000;
         };
     };
 
@@ -47,6 +50,10 @@ import ./../../nixpkgs/nixos/tests/make-test.nix {
 
       subtest "password is set", sub {
             $machine->succeed("cat /etc/shadow | grep 'user1\@example.com:\$6\$/z4n8AQl6K\$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/:1::::::'");
+      };
+
+      subtest "vmail gid is set correctly", sub {
+            $machine->succeed("getent group vmail | grep 5000");
       };
 
     '';

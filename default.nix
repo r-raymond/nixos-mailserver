@@ -26,19 +26,17 @@ in
   options.mailserver = {
     enable = mkEnableOption "nixos-mailserver";
 
-    domain = mkOption {
+    fqdn = mkOption {
       type = types.str;
       example = "example.com";
-      description = "The domain that this mail server serves. So far only one domain is supported";
+      description = "The fully qualified domain name of the mail server.";
     };
 
-    hostPrefix = mkOption {
-      type = types.str;
-      default = "mail";
-      description = ''
-        The prefix of the FQDN of the server. In this example the FQDN of the server
-        is given by 'mail.example.com'
-      '';
+    domains = mkOption {
+      type = types.listOf types.str;
+      example = [ "example.com" ];
+      default = [];
+      description = "The domains that this mail server serves.";
     };
 
     loginAccounts = mkOption {
@@ -113,7 +111,7 @@ in
 
     vmailUserName = mkOption {
       type = types.str;
-      default = "vmail";
+      default = "virtualMail";
       description = ''
         The user name and group name of the user that owns the directory where all
         the mail is stored.
@@ -122,7 +120,7 @@ in
 
     vmailGroupName = mkOption {
       type = types.str;
-      default = "vmail";
+      default = "virtualMail";
       description = ''
         The user name and group name of the user that owns the directory where all
         the mail is stored.
@@ -138,7 +136,7 @@ in
     };
 
     certificateScheme = mkOption {
-      type = types.enum [ 1 2 ];
+      type = types.enum [ 1 2 3 ];
       default = 2;
       description = ''
         Certificate Files. There are three options for these.
@@ -149,8 +147,6 @@ in
            this implies that a stripped down webserver has to be started. This also
            implies that the FQDN must be set as an `A` record to point to the IP of
            the server. TODO: Explain more details
-
-        TODO: Only certificate scheme 1) and 2) work as of yet.
       '';
     };
 
@@ -188,11 +184,20 @@ in
       default = true;
       description = ''
         Whether to enable imap / pop3. Both variants are only supported in the
-        (sane) startTLS configuration. (TODO: Allow SSL ports). The ports are
+        (sane) startTLS configuration. The ports are
 
         110 - Pop3
         143 - IMAP
         587 - SMTP with login
+      '';
+    };
+
+    enableImapSsl = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to enable IMAPS, setting this option to true will open port 993
+        in the firewall.
       '';
     };
 
@@ -200,8 +205,8 @@ in
       type = types.bool;
       default = false;
       description = ''
-        Whether to enable POP3. Both variants are only supported in the
-        (sane) startTLS configuration. (TODO: Allow SSL ports). The ports are
+        Whether to enable POP3. Both variants are only supported in the (sane)
+        startTLS configuration. The ports are
 
         110 - Pop3
         143 - IMAP
@@ -209,8 +214,14 @@ in
       '';
     };
 
-    # imapSsl = mkOption {} #< TODO
-    # pop3Ssl = mkOption {} #< TODO
+    enablePop3Ssl = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to enable POP3S, setting this option to true will open port 995
+        in the firewall.
+      '';
+    };
 
     virusScanning = mkOption {
       type = types.bool;
@@ -256,5 +267,6 @@ in
     ./mail-server/dovecot.nix
     ./mail-server/postfix.nix
     ./mail-server/rmilter.nix
+    ./mail-server/nginx.nix
   ];
 }

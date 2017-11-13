@@ -17,28 +17,32 @@
 
 { config, pkgs, lib, ... }:
 
+with (import ./common.nix { inherit config; });
+
 let
   cfg = config.mailserver;
-
-  # cert :: PATH
-  cert = if cfg.certificateScheme == 1
-         then cfg.certificateFile
-         else if cfg.certificateScheme == 2
-              then "${cfg.certificateDirectory}/cert-${cfg.fqdn.pem"
-              else "";
-
-  # key :: PATH
-  key = if cfg.certificateScheme == 1
-        then cfg.keyFile
-        else if cfg.certificateScheme == 2
-             then "${cfg.certificateDirectory}/key-${cfg.fqdn}.pem"
-             else "";
+  acmeRoot = "/var/lib/acme/acme-challenge";
 in
 {
-  
-  imports = [
-    ./rmilter.nix
-    ./postfix.nix key
-    ./dovecot.nix
-  ];
+  config = lib.mkIf (cfg.certificateScheme == 3) {
+    services.nginx = {
+      enable = true;
+      virtualHosts."${cfg.fqdn}" = {
+        serverName = cfg.fqdn;
+        forceSSL = true;
+        enableACME = true;
+        acmeRoot = acmeRoot;
+      };
+    };
+    security.acme.certs."${cfg.fqdn}".postRun = #{
+ #     domain = "${cfg.fqdn}";
+#      webroot = acmeRoot;
+#      postRun = 
+      ''
+        systemctl reload nginx
+        systemctl reload postfix
+        systemctl reload dovecot2
+      '';
+#    };
+  };
 }

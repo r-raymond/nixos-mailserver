@@ -19,25 +19,26 @@
 with config.mailserver;
 
 let
-  vmail_user = [{
-    #name = vmailUserName;
+  vmail_user = {
+    name = vmailUserName;
     isNormalUser = false;
     uid = vmailUIDStart;
     home = mailDirectory;
     createHome = true;
-    #group = vmailGroupName;
-  }];
+    group = vmailGroupName;
+  };
 
   # accountsToUser :: String -> UserRecord
   accountsToUser = account: {
-    name = account.name + "@" + domain;
+    name = account.name;
     isNormalUser = false;
     group = vmailGroupName;
     inherit (account) hashedPassword;
   };
 
-  # mail_user :: [ UserRecord ]
-  mail_user = map accountsToUser (lib.attrValues loginAccounts);
+  # mail_users :: { [String]: UserRecord }
+  mail_users = lib.foldl (prev: next: prev // { "${next.name}" = next; }) {}
+    (map accountsToUser (lib.attrValues loginAccounts));
 
 in
 {
@@ -45,10 +46,12 @@ in
   config = lib.mkIf enable {
     # set the vmail gid to a specific value
     users.groups = {
-      vmail = { gid = vmailUIDStart; };
+      "${vmailGroupName}" = { gid = vmailUIDStart; };
     };
 
     # define all users
-    users.extraUsers = vmail_user ++ mail_user;
+    users.users = mail_users // {
+      "${vmail_user.name}" = lib.mkForce vmail_user;
+    };
   };
 }

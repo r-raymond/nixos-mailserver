@@ -24,13 +24,17 @@ in
   certificatePath = if cfg.certificateScheme == 1
              then cfg.certificateFile
              else if cfg.certificateScheme == 2
-                  then "${cfg.certificateDirectory}/cert-${cfg.domain}.pem"
-                  else "";
+                  then "${cfg.certificateDirectory}/cert-${cfg.fqdn}.pem"
+                  else if cfg.certificateScheme == 3
+                       then "/var/lib/acme/${cfg.fqdn}/fullchain.pem"
+                       else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
 
   # key :: PATH
   keyPath = if cfg.certificateScheme == 1
         then cfg.keyFile
         else if cfg.certificateScheme == 2
-             then "${cfg.certificateDirectory}/key-${cfg.domain}.pem"
-             else "";
+             then "${cfg.certificateDirectory}/key-${cfg.fqdn}.pem"
+              else if cfg.certificateScheme == 3
+                   then "/var/lib/acme/${cfg.fqdn}/key.pem"
+                   else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
 }

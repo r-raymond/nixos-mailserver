@@ -23,10 +23,10 @@ let
         ''
           # Create certificates if they do not exist yet
           dir="${cfg.certificateDirectory}"
-          fqdn="${cfg.hostPrefix}.${cfg.domain}"
+          fqdn="${cfg.fqdn}"
           case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
-          key="''${dir}/key-${cfg.domain}.pem";
-          cert="''${dir}/cert-${cfg.domain}.pem";
+          key="''${dir}/key-${cfg.fqdn}.pem";
+          cert="''${dir}/cert-${cfg.fqdn}.pem";
 
           if [ ! -f "''${key}" ] || [ ! -f "''${cert}" ]
           then
@@ -38,22 +38,31 @@ let
         ''
         else "";
 
-  dkim_key = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private";
-  dkim_txt = "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.txt";
+  createDomainDkimCert = dom:
+    let
+      dkim_key = "${cfg.dkimKeyDirectory}/${dom}.${cfg.dkimSelector}.key";
+      dkim_txt = "${cfg.dkimKeyDirectory}/${dom}.${cfg.dkimSelector}.txt";
+    in
+        ''
+          if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
+          then
+              ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
+                                                   -d "${dom}" \
+                                                   --directory="${cfg.dkimKeyDirectory}"
+              mv "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private" "${dkim_key}"
+              mv "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.txt" "${dkim_txt}"
+          fi
+        '';
+  createAllCerts = lib.concatStringsSep "\n" (map createDomainDkimCert cfg.domains);
   create_dkim_cert =
         ''
           # Create dkim dir
           mkdir -p "${cfg.dkimKeyDirectory}"
           chown rmilter:rmilter "${cfg.dkimKeyDirectory}"
 
-          if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
-          then
+          ${createAllCerts}
 
-              ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
-                                                   -d ${cfg.domain} \
-                                                   --directory="${cfg.dkimKeyDirectory}"
-              chown rmilter:rmilter "${dkim_key}"
-          fi
+          chown -R rmilter:rmilter "${cfg.dkimKeyDirectory}"
         '';
 in
 {
@@ -63,7 +72,8 @@ in
 
     # Create certificates and maildir folder
     systemd.services.postfix = {
-      preStart = 
+      after = (if (certificateScheme == 3) then [ "nginx.service" ] else []);
+      preStart =
       ''
       # Create mail directory and set permissions. See
       # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>.
