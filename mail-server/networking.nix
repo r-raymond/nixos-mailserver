@@ -24,8 +24,10 @@ in
 
     networking.firewall = {
       allowedTCPPorts = [ 25 587 ]
-        ++ (if enableImap then [ 143 ] else [])
-        ++ (if enablePop3 then [ 110 ] else []);
+        ++ lib.optional enableImap 143
+        ++ lib.optional enableImapSsl 993
+        ++ lib.optional enablePop3 110
+        ++ lib.optional enablePop3Ssl 995;
     };
   };
 }
