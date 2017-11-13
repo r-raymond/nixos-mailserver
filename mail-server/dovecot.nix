@@ -41,15 +41,14 @@ in
       protocols = [ "sieve" ];
 
       sieveScripts = {
-        before = builtins.toFile "spam.sieve"
-            ''
-            require "fileinto";
+        before = builtins.toFile "spam.sieve" ''
+          require "fileinto";
 
-            if header :is "X-Spam" "Yes" {
-                fileinto "Junk";
-                stop;
-            }
-            '';
+          if header :is "X-Spam" "Yes" {
+              fileinto "Junk";
+              stop;
+          }
+        '';
       };
 
       extraConfig = ''
@@ -59,49 +58,49 @@ in
         ssl = required
 
         service lmtp {
-        unix_listener /var/lib/postfix/queue/private/dovecot-lmtp {
-        group = postfix
-        mode = 0600
-        user = postfix  # TODO: < make variable
-        }
+          unix_listener /var/lib/postfix/queue/private/dovecot-lmtp {
+            group = postfix
+            mode = 0600
+            user = postfix  # TODO: < make variable
+          }
         }
 
         protocol lmtp {
-        mail_plugins = $mail_plugins sieve
+          mail_plugins = $mail_plugins sieve
         }
 
         service auth {
-        unix_listener /var/lib/postfix/queue/private/auth {
-        mode = 0660
-        user = postfix  # TODO: < make variable
-        group = postfix  # TODO: < make variable
-        }
+          unix_listener /var/lib/postfix/queue/private/auth {
+            mode = 0660
+            user = postfix  # TODO: < make variable
+            group = postfix  # TODO: < make variable
+          }
         }
 
         auth_mechanisms = plain login
 
         namespace inbox {
-        inbox = yes
+          inbox = yes
 
-        mailbox "Trash" {
-        auto = no
-        special_use = \Trash
-        }
+          mailbox "Trash" {
+            auto = no
+            special_use = \Trash
+          }
 
-        mailbox "Junk" {
-        auto = subscribe
-        special_use = \Junk
-        }
+          mailbox "Junk" {
+            auto = subscribe
+            special_use = \Junk
+          }
 
-        mailbox "Drafts" {
-        auto = subscribe
-        special_use = \Drafts
-        }
+          mailbox "Drafts" {
+            auto = subscribe
+            special_use = \Drafts
+          }
 
-        mailbox "Sent" {
-        auto = subscribe
-        special_use = \Sent
-        }
+          mailbox "Sent" {
+            auto = subscribe
+            special_use = \Sent
+          }
         }
       '';
     };
