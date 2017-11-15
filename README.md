@@ -145,7 +145,7 @@ common ones.
     };
   };
 
-  # User Let's Encrypt certificates
+  # Use Let's Encrypt certificates
   certificateScheme = 3;
 
   # Enable IMAP and POP3
@@ -243,7 +243,7 @@ For all `domain` in `domains` do:
     `/var/dkim`. There you will find a public key for any domain in the
     `domain.txt` file. It will look like
     ```
-    mail._domainkey IN TXT "v=DKIM1; r=postmaster; g=*; k=rsa; p=<really-long-key>" ; ----- DKIM default for domain.tld
+    mail._domainkey IN TXT "v=DKIM1; r=postmaster; g=*; k=rsa; p=<really-long-key>" ; ----- DKIM mail for domain.tld
     ```
   * Add a `DKIM` record to the domain `domain`
 
