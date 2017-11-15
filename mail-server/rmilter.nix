@@ -51,8 +51,8 @@ in
     };
 
     services.rmilter = {
+      inherit debug;
       enable = true;
-      #debug = true;
       postfix.enable = true;
       rspamd = {
         enable = true;

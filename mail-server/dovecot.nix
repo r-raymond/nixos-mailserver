@@ -53,7 +53,12 @@ in
 
       extraConfig = ''
         #Extra Config
-        #mail_debug = yes
+        ${lib.optionalString debug ''
+          mail_debug = yes
+          auth_debug = yes
+          verbose_ssl = yes
+        ''}
+
         mail_access_groups = ${vmailGroupName}
         ssl = required
 
