@@ -30,19 +30,46 @@ let
 
   # accountsToUser :: String -> UserRecord
   accountsToUser = account: {
-    name = account.name;
     isNormalUser = false;
     group = vmailGroupName;
-    inherit (account) hashedPassword;
+    inherit (account) hashedPassword name;
   };
 
   # mail_users :: { [String]: UserRecord }
   mail_users = lib.foldl (prev: next: prev // { "${next.name}" = next; }) {}
     (map accountsToUser (lib.attrValues loginAccounts));
 
-in
-{
+  virtualMailUsersActivationScript = pkgs.writeScript "activate-virtual-mail-users" ''
+    #!${pkgs.stdenv.shell}
 
+    set -euo pipefail
+
+    # Create directory to store user sieve scripts if it doesn't exist
+    if (! test -d "/var/sieve"); then
+      mkdir "/var/sieve"
+      chown "${vmailUserName}:${vmailGroupName}" "/var/sieve"
+      chmod 770 "/var/sieve"
+    fi
+
+    # Copy user's sieve script to the correct location (if it exists).  If it
+    # is null, remove the file.
+    ${lib.concatMapStringsSep "\n" ({ name, sieveScript }:
+      if lib.isString sieveScript then ''
+        cat << EOF > "/var/sieve/${name}.sieve"
+        ${sieveScript}
+        EOF
+        chown "${name}:${vmailGroupName}" "/var/sieve/${name}.sieve"
+      '' else ''
+        if (test -f "/var/sieve/${name}.sieve"); then
+          rm "/var/sieve/${name}.sieve"
+        fi
+        if (test -f "/var/sieve/${name}.svbin"); then
+          rm "/var/sieve/${name}.svbin"
+        fi
+      '') (map (user: { inherit (user) name sieveScript; })
+            (lib.attrValues loginAccounts))}
+  '';
+in {
   config = lib.mkIf enable {
     # set the vmail gid to a specific value
     users.groups = {
@@ -52,6 +79,15 @@ in
     # define all users
     users.users = mail_users // {
       "${vmail_user.name}" = lib.mkForce vmail_user;
+    };
+
+    systemd.services.activate-virtual-mail-users = {
+      wantedBy = [ "multi-user.target" ];
+      before = [ "dovecot2.service" ];
+      serviceConfig = {
+        ExecStart = virtualMailUsersActivationScript;
+      };
+      enable = true;
     };
   };
 }
