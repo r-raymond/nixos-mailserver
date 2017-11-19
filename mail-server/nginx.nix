@@ -34,15 +34,11 @@ in
         acmeRoot = acmeRoot;
       };
     };
-    security.acme.certs."${cfg.fqdn}".postRun = #{
- #     domain = "${cfg.fqdn}";
-#      webroot = acmeRoot;
-#      postRun = 
-      ''
-        systemctl reload nginx
-        systemctl reload postfix
-        systemctl reload dovecot2
-      '';
-#    };
+
+    security.acme.certs."${cfg.fqdn}".postRun = ''
+      systemctl reload nginx
+      systemctl reload postfix
+      systemctl reload dovecot2
+    '';
   };
 }
