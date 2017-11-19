@@ -35,7 +35,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           };
 
           vmailGroupName = "vmail";
-          vmailUIDStart = 5000;
+          vmailUID = 5000;
         };
     };
 

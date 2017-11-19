@@ -100,12 +100,13 @@ in
       default = {};
     };
 
-    vmailUIDStart = mkOption {
+    vmailUID = mkOption {
       type = types.int;
       default = 5000;
       description = ''
-        The unix UID where the loginAccounts are created. 5000 means that the first
-        user will get 5000, the second 5001, ...
+        The unix UID of the virtual mail user.  Be mindful that if this is
+        changed, you will need to manually adjust the permissions of
+        mailDirectory.
       '';
     };
 

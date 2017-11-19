@@ -22,7 +22,7 @@ let
   vmail_user = {
     name = vmailUserName;
     isNormalUser = false;
-    uid = vmailUIDStart;
+    uid = vmailUID;
     home = mailDirectory;
     createHome = true;
     group = vmailGroupName;
@@ -46,7 +46,7 @@ in
   config = lib.mkIf enable {
     # set the vmail gid to a specific value
     users.groups = {
-      "${vmailGroupName}" = { gid = vmailUIDStart; };
+      "${vmailGroupName}" = { gid = vmailUID; };
     };
 
     # define all users
