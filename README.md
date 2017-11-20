@@ -5,9 +5,9 @@
 
 ## Stable Releases
 
-None so far.
+* [SNM v2.0](https://github.com/r-raymond/nixos-mailserver/releases/v2.0)
 
-[Latest Release Candidate](https://github.com/r-raymond/nixos-mailserver/releases/latest)
+[Latest Release (Candidate)](https://github.com/r-raymond/nixos-mailserver/releases/latest)
 
 ## Features
 ### v2.0
@@ -26,7 +26,6 @@ None so far.
     - [x] Let's Encrypt
  * Spam Filtering
     - [x] via rspamd
-    - [x] hard coded sieve script to move spam into Junk folder
  * Virus Scanning
     - [x] via clamav
  * DKIM Signing
@@ -61,7 +60,7 @@ None so far.
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0-rc1")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0")
   ];
 
   mailserver = {
@@ -118,7 +117,7 @@ common ones.
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0-rc1")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0")
   ];
 
   mailserver = {
