@@ -111,6 +111,9 @@ in
         plugin {
           sieve = file:/var/sieve/%u.sieve
         }
+
+        lda_mailbox_autosubscribe = yes
+        lda_mailbox_autocreate = yes
       '';
     };
   };
