@@ -34,10 +34,12 @@ None so far.
  * User Management
     - [x] declarative user management
     - [x] declarative password management
+ * Sieves
+    - [x] A simple standard script that moves spam
+    - [x] Allow user defined sieve scripts
 
 ### In the future
-  * Sieves
-    - [ ] Allow user defined sieve scripts
+
   * User Aliases
     - [ ] More complete alias support
   * DKIM Signing
