@@ -107,6 +107,10 @@ in
             special_use = \Sent
           }
         }
+
+        plugin {
+          sieve = file:/var/sieve/%u.sieve
+        }
       '';
     };
   };
