@@ -28,7 +28,7 @@ in
 
     fqdn = mkOption {
       type = types.str;
-      example = "example.com";
+      example = "mx.example.com";
       description = "The fully qualified domain name of the mail server.";
     };
 
@@ -44,7 +44,7 @@ in
         options = {
           name = mkOption {
             type = types.str;
-            example = "user1";
+            example = "user1@example.com";
             description = "Username";
           };
 
