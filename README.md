@@ -71,17 +71,13 @@
     loginAccounts = {
         "user1@example.com" = {
             hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
-        };
-    };
-    virtualAliases = {
-        # address = forward address;
-        "info@example.com" = "user1@example.com";
-        "postmaster@example.com" = "user1@example.com";
-        "abuse@example.com" = "user1@example.com";
-        "user1@example2.com" = "user1@example.com";
-        "info@example2.com" = "user1@example.com";
-        "postmaster@example2.com" = "user1@example.com";
-        "abuse@example2.com" = "user1@example.com";
+
+        aliases = [
+            "info@example.com"
+            "postmaster@example.com"
+            "postmaster@example2.com"
+            ];
+        }
     };
   };
 }
@@ -131,19 +127,21 @@ common ones.
     loginAccounts = {
         "user1@example.com" = {
             hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
+
+            aliases = [
+                "postmaster@example.com"
+                "postmaster@example2.com"
+            ];
         };
 
         "user2@example.com" = { ... };
     };
 
-    # Virtual aliases. These are email addresses that are forwarded to
+    # Extra virtual aliases. These are email addresses that are forwarded to
     # loginAccounts addresses.
-    virtualAliases = {
+    extraVirtualAliases = {
         # address = forward address;
-        "info@example.com" = "user1@example.com";
-        "postmaster@example.com" = "user1@example.com";
         "abuse@example.com" = "user1@example.com";
-        "user1@example2.com" = "user1@example.com";
     };
   };
 
@@ -345,7 +343,7 @@ openssl s_client -host mail.example.com -port 143 -starttls imap
  * @danbst
  * @phdoerfler
  * @eqyiel
- 
+
 ### Alternative Implementations
  * [NixCloud Webservices](https://github.com/nixcloud/nixcloud-webservices)
 
