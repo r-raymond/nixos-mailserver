@@ -11,6 +11,7 @@
 
 ## Features
 ### v2.0
+ * [x] Continous Integration Testing
  * [x] Multiple Domains
  * Postfix MTA
     - [x] smtp on port 25
