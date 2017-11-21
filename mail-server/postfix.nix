@@ -36,6 +36,8 @@ let
       in "${from} ${to}")
     (builtins.attrNames cfg.virtualAliases);
 
+  # all_valiases_postfix :: [ String ]
+  all_valiases_postfix = valiases_postfix ++ extra_valiases_postfix;
 
   # accountToIdentity :: User -> String
   accountToIdentity = account: "${account.name} ${account.name}";
@@ -44,7 +46,7 @@ let
   vaccounts_identity = map accountToIdentity (lib.attrValues cfg.loginAccounts);
 
   # valiases_file :: Path
-  valiases_file = builtins.toFile "valias" (lib.concatStringsSep "\n" extra_valiases_postfix);
+  valiases_file = builtins.toFile "valias" (lib.concatStringsSep "\n" all_valiases_postfix);
 
   # vhosts_file :: Path
   vhosts_file = builtins.toFile "vhosts" (concatStringsSep "\n" cfg.domains);
@@ -56,7 +58,7 @@ let
   # every alias is owned (uniquely) by its user. We have to add the users own
   # address though
   vaccounts_file = builtins.toFile "vaccounts" (lib.concatStringsSep "\n"
-  (vaccounts_identity ++ extra_valiases_postfix));
+  (vaccounts_identity ++ all_valiases_postfix));
 
   submissionHeaderCleanupRules = pkgs.writeText "submission_header_cleanup_rules" ''
      # Removes sensitive headers from mails handed in via the submission port.
