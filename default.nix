@@ -118,16 +118,17 @@ in
     virtualAliases = mkOption {
       type = types.attrsOf (types.enum (builtins.attrNames cfg.loginAccounts));
       example = {
-        info = "user1";
-        postmaster = "user1";
-        abuse = "user1";
+        "info@example.com" = "user1@example.com";
+        "postmaster@example.com" = "user1@example.com";
+        "abuse@example.com" = "user1@example.com";
       };
       description = ''
-        Virtual Aliases. A virtual alias `info = "user1"` means that
-        all mail to `info@example.com` is forwarded to `user1@example.com`. Note
+        Virtual Aliases. A virtual alias `"info@example2.com" = "user1@example.com"` means that
+        all mail to `info@example2.com` is forwarded to `user1@example.com`. Note
         that it is expected that `postmaster@example.com` and `abuse@example.com` is
         forwarded to some valid email address. (Alternatively you can create login
-        accounts for `postmaster` and (or) `abuse`).
+        accounts for `postmaster` and (or) `abuse`). Furthermore, it also allows
+        the user `user1@example.com` to send emails as `info@example2.com`.
       '';
       default = {};
     };
