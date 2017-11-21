@@ -5,7 +5,7 @@
 
 ## Stable Releases
 
-* [SNM v2.0](https://github.com/r-raymond/nixos-mailserver/releases/v2.0)
+* [SNM v2.0.1](https://github.com/r-raymond/nixos-mailserver/releases/v2.0.1)
 
 [Latest Release (Candidate)](https://github.com/r-raymond/nixos-mailserver/releases/latest)
 
@@ -61,7 +61,7 @@
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0.1")
   ];
 
   mailserver = {
@@ -114,7 +114,7 @@ common ones.
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0.1")
   ];
 
   mailserver = {
