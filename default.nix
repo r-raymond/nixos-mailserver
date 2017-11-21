@@ -115,8 +115,9 @@ in
       default = {};
     };
 
-    virtualAliases = mkOption {
+    extraVirtualAliases = mkOption {
       type = types.attrsOf (types.enum (builtins.attrNames cfg.loginAccounts));
+      warnings = [ "virtualAliases had been derprecated. Use extraVirtualAliases instead or use the `aliases` field of the loginAccount attribute set"];
       example = {
         "info@example.com" = "user1@example.com";
         "postmaster@example.com" = "user1@example.com";
@@ -129,6 +130,20 @@ in
         forwarded to some valid email address. (Alternatively you can create login
         accounts for `postmaster` and (or) `abuse`). Furthermore, it also allows
         the user `user1@example.com` to send emails as `info@example2.com`.
+      '';
+      default = {};
+    };
+
+    virtualAliases = mkOption {
+      type = types.attrsOf (types.enum (builtins.attrNames cfg.loginAccounts));
+      warnings = [ "virtualAliases had been derprecated. Use extraVirtualAliases instead or use the `aliases` field of the loginAccount attribute set"];
+      example = {
+        "info@example.com" = "user1@example.com";
+        "postmaster@example.com" = "user1@example.com";
+        "abuse@example.com" = "user1@example.com";
+      };
+      description = ''
+        Alias for extraVirtualAliases.
       '';
       default = {};
     };
