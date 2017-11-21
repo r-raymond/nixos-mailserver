@@ -345,7 +345,9 @@ openssl s_client -host mail.example.com -port 143 -starttls imap
  * @danbst
  * @phdoerfler
  * @eqyiel
-
+ 
+### Alternative Implementations
+ * [NixCloud Webservices](https://github.com/nixcloud/nixcloud-webservices)
 
 ### Credits
  * send mail graphic by [tnp_dreamingmao](https://thenounproject.com/dreamingmao)
@@ -353,7 +355,7 @@ openssl s_client -host mail.example.com -port 143 -starttls imap
    [CC BY 3.0](http://creativecommons.org/~/3.0/)
  * Logo made with [Logomakr.com](https://logomakr.com)
 
-### Alternative Implementations
- * [NixCloud Webservices](nixcloud/nixcloud-webservices)
+
+
 
 [logo]: logo/logo.png
