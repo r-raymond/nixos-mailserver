@@ -60,6 +60,14 @@ in
             '';
           };
 
+          aliases = mkOption {
+            type = types.listOf types.str;
+            example = ["abuse@example.com" "postmaster@example.com"];
+            description = ''
+              A list of aliases of this login account.
+            '';
+          };
+
           sieveScript = mkOption {
             type = with types; nullOr lines;
             default = null;
