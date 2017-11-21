@@ -353,4 +353,7 @@ openssl s_client -host mail.example.com -port 143 -starttls imap
    [CC BY 3.0](http://creativecommons.org/~/3.0/)
  * Logo made with [Logomakr.com](https://logomakr.com)
 
+### Alternative Implementations
+ * [NixCloud Webservices](nixcloud/nixcloud-webservices)
+
 [logo]: logo/logo.png
