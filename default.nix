@@ -61,8 +61,9 @@ in
           };
 
           aliases = mkOption {
-            type = types.listOf types.str;
+            type = with types; listOf types.str;
             example = ["abuse@example.com" "postmaster@example.com"];
+            default = [];
             description = ''
               A list of aliases of this login account.
             '';
