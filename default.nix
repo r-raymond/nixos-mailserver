@@ -286,7 +286,6 @@ in
       default = true;
       description = ''
         Whether to activate dkim signing.
-        TODO: Explain how to put signature into domain record
       '';
     };
 
