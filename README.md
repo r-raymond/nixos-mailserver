@@ -77,7 +77,7 @@
             "postmaster@example.com"
             "postmaster@example2.com"
             ];
-        }
+        };
     };
   };
 }
