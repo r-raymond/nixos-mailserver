@@ -117,7 +117,6 @@ in
 
     extraVirtualAliases = mkOption {
       type = types.attrsOf (types.enum (builtins.attrNames cfg.loginAccounts));
-      warnings = [ "virtualAliases had been derprecated. Use extraVirtualAliases instead or use the `aliases` field of the loginAccount attribute set"];
       example = {
         "info@example.com" = "user1@example.com";
         "postmaster@example.com" = "user1@example.com";
@@ -136,7 +135,6 @@ in
 
     virtualAliases = mkOption {
       type = types.attrsOf (types.enum (builtins.attrNames cfg.loginAccounts));
-      warnings = [ "virtualAliases had been derprecated. Use extraVirtualAliases instead or use the `aliases` field of the loginAccount attribute set"];
       example = {
         "info@example.com" = "user1@example.com";
         "postmaster@example.com" = "user1@example.com";
@@ -327,4 +325,12 @@ in
     ./mail-server/rmilter.nix
     ./mail-server/nginx.nix
   ];
+
+  config = lib.mkIf config.mailserver.enable {
+    warnings = if (config.mailserver.virtualAliases != {}) then [ ''
+      virtualAliases had been derprecated. Use extraVirtualAliases instead or
+      use the `aliases` field of the loginAccount attribute set
+      '']
+      else [];
+  };
 }
