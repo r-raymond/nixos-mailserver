@@ -143,24 +143,24 @@ common ones.
         # address = forward address;
         "abuse@example.com" = "user1@example.com";
     };
+    
+    # Use Let's Encrypt certificates
+    certificateScheme = 3;
+
+    # Enable IMAP and POP3
+    enableImap = true;
+    enablePop3 = true;
+    enableImapSsl = true;
+    enablePop3Ssl = true;
+
+    # whether to scan inbound emails for viruses (note that this requires at least
+    # 1 Gb RAM for the server. Without virus scanning 256 MB RAM should be plenty)
+    virusScanning = false;
   };
-
-  # Use Let's Encrypt certificates
-  certificateScheme = 3;
-
-  # Enable IMAP and POP3
-  enableImap = true;
-  enablePop3 = true;
-  enableImapSsl = true;
-  enablePop3Ssl = true;
-
-  # whether to scan inbound emails for viruses (note that this requires at least
-  # 1 Gb RAM for the server. Without virus scanning 256 MB RAM should be plenty)
-  virusScanning = false;
 }
 ```
 
-After a `nixos-rebuild switch --upgrade` your sever should be good to go. If
+After a `nixos-rebuild switch --upgrade` your server should be good to go. If
 you want to use `nixops` to deploy the server, look in the subfolder `nixops`
 for some inspiration.
 
