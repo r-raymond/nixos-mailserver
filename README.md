@@ -41,7 +41,7 @@
 ### In the future
 
   * User Aliases
-    - [ ] More complete alias support
+    - [ ] More complete alias support (Differentiate between forwarding addresses and sending aliases)
   * DKIM Signing
     - [ ] Allow a per domain selector
 
