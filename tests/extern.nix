@@ -152,8 +152,12 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
       subtest "remove sensitive information on submission port", sub {
         $client->succeed("cat ~/mail/* >&2");
-        # make sure our IP is _not_ in the email header
+        ## make sure our IP is _not_ in the email header
         $client->fail("grep `ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print \$2}' | cut -f1  -d'/'` ~/mail/*");
+      };
+
+      subtest "have correct fqdn as sender", sub {
+        $client->succeed("grep 'Received: from mail.example.com' ~/mail/*");
       };
 
       subtest "dkim singing, multiple domains", sub {
