@@ -27,7 +27,8 @@ in
         ++ lib.optional enableImap 143
         ++ lib.optional enableImapSsl 993
         ++ lib.optional enablePop3 110
-        ++ lib.optional enablePop3Ssl 995;
+        ++ lib.optional enablePop3Ssl 995
+        ++ lib.optional (certificateScheme == 3) 80;
     };
   };
 }

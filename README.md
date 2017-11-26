@@ -143,8 +143,9 @@ common ones.
         # address = forward address;
         "abuse@example.com" = "user1@example.com";
     };
-    
-    # Use Let's Encrypt certificates
+
+    # Use Let's Encrypt certificates. Note that this needs to set up a stripped
+    # down nginx and opens port 80.
     certificateScheme = 3;
 
     # Enable IMAP and POP3

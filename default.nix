@@ -193,7 +193,8 @@ in
         3) You let the server create a certificate via `Let's Encrypt`. Note that
            this implies that a stripped down webserver has to be started. This also
            implies that the FQDN must be set as an `A` record to point to the IP of
-           the server. TODO: Explain more details
+           the server. In particular port 80 on the server will be opened. For details
+           on how to set up the domain records, see the guide in the readme.
       '';
     };
 
