@@ -84,6 +84,7 @@ in
 
     services.postfix = {
       enable = true;
+      hostname = "${fqdn}";
       networksStyle = "host";
       mapFiles."valias" = valiases_file;
       mapFiles."vaccounts" = vaccounts_file;
