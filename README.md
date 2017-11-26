@@ -61,7 +61,7 @@
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0.1")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.0.1.tar.gz")
   ];
 
   mailserver = {
@@ -114,7 +114,7 @@ common ones.
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/releases/tag/v2.0.1")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.0.1.tar.gz")
   ];
 
   mailserver = {
@@ -203,7 +203,7 @@ Note that it can take a while until a DNS entry is propagated.
 
 #### Step 3: Set `MX` Records
 
-For all `domain` in `domains` do:
+For every `domain` in `domains` do:
   * Add a `MX` record to the domain `domain`
 
     | Name (Subdomain) | TTL   | Type | Priority | Value             |
@@ -212,7 +212,7 @@ For all `domain` in `domains` do:
 
 You can test this via
 ```
-dig -t TXT <domain>
+dig -t MX <domain>
 
 ...
 ;; ANSWER SECTION:
@@ -224,7 +224,7 @@ Note that it can take a while until a DNS entry is propagated.
 
 #### Step 4: Set `SPF` Records
 
-For all `domain` in `domains` do:
+For every `domain` in `domains` do:
   * Add a `SPF` record to the domain `domain`
 
     | Name (Subdomain) | TTL   | Type | Priority | Value                         |
@@ -239,7 +239,7 @@ IP's to this list.
 
 #### Step 5: Set `DKIM` signature
 
-For all `domain` in `domains` do:
+For every `domain` in `domains` do:
   * Go to your server and navigate to the dkim key directory (by default
     `/var/dkim`. There you will find a public key for any domain in the
     `domain.txt` file. It will look like
@@ -263,8 +263,8 @@ Note that it can take a while until a DNS entry is propagated.
 Write an email to your aunt (who has been waiting for your reply far too long),
 and sign up for some of the finest newsletters the Internet has.
 
-Besides that, you can send an email to `mail-tester.com` and see how you score,
-and let `http://mxtoolbox.com/` take a look at your setup, but if you followed
+Besides that, you can send an email to [mail-tester.com](https://www.mail-tester.com/) and see how you score,
+and let [mxtoolbox.com](http://mxtoolbox.com/) take a look at your setup, but if you followed
 the steps closely then everything should be awesome!
 
 
