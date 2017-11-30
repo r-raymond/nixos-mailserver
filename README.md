@@ -253,7 +253,7 @@ For every `domain` in `domains` do:
     | mail._domainkey.`domain` | 10800 | TXT  |          | `v=DKIM1; p=<really-long-key>` |
 
 
-You can check this with `dig -t TXT <domain>` similar to the last section.
+You can check this with `dig -t TXT mail._domainkey.<domain>` similar to the last section.
 
 Note that it can take a while until a DNS entry is propagated.
 
