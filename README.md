@@ -244,7 +244,7 @@ all `mail`'s below accordingly.
 
 For every `domain` in `domains` do:
   * Go to your server and navigate to the dkim key directory (by default
-    `/var/dkim`. There you will find a public key for any domain in the
+    `/var/dkim`). There you will find a public key for any domain in the
     `domain.txt` file. It will look like
     ```
     mail._domainkey IN TXT "v=DKIM1; r=postmaster; g=*; k=rsa; p=<really-long-key>" ; ----- DKIM mail for domain.tld
