@@ -239,6 +239,9 @@ IP's to this list.
 
 #### Step 5: Set `DKIM` signature
 
+In this section we assume that your `dkimSelector` is set to `mail`. If you have a different selector, replace
+all `mail`'s below accordingly. 
+
 For every `domain` in `domains` do:
   * Go to your server and navigate to the dkim key directory (by default
     `/var/dkim`. There you will find a public key for any domain in the
