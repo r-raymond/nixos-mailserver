@@ -94,7 +94,7 @@ through the most important steps to achieve a 10/10 score on `mail-tester.com`.
 What you need:
 
   * A server with a public IP (referred to as `server-IP`)
-  * A Fully Qualified Domain Name (`FQDN`) where your server is reachable. Note
+  * A Fully Qualified Domain Name (`FQDN`) where your server is reachable,
     so that other servers can find yours. Common FQDN include `mx.example.com`
     (where `example.com` is a domain you own) or `mail.example.com`. The domain
     is referred to as `server-domain` (`example.com` in the above example) and
