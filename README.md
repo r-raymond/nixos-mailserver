@@ -9,6 +9,15 @@
 
 [Latest Release (Candidate)](https://github.com/r-raymond/nixos-mailserver/releases/latest)
 
+[Subscribe to SNM Announcement List](https://www.freelists.org/list/snm)
+This is a very low volume list where new releases of SNM are announced, so you
+can stay up to date with bug fixes and updates. All announcements are signed by
+the gpg key with fingerprint
+
+```
+D9FE 4119 F082 6F15 93BD  BD36 6162 DBA5 635E A16A
+```
+
 ## Features
 ### v2.0
  * [x] Continous Integration Testing
@@ -240,7 +249,7 @@ IP's to this list.
 #### Step 5: Set `DKIM` signature
 
 In this section we assume that your `dkimSelector` is set to `mail`. If you have a different selector, replace
-all `mail`'s below accordingly. 
+all `mail`'s below accordingly.
 
 For every `domain` in `domains` do:
   * Go to your server and navigate to the dkim key directory (by default
@@ -264,7 +273,8 @@ Note that it can take a while until a DNS entry is propagated.
 ### C) Test your Setup
 
 Write an email to your aunt (who has been waiting for your reply far too long),
-and sign up for some of the finest newsletters the Internet has.
+and sign up for some of the finest newsletters the Internet has. Maybe you want
+to sign up for the [SNM Announcement List](https://www.freelists.org/list/snm)?
 
 Besides that, you can send an email to [mail-tester.com](https://www.mail-tester.com/) and see how you score,
 and let [mxtoolbox.com](http://mxtoolbox.com/) take a look at your setup, but if you followed
