@@ -69,6 +69,15 @@ in
             '';
           };
 
+          catchAll = mkOption {
+            type = with types; listOf (enum cfg.domains);
+            example = ["example.com" "example2.com"];
+            default = [];
+            description = ''
+              For which domains should this account act as a catch all?
+            '';
+          };
+
           sieveScript = mkOption {
             type = with types; nullOr lines;
             default = null;
@@ -141,7 +150,7 @@ in
         "abuse@example.com" = "user1@example.com";
       };
       description = ''
-        Alias for extraVirtualAliases.
+        Alias for extraVirtualAliases. Deprecated.
       '';
       default = {};
     };

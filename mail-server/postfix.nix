@@ -29,6 +29,13 @@ let
           in map (from: "${from} ${to}") value.aliases)
     cfg.loginAccounts);
 
+  # catchAllPostfix :: [ String ]
+  catchAllPostfix = lib.flatten (lib.mapAttrsToList
+    (name: value:
+      let to = name;
+          in map (from: "@${from} ${to}") value.catchAll)
+    cfg.loginAccounts);
+
   # extra_valiases_postfix :: [ String ]
   # TODO: Remove virtualAliases when deprecated -> removed
   extra_valiases_postfix = (map
@@ -53,7 +60,9 @@ let
   vaccounts_identity = map accountToIdentity (lib.attrValues cfg.loginAccounts);
 
   # valiases_file :: Path
-  valiases_file = builtins.toFile "valias" (lib.concatStringsSep "\n" all_valiases_postfix);
+  valiases_file = builtins.toFile "valias"
+                      (lib.concatStringsSep "\n" (all_valiases_postfix ++
+                                                  catchAllPostfix));
 
   # vhosts_file :: Path
   vhosts_file = builtins.toFile "vhosts" (concatStringsSep "\n" cfg.domains);
