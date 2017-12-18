@@ -141,6 +141,13 @@ common ones.
                 "postmaster@example.com"
                 "postmaster@example2.com"
             ];
+
+            # Make this user the catchAll address for domains example.com and
+            # example2.com
+            catchAll = [
+                "example.com"
+                "example2.com"
+            ];
         };
 
         "user2@example.com" = { ... };
