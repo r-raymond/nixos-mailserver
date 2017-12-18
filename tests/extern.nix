@@ -32,6 +32,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
                   "user1@example.com" = {
                       hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
                       aliases = [ "postmaster@example.com" ];
+                      catchAll = [ "example.com" ];
                   };
                   "user2@example.com" = {
                       hashedPassword = "$6$u61JrAtuI0a$nGEEfTP5.eefxoScUGVG/Tl0alqla2aGax4oTd85v3j3xSmhv/02gNfSemv/aaMinlv9j/ZABosVKBrRvN5Qv0";
@@ -184,6 +185,19 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->succeed("fetchmail -v");
       };
+
+
+      subtest "catchAlls", sub {
+          $client->succeed("rm ~/mail/*");
+          $client->succeed("rm mail.txt");
+          $client->succeed("echo '${email2}' > mail.txt");
+          # send email from chuck to non exsitent account
+          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lol\@example.com < mail.txt >&2");
+          $client->succeed("sleep 5");
+          # fetchmail returns EXIT_CODE 0 when it retrieves mail
+          $client->succeed("fetchmail -v");
+      };
+
 
     '';
 
