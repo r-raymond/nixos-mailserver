@@ -26,7 +26,7 @@ let
   valiases_postfix = lib.flatten (lib.mapAttrsToList
     (name: value:
       let to = name;
-          in map (from: "${from} ${to}") value.aliases)
+          in map (from: "${from} ${to}") (value.aliases ++ lib.singleton name))
     cfg.loginAccounts);
 
   # catchAllPostfix :: [ String ]

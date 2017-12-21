@@ -48,7 +48,9 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         };
       client = { config, pkgs, ... }:
       {
-        environment.systemPackages = with pkgs; [ fetchmail msmtp procmail ];
+        environment.systemPackages = with pkgs; [
+          fetchmail msmtp procmail findutils
+        ];
       };
     };
 
@@ -88,6 +90,13 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         from           chuck\@example.com
         user           user2\@example.com
         password       user2
+
+        account        test4
+        host           SERVER
+        port           587
+        from           postmaster\@example.com
+        user           user1\@example.com
+        password       user1
     '';
     email1 =
     ''
@@ -116,6 +125,20 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         how are you doing today?
 
         XOXO User1
+    '';
+    email3 =
+    ''
+        From: Postmaster <postmaster@example.com>
+        To: Chuck <chuck@example.com>
+        Cc:
+        Bcc:
+        Subject: This is a test Email from postmaster\@example.com to chuck
+        Reply-To:
+
+        Hello Chuck,
+
+        I think I may have misconfigured the mail server
+        XOXO Postmaster
     '';
   in
     ''
@@ -196,6 +219,16 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           $client->succeed("sleep 5");
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->succeed("fetchmail -v");
+
+          $client->succeed("rm ~/mail/*");
+          $client->succeed("rm mail.txt");
+          $client->succeed("echo '${email2}' > mail.txt");
+          # send email from user1 to chuck
+          $client->succeed("msmtp -a test4 --tls=on --tls-certcheck=off --auth=on chuck\@example.com < mail.txt >&2");
+          $client->succeed("sleep 5");
+          # fetchmail returns EXIT_CODE 1 when no new mail
+          # if this succeeds, it means that user1 recieved the mail that was intended for chuck.
+          $client->fail("fetchmail -v");
       };
 
 

@@ -5,7 +5,7 @@
 
 ## Stable Releases
 
-* [SNM v2.0.2](https://github.com/r-raymond/nixos-mailserver/releases/v2.0.2)
+* [SNM v2.0.4](https://github.com/r-raymond/nixos-mailserver/releases/v2.0.4)
 
 [Latest Release (Candidate)](https://github.com/r-raymond/nixos-mailserver/releases/latest)
 
@@ -46,11 +46,12 @@ D9FE 4119 F082 6F15 93BD  BD36 6162 DBA5 635E A16A
  * Sieves
     - [x] A simple standard script that moves spam
     - [x] Allow user defined sieve scripts
+ * User Aliases
+    - [x] Regular aliases
+    - [x] Catch all aliases
 
 ### In the future
 
-  * User Aliases
-    - [ ] More complete alias support (Differentiate between forwarding addresses and sending aliases)
   * DKIM Signing
     - [ ] Allow a per domain selector
 
@@ -123,7 +124,7 @@ common ones.
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.0.2.tar.gz")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.0.4.tar.gz")
   ];
 
   mailserver = {
@@ -140,6 +141,13 @@ common ones.
             aliases = [
                 "postmaster@example.com"
                 "postmaster@example2.com"
+            ];
+
+            # Make this user the catchAll address for domains example.com and
+            # example2.com
+            catchAll = [
+                "example.com"
+                "example2.com"
             ];
         };
 
