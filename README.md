@@ -71,7 +71,7 @@ D9FE 4119 F082 6F15 93BD  BD36 6162 DBA5 635E A16A
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.0.2.tar.gz")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.0.4.tar.gz")
   ];
 
   mailserver = {
