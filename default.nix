@@ -167,7 +167,7 @@ in
 
     vmailUserName = mkOption {
       type = types.str;
-      default = "virtualMail";
+      default = "vmail";
       description = ''
         The user name and group name of the user that owns the directory where all
         the mail is stored.
@@ -176,7 +176,7 @@ in
 
     vmailGroupName = mkOption {
       type = types.str;
-      default = "virtualMail";
+      default = "vmail";
       description = ''
         The user name and group name of the user that owns the directory where all
         the mail is stored.
@@ -331,8 +331,8 @@ in
     ./mail-server/networking.nix
     ./mail-server/systemd.nix
     ./mail-server/dovecot.nix
-    ./mail-server/postfix.nix
-    ./mail-server/rmilter.nix
+    ./mail-server/opensmtpd.nix
+    # ./mail-server/rmilter.nix
     ./mail-server/nginx.nix
   ];
 

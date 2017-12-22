@@ -68,13 +68,21 @@ in
 {
   config = with cfg; lib.mkIf enable {
     # Make sure postfix gets started first, so that the certificates are in place
-    systemd.services.dovecot2.after = [ "postfix.service" ];
+    systemd.services.dovecot2 = {
+        after = [ "postfix.service" ];
+        preStart =
+        ''
+        mkdir -p '/run/dovecot/'
+        chown 'dovecot2:dovecot2' '/run/dovecot'
+        '';
+    };
 
     # Create certificates and maildir folder
-    systemd.services.postfix = {
+    systemd.services.opensmtpd = {
       after = (if (certificateScheme == 3) then [ "nginx.service" ] else []);
       preStart =
       ''
+      mkdir -p /var/empty
       # Create mail directory and set permissions. See
       # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>.
       mkdir -p "${mailDirectory}"

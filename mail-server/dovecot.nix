@@ -63,23 +63,15 @@ in
         ssl = required
 
         service lmtp {
-          unix_listener /var/lib/postfix/queue/private/dovecot-lmtp {
-            group = postfix
+          unix_listener /run/dovecot/lmtp {
+            group = ${vmailGroupName}
             mode = 0600
-            user = postfix  # TODO: < make variable
+            user = ${vmailUserName}
           }
         }
 
         protocol lmtp {
           mail_plugins = $mail_plugins sieve
-        }
-
-        service auth {
-          unix_listener /var/lib/postfix/queue/private/auth {
-            mode = 0660
-            user = postfix  # TODO: < make variable
-            group = postfix  # TODO: < make variable
-          }
         }
 
         auth_mechanisms = plain login

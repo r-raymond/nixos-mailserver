@@ -54,6 +54,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
       subtest "vmail gid is set correctly", sub {
             $machine->succeed("getent group vmail | grep 5000");
+            $machine->succeed("systemctl status opensmtpd.service -l >&2");
       };
 
     '';
