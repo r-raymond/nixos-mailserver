@@ -25,6 +25,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
             mailserver = {
               enable = true;
+              debug = true;
               fqdn = "mail.example.com";
               domains = [ "example.com" "example2.com" ];
 
@@ -40,6 +41,10 @@ import <nixpkgs/nixos/tests/make-test.nix> {
                   };
                   "user@example2.com" = {
                       hashedPassword = "$6$u61JrAtuI0a$nGEEfTP5.eefxoScUGVG/Tl0alqla2aGax4oTd85v3j3xSmhv/02gNfSemv/aaMinlv9j/ZABosVKBrRvN5Qv0";
+                  };
+                  "lowquota@example.com" = {
+                      hashedPassword = "$6$u61JrAtuI0a$nGEEfTP5.eefxoScUGVG/Tl0alqla2aGax4oTd85v3j3xSmhv/02gNfSemv/aaMinlv9j/ZABosVKBrRvN5Qv0";
+                      quota = "1B";
                   };
               };
 
@@ -60,6 +65,12 @@ import <nixpkgs/nixos/tests/make-test.nix> {
     ''
         poll SERVER with proto IMAP
             user 'user1\@example.com' there with password 'user1' is 'root' here
+            mda procmail
+    '';
+    fetchmailRcLowQuota = 
+    ''
+        poll SERVER with proto IMAP
+            user 'lowquota\@example.com' there with password 'user1' is 'root' here
             mda procmail
     '';
 
@@ -229,6 +240,22 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           # fetchmail returns EXIT_CODE 1 when no new mail
           # if this succeeds, it means that user1 recieved the mail that was intended for chuck.
           $client->fail("fetchmail -v");
+      };
+
+      subtest "quota", sub {
+          $client->succeed("rm mail.txt");
+
+          $client->succeed("echo '${fetchmailRcLowQuota}' > ~/.fetchmailrc");
+          $client->succeed("sed -i s/SERVER/`getent hosts server | awk '{ print \$1 }'`/g ~/.fetchmailrc");
+
+          $client->succeed("chmod 0700 ~/.fetchmailrc");
+          $client->succeed("echo '${email2}' > mail.txt");
+          # send email from chuck to non exsitent account
+          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lowquota\@example.com < mail.txt >&2");
+          $client->succeed("sleep 5");
+          # fetchmail returns EXIT_CODE 0 when it retrieves mail
+          $client->fail("fetchmail -v");
+
       };
 
 
