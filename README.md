@@ -18,6 +18,14 @@ the gpg key with fingerprint
 D9FE 4119 F082 6F15 93BD  BD36 6162 DBA5 635E A16A
 ```
 
+## Release Candidate
+
+If you feel adventurous, git the new release candidate a spin. It adds quotas to
+the user accounts.
+
+* [SNM v2.1](https://github.com/r-raymond/nixos-mailserver/releases/v2.1-rc1)
+
+
 ## Features
 ### v2.0
  * [x] Continous Integration Testing
