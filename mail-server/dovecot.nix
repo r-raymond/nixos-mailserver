@@ -32,6 +32,7 @@ in
       enableImap = enableImap;
       enablePop3 = enablePop3;
       enablePAM = false;
+      enableQuota = true;
       mailGroup = vmailGroupName;
       mailUser = vmailUserName;
       mailLocation = dovecot_maildir;
@@ -76,6 +77,11 @@ in
         }
 
         passdb {
+          driver = passwd-file
+          args = ${passwdFile}
+        }
+
+        userdb {
           driver = passwd-file
           args = ${passwdFile}
         }

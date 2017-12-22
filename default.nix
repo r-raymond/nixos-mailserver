@@ -78,6 +78,16 @@ in
             '';
           };
 
+          quota = mkOption {
+            type = with types; nullOr types.str;
+            default = null;
+            example = "2G";
+            description = ''
+              Per user quota rules. Accepted sizes are `xx k/M/G/T` with the
+              obvious meaning. Leave blank for the standard quota `100G`.
+            '';
+          };
+
           sieveScript = mkOption {
             type = with types; nullOr lines;
             default = null;
