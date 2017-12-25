@@ -44,14 +44,6 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       $machine->start;
       $machine->waitForUnit("multi-user.target");
 
-      subtest "user exists", sub {
-            $machine->succeed("cat /etc/shadow | grep 'user1\@example.com'");
-      };
-
-      subtest "password is set", sub {
-            $machine->succeed("cat /etc/shadow | grep 'user1\@example.com:\$6\$/z4n8AQl6K\$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/:1::::::'");
-      };
-
       subtest "vmail gid is set correctly", sub {
             $machine->succeed("getent group vmail | grep 5000");
       };
