@@ -110,6 +110,8 @@ in
 
         plugin {
           sieve = file:/var/sieve/%u/scripts;active=/var/sieve/%u/active.sieve
+          sieve_default = file:/var/sieve/%u/default.sieve
+          sieve_default_name = default
         }
 
         lda_mailbox_autosubscribe = yes
