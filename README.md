@@ -54,6 +54,7 @@ the user accounts.
  * Sieves
     - [x] A simple standard script that moves spam
     - [x] Allow user defined sieve scripts
+    - [x] ManageSieve support
  * User Aliases
     - [x] Regular aliases
     - [x] Catch all aliases
@@ -178,6 +179,9 @@ common ones.
     enablePop3 = true;
     enableImapSsl = true;
     enablePop3Ssl = true;
+
+    # Enable the ManageSieve protocol
+    enableManageSieve = true;
 
     # whether to scan inbound emails for viruses (note that this requires at least
     # 1 Gb RAM for the server. Without virus scanning 256 MB RAM should be plenty)
