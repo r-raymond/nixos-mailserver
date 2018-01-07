@@ -41,7 +41,7 @@ in
       protocols = [ "sieve" ];
 
       sieveScripts = {
-        before = builtins.toFile "spam.sieve" ''
+        after = builtins.toFile "spam.sieve" ''
           require "fileinto";
 
           if header :is "X-Spam" "Yes" {
