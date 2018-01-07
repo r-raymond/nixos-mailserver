@@ -109,7 +109,7 @@ in
         }
 
         plugin {
-          sieve = file:/var/sieve/%u.sieve
+          sieve = file:/var/sieve/%u/scripts;active=/var/sieve/%u/active.sieve
         }
 
         lda_mailbox_autosubscribe = yes
