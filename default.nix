@@ -280,6 +280,18 @@ in
       '';
     };
 
+    enableManageSieve = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to enable ManageSieve, setting this option to true will open
+        port 4190 in the firewall.
+
+        The ManageSieve protocol allows users to manage their Sieve scripts on
+        a remote server with a supported client, including Thunderbird.
+      '';
+    };
+
     virusScanning = mkOption {
       type = types.bool;
       default = false;
