@@ -334,6 +334,14 @@ in
         to enable this unless you're hacking on nixos-mailserver.
       '';
     };
+
+    localDnsResolver = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Runs a local DNS resolver (kresd) as recommended when running rspamd. This prevents your log file from filling up with rspamd_monitored_dns_mon entries.
+      '';
+    };
   };
 
   imports = [
@@ -346,6 +354,7 @@ in
     ./mail-server/postfix.nix
     ./mail-server/rmilter.nix
     ./mail-server/nginx.nix
+    ./mail-server/kresd.nix
   ];
 
   config = lib.mkIf config.mailserver.enable {
