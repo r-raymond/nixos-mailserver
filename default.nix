@@ -363,10 +363,70 @@ in
         Runs a local DNS resolver (kresd) as recommended when running rspamd. This prevents your log file from filling up with rspamd_monitored_dns_mon entries.
       '';
     };
+
+    monitoring = {
+      enable = mkEnableOption "monitoring via monit";
+
+      alertAddress = mkOption {
+        type = types.string;
+        description = ''
+          The email address to send alerts to.
+        '';
+      };
+
+      config = mkOption {
+        type = types.string;
+        default = ''
+          set daemon 120 with start delay 60
+          set mailserver
+              localhost
+
+          set httpd port 2812 and use address localhost
+              allow localhost
+              allow admin:obwjoawijerfoijsiwfj29jf2f2jd
+
+          check filesystem root with path /
+                if space usage > 80% then alert
+                if inode usage > 80% then alert
+
+          check system $HOST
+                if cpu usage > 95% for 10 cycles then alert
+                if memory usage > 75% for 5 cycles then alert
+                if swap usage > 20% for 10 cycles then alert
+                if loadavg (1min) > 90 for 15 cycles then alert
+                if loadavg (5min) > 80 for 10 cycles then alert
+                if loadavg (15min) > 70 for 8 cycles then alert
+
+          check process sshd with pidfile /var/run/sshd.pid
+                start program  "${pkgs.systemd}/bin/systemctl start sshd"
+                stop program  "${pkgs.systemd}/bin/systemctl stop sshd"
+                if failed port 22 protocol ssh for 2 cycles then restart
+
+          check process postfix with pidfile /var/lib/postfix/queue/pid/master.pid
+                start program = "${pkgs.systemd}/bin/systemctl start postfix"
+                stop program = "${pkgs.systemd}/bin/systemctl stop postfix"
+                if failed port 25 protocol smtp for 5 cycles then restart
+
+          check process dovecot with pidfile /var/run/dovecot2/master.pid
+                start program = "${pkgs.systemd}/bin/systemctl start dovecot2"
+                stop program = "${pkgs.systemd}/bin/systemctl stop dovecot2"
+                if failed host ${cfg.fqdn} port 993 type tcpssl sslauto protocol imap for 5 cycles then restart
+
+          check process rspamd with pidfile /var/run/rspamd.pid
+                start program = "${pkgs.systemd}/bin/systemctl start rspamd"
+                stop program = "${pkgs.systemd}/bin/systemctl stop rspamd"
+        '';
+        description = ''
+          The configuration used for monitoring via monit.
+          Use a mail address that you actively check and set it via 'set alert ...'.
+        '';
+      };
+    };
   };
 
   imports = [
     ./mail-server/clamav.nix
+    ./mail-server/monit.nix
     ./mail-server/users.nix
     ./mail-server/environment.nix
     ./mail-server/networking.nix
