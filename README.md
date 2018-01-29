@@ -21,9 +21,10 @@ D9FE 4119 F082 6F15 93BD  BD36 6162 DBA5 635E A16A
 ## Release Candidate
 
 If you feel adventurous, give the new release candidate a spin. It adds quotas to
-the user accounts.
+the user accounts, and allows for managing sieve filters with the ManageSieve
+plugin.
 
-* [SNM v2.1](https://github.com/r-raymond/nixos-mailserver/releases/v2.1-rc1)
+* [SNM v2.1](https://github.com/r-raymond/nixos-mailserver/releases/v2.1-rc2)
 
 
 ## Features
