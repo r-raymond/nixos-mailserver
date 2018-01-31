@@ -261,7 +261,8 @@ For every `domain` in `domains` do:
     | ---------------- | ----- | ---- | -------- | -----------------             |
     | `domain`         | 10800 | TXT  |          | `v=spf1 ip4:<server-IP> -all` |
 
-You can check this with `dig -t TXT <domain>` similar to the last section.
+You can check this with `dig -t TXT <domain>` similar to the last section. Note
+that `SPF` records are set as `TXT` records since RFC1035.
 
 Note that it can take a while until a DNS entry is propagated. If you want to
 use multiple servers for your email handling, don't forget to add all server
