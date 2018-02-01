@@ -22,7 +22,7 @@ in
 {
   config = with cfg; lib.mkIf enable {
     environment.systemPackages = with pkgs; [
-      dovecot opendkim openssh postfix clamav rspamd rmilter
+      dovecot opendkim openssh postfix rspamd rmilter
     ] ++ (if certificateScheme == 2 then [ openssl ] else []);
   };
 }
