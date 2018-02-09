@@ -50,9 +50,6 @@ in
         enable = true;
     };
 
-    services.unbound.enable = true;
-    networking.nameservers = [ "127.0.0.1" ];
-
     services.rmilter = {
       inherit debug;
       enable = true;
