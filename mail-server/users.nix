@@ -50,7 +50,7 @@ let
           chown "${name}:${vmailGroupName}" "/var/sieve/${name}"
           chmod 770 "/var/sieve/${name}"
         fi
-        cat << EOF > "/var/sieve/${name}/default.sieve"
+        cat << 'EOF' > "/var/sieve/${name}/default.sieve"
         ${sieveScript}
         EOF
         chown "${name}:${vmailGroupName}" "/var/sieve/${name}/default.sieve"
