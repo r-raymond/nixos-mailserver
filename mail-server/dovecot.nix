@@ -61,6 +61,7 @@ in
 
         mail_access_groups = ${vmailGroupName}
         ssl = required
+        ${lib.optionalString dovecot23 "ssl_dh = <${certificateDirectory}/dh.pem"}
 
         service lmtp {
           unix_listener /var/lib/postfix/queue/private/dovecot-lmtp {

@@ -38,6 +38,14 @@ let
         ''
         else "";
 
+  createDhParameterFile =
+    ''
+      # Create a dh parameter file
+      ${pkgs.openssl}/bin/openssl \
+            dhparam ${builtins.toString cfg.dhParamBitLength} \
+            > "${cfg.certificateDirectory}/dh.pem"
+    '';
+
   createDomainDkimCert = dom:
     let
       dkim_key = "${cfg.dkimKeyDirectory}/${dom}.${cfg.dkimSelector}.key";
@@ -82,6 +90,8 @@ in
       chmod 02770 "${mailDirectory}"
 
         ${create_certificate}
+
+        ${lib.optionalString cfg.dovecot23 "${createDhParameterFile}"}
       '';
     };
 
