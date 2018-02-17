@@ -24,6 +24,8 @@ let
   # maildir in format "/${domain}/${user}"
   dovecot_maildir = "maildir:${cfg.mailDirectory}/%d/%n";
 
+  dovecotVersion = builtins.fromJSON
+    (builtins.readFile (pkgs.callPackage ./dovecot-version.nix {}));
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -61,7 +63,9 @@ in
 
         mail_access_groups = ${vmailGroupName}
         ssl = required
-        ${lib.optionalString dovecot23 "ssl_dh = <${certificateDirectory}/dh.pem"}
+        ${lib.optionalString (dovecotVersion.major == 2 && dovecotVersion.minor >= 3) ''
+          ssl_dh = <${certificateDirectory}/dh.pem
+        ''}
 
         service lmtp {
           unix_listener /var/lib/postfix/queue/private/dovecot-lmtp {
