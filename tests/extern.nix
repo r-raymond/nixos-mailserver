@@ -16,11 +16,11 @@
 
 import <nixpkgs/nixos/tests/make-test.nix> {
 
-  nodes =
-    { server = { config, pkgs, ... }:
+  nodes = {
+    server = { config, pkgs, ... }:
         {
             imports = [
-                ./../default.nix
+                ../default.nix
             ];
 
             mailserver = {
@@ -46,130 +46,132 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               enableImap = true;
             };
         };
-      client = { config, pkgs, ... }:
-      {
+      client = { nodes, config, pkgs, ... }: let
+        serverIP = nodes.server.config.networking.primaryIPAddress;
+        clientIP = nodes.client.config.networking.primaryIPAddress;
+        grep-ip = pkgs.writeScriptBin "grep-ip" ''
+          #!${pkgs.stdenv.shell}
+          echo grep '${clientIP}' "$@" >&2
+          exec grep '${clientIP}' "$@"
+        '';
+      in {
         environment.systemPackages = with pkgs; [
-          fetchmail msmtp procmail findutils
+          fetchmail msmtp procmail findutils grep-ip
         ];
+        environment.etc = {
+          "root/.fetchmailrc" = {
+            text = ''
+              poll ${serverIP} with proto IMAP
+                user 'user1@example.com' there with password 'user1' is 'root' here
+                mda procmail
+            '';
+            mode = "0700";
+          };
+          "root/.procmailrc" = {
+            text = "DEFAULT=$HOME/mail";
+          };
+          "root/.msmtprc" = {
+            text = ''
+              account        test
+              host           ${serverIP}
+              port           587
+              from           user2@example.com
+              user           user2@example.com
+              password       user2
+
+              account        test2
+              host           ${serverIP}
+              port           587
+              from           user@example2.com
+              user           user@example2.com
+              password       user2
+
+              account        test3
+              host           ${serverIP}
+              port           587
+              from           chuck@example.com
+              user           user2@example.com
+              password       user2
+
+              account        test4
+              host           ${serverIP}
+              port           587
+              from           postmaster@example.com
+              user           user1@example.com
+              password       user1
+            '';
+          };
+          "root/email1".text = ''
+            From: User2 <user2@example.com>
+            To: User1 <user1@example.com>
+            Cc:
+            Bcc:
+            Subject: This is a test Email from user2 to user1
+            Reply-To:
+
+            Hello User1,
+
+            how are you doing today?
+          '';
+          "root/email2".text = ''
+            From: User <user@example2.com>
+            To: User1 <user1@example.com>
+            Cc:
+            Bcc:
+            Subject: This is a test Email from user@example2.com to user1
+            Reply-To:
+
+            Hello User1,
+
+            how are you doing today?
+
+            XOXO User1
+          '';
+          "root/email3".text = ''
+            From: Postmaster <postmaster@example.com>
+            To: Chuck <chuck@example.com>
+            Cc:
+            Bcc:
+            Subject: This is a test Email from postmaster\@example.com to chuck
+            Reply-To:
+
+            Hello Chuck,
+
+            I think I may have misconfigured the mail server
+            XOXO Postmaster
+          '';
+        };
       };
     };
 
   testScript =
-  let
-    fetchmailRc =
-    ''
-        poll SERVER with proto IMAP
-            user 'user1\@example.com' there with password 'user1' is 'root' here
-            mda procmail
-    '';
-
-    procmailRc =
-    ''
-        DEFAULT=\$HOME/mail
-    '';
-
-    msmtpRc = 
-    ''
-        account        test
-        host           SERVER
-        port           587
-        from           user2\@example.com
-        user           user2\@example.com
-        password       user2
-
-        account        test2
-        host           SERVER
-        port           587
-        from           user\@example2.com
-        user           user\@example2.com
-        password       user2
-
-        account        test3
-        host           SERVER
-        port           587
-        from           chuck\@example.com
-        user           user2\@example.com
-        password       user2
-
-        account        test4
-        host           SERVER
-        port           587
-        from           postmaster\@example.com
-        user           user1\@example.com
-        password       user1
-    '';
-    email1 =
-    ''
-        From: User2 <user2\@example.com>
-        To: User1 <user1\@example.com>
-        Cc:
-        Bcc:
-        Subject: This is a test Email from user2 to user1
-        Reply-To:
-
-        Hello User1,
-
-        how are you doing today?
-    '';
-    email2 =
-    ''
-        From: User <user\@example2.com>
-        To: User1 <user1\@example.com>
-        Cc:
-        Bcc:
-        Subject: This is a test Email from user\@example2.com to user1
-        Reply-To:
-
-        Hello User1,
-
-        how are you doing today?
-
-        XOXO User1
-    '';
-    email3 =
-    ''
-        From: Postmaster <postmaster@example.com>
-        To: Chuck <chuck@example.com>
-        Cc:
-        Bcc:
-        Subject: This is a test Email from postmaster\@example.com to chuck
-        Reply-To:
-
-        Hello Chuck,
-
-        I think I may have misconfigured the mail server
-        XOXO Postmaster
-    '';
-  in
     ''
       startAll;
 
       $server->waitForUnit("multi-user.target");
       $client->waitForUnit("multi-user.target");
 
+      $client->execute("cp -p /etc/root/.* ~/");
+      $client->succeed("mkdir ~/mail");
+      $client->succeed("ls -la ~/ >&2");
+      $client->succeed("cat ~/.fetchmailrc >&2");
+      $client->succeed("cat ~/.procmailrc >&2");
+      $client->succeed("cat ~/.msmtprc >&2");
+
       subtest "imap retrieving mail", sub {
-          $client->succeed("mkdir ~/mail");
-          $client->succeed("echo '${fetchmailRc}' > ~/.fetchmailrc");
-          $client->succeed("echo '${procmailRc}' > ~/.procmailrc");
-          $client->succeed("sed -i s/SERVER/`getent hosts server | awk '{ print \$1 }'`/g ~/.fetchmailrc");
-          $client->succeed("chmod 0700 ~/.fetchmailrc");
-          $client->succeed("cat ~/.fetchmailrc >&2");
           # fetchmail returns EXIT_CODE 1 when no new mail
           $client->succeed("fetchmail -v || [ \$? -eq 1 ] >&2");
       };
 
       subtest "submission port send mail", sub {
-          $client->succeed("echo '${msmtpRc}' > ~/.msmtprc");
-          $client->succeed("sed -i s/SERVER/`getent hosts server | awk '{ print \$1 }'`/g ~/.msmtprc");
-          $client->succeed("cat ~/.msmtprc >&2");
-          $client->succeed("echo '${email1}' > mail.txt");
           # send email from user2 to user1
-          $client->succeed("msmtp -a test --tls=on --tls-certcheck=off --auth=on user1\@example.com < mail.txt >&2");
+          $client->succeed("msmtp -a test --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email1 >&2");
+          # give the mail server some time to process the mail
+          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
       };
 
       subtest "imap retrieving mail 2", sub {
-          # give the mail server some time to process the mail
-          $client->succeed("sleep 5");
+          $client->execute("rm ~/mail/*");
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->succeed("fetchmail -v >&2");
       };
@@ -177,7 +179,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       subtest "remove sensitive information on submission port", sub {
         $client->succeed("cat ~/mail/* >&2");
         ## make sure our IP is _not_ in the email header
-        $client->fail("grep `ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print \$2}' | cut -f1  -d'/'` ~/mail/*");
+        $client->fail("grep-ip ~/mail/*");
       };
 
       subtest "have correct fqdn as sender", sub {
@@ -185,12 +187,10 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       };
 
       subtest "dkim singing, multiple domains", sub {
-          $client->succeed("rm ~/mail/*");
-          $client->succeed("rm mail.txt");
-          $client->succeed("echo '${email2}' > mail.txt");
+          $client->execute("rm ~/mail/*");
           # send email from user2 to user1
-          $client->succeed("msmtp -a test2 --tls=on --tls-certcheck=off --auth=on user1\@example.com < mail.txt >&2");
-          $client->succeed("sleep 5");
+          $client->succeed("msmtp -a test2 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email2 >&2");
+          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->succeed("fetchmail -v");
           $client->succeed("cat ~/mail/* >&2");
@@ -199,40 +199,29 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       };
 
       subtest "aliases", sub {
-          $client->succeed("rm ~/mail/*");
-          $client->succeed("rm mail.txt");
-          $client->succeed("echo '${email2}' > mail.txt");
+          $client->execute("rm ~/mail/*");
           # send email from chuck to postmaster
-          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on postmaster\@example.com < mail.txt >&2");
-          $client->succeed("sleep 5");
+          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on postmaster\@example.com < /etc/root/email2 >&2");
+          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->succeed("fetchmail -v");
       };
 
-
       subtest "catchAlls", sub {
-          $client->succeed("rm ~/mail/*");
-          $client->succeed("rm mail.txt");
-          $client->succeed("echo '${email2}' > mail.txt");
+          $client->execute("rm ~/mail/*");
           # send email from chuck to non exsitent account
-          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lol\@example.com < mail.txt >&2");
-          $client->succeed("sleep 5");
+          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lol\@example.com < /etc/root/email2 >&2");
+          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->succeed("fetchmail -v");
 
-          $client->succeed("rm ~/mail/*");
-          $client->succeed("rm mail.txt");
-          $client->succeed("echo '${email2}' > mail.txt");
+          $client->execute("rm ~/mail/*");
           # send email from user1 to chuck
-          $client->succeed("msmtp -a test4 --tls=on --tls-certcheck=off --auth=on chuck\@example.com < mail.txt >&2");
-          $client->succeed("sleep 5");
+          $client->succeed("msmtp -a test4 --tls=on --tls-certcheck=off --auth=on chuck\@example.com < /etc/root/email2 >&2");
+          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 1 when no new mail
           # if this succeeds, it means that user1 recieved the mail that was intended for chuck.
           $client->fail("fetchmail -v");
       };
-
-
     '';
-
-
 }
