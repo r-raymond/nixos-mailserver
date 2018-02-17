@@ -91,7 +91,12 @@ in
 
         ${create_certificate}
 
-        ${lib.optionalString cfg.dovecot23 "${createDhParameterFile}"}
+        ${let
+           dovecotVersion = builtins.fromJSON
+             (builtins.readFile (pkgs.callPackage ./dovecot-version.nix {}));
+          in lib.optionalString
+            (dovecotVersion.major == 2 && dovecotVersion.minor >= 3)
+            createDhParameterFile}
       '';
     };
 

@@ -325,16 +325,6 @@ in
       '';
     };
 
-    dovecot23 = mkOption {
-      type = types.bool;
-      default = false;
-      description =
-        ''
-        Activate this if you use Dovecot 2.3, so SSL works.
-        TODO: Remove this!
-        '';
-    };
-
     dhParamBitLength = mkOption {
       type = types.int;
       default = 2048;
