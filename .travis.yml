@@ -1,7 +1,9 @@
 language: nix
 script:
-    - nix-build tests/intern.nix
-    - nix-build tests/extern.nix
+    - NIX_PATH="nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-17.09.tar.gz" nix-build tests/intern.nix
+    - NIX_PATH="nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-17.09.tar.gz" nix-build tests/extern.nix
+    - NIX_PATH="nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz" nix-build tests/intern.nix
+    - NIX_PATH="nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz" nix-build tests/extern.nix
 
 cache:
   directories:
