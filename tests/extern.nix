@@ -27,6 +27,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               enable = true;
               fqdn = "mail.example.com";
               domains = [ "example.com" "example2.com" ];
+              dhParamBitLength = 512;
 
               loginAccounts = {
                   "user1@example.com" = {

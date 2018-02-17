@@ -325,6 +325,17 @@ in
       '';
     };
 
+    dhParamBitLength = mkOption {
+      type = types.int;
+      default = 2048;
+      description =
+        ''
+        Length of the Diffie Hillman prime used (in bits). It might be a good
+        idea to set this to 4096 for security purposed, but it will take a _very_
+        long time to create this prime on startup.
+        '';
+    };
+
     debug = mkOption {
       type = types.bool;
       default = false;
