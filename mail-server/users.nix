@@ -28,16 +28,6 @@ let
     group = vmailGroupName;
   };
 
-  # accountsToUser :: String -> UserRecord
-  accountsToUser = account: {
-    isNormalUser = false;
-    group = vmailGroupName;
-    inherit (account) hashedPassword name;
-  };
-
-  # mail_users :: { [String]: UserRecord }
-  mail_users = lib.foldl (prev: next: prev // { "${next.name}" = next; }) {}
-    (map accountsToUser (lib.attrValues loginAccounts));
 
   virtualMailUsersActivationScript = pkgs.writeScript "activate-virtual-mail-users" ''
     #!${pkgs.stdenv.shell}
@@ -82,7 +72,7 @@ in {
     };
 
     # define all users
-    users.users = mail_users // {
+    users.users = {
       "${vmail_user.name}" = lib.mkForce vmail_user;
     };
 

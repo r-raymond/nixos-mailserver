@@ -16,7 +16,7 @@
 
 { config, pkgs, lib, ... }:
 
-with (import ./common.nix { inherit config; });
+with (import ./common.nix { inherit config lib; });
 
 let
   cfg = config.mailserver;
@@ -33,6 +33,8 @@ in
       enable = true;
       enableImap = enableImap;
       enablePop3 = enablePop3;
+      enablePAM = false;
+      enableQuota = true;
       mailGroup = vmailGroupName;
       mailUser = vmailUserName;
       mailLocation = dovecot_maildir;
@@ -77,6 +79,16 @@ in
 
         protocol lmtp {
           mail_plugins = $mail_plugins sieve
+        }
+
+        passdb {
+          driver = passwd-file
+          args = ${passwdFile}
+        }
+
+        userdb {
+          driver = passwd-file
+          args = ${passwdFile}
         }
 
         service auth {

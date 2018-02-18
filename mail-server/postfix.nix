@@ -16,7 +16,7 @@
 
 { config, pkgs, lib, ... }:
 
-with (import ./common.nix { inherit config; });
+with (import ./common.nix { inherit config lib; });
 
 let
   inherit (lib.strings) concatStringsSep;
@@ -123,6 +123,9 @@ in
         smtpd_sasl_path = private/auth
         smtpd_sasl_auth_enable = yes
         smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
+
+        # quota
+        smtpd_recipient_restrictions = check_policy_service inet:mailstore.example.com:12340
 
         # TLS settings, inspired by https://github.com/jeaye/nix-files
         # Submission by mail clients is handled in submissionOptions
