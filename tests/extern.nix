@@ -67,8 +67,16 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         environment.etc = {
           "root/.fetchmailrc" = {
             text = ''
-              poll ${serverIP} with proto IMAP
+                poll ${serverIP} with proto IMAP
                 user 'user1@example.com' there with password 'user1' is 'root' here
+                mda procmail
+            '';
+            mode = "0700";
+          };
+          "root/.fetchmailRcLowQuota" = {
+            text = ''
+                poll ${serverIP} with proto IMAP
+                user 'lowquota\@example.com' there with password 'user1' is 'root' here
                 mda procmail
             '';
             mode = "0700";
@@ -151,7 +159,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
     };
 
   testScript =
-    ''
+      ''
       startAll;
 
       $server->waitForUnit("multi-user.target");
@@ -232,15 +240,10 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
       subtest "quota", sub {
           $client->execute("rm ~/mail/*");
+          $client->execute("mv ~/.fetchmailRcLowQuota ~/.fetchmailrc");
 
-          $client->succeed("echo '${fetchmailRcLowQuota}' > ~/.fetchmailrc");
-          $client->succeed("sed -i s/SERVER/`getent hosts server | awk '{ print \$1 }'`/g ~/.fetchmailrc");
-
-          $client->succeed("chmod 0700 ~/.fetchmailrc");
-          $client->succeed("echo '${email2}' > mail.txt");
-          # send email from chuck to non exsitent account
-          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lowquota\@example.com < mail.txt >&2");
-          $client->succeed("sleep 5");
+          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lowquota\@example.com < /etc/root/email2 >&2");
+          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->fail("fetchmail -v");
 
