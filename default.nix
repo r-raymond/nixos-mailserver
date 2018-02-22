@@ -477,6 +477,9 @@ in
         description = ''
           The configuration used for monitoring via monit.
           Use a mail address that you actively check and set it via 'set alert ...'.
+          '';
+          };
+        };
 
     backup = {
       enable = mkEnableOption "backup via rsnapshot";
