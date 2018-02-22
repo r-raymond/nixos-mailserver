@@ -5,7 +5,7 @@
 
 ## Stable Releases
 
-* [SNM v2.1](https://github.com/r-raymond/nixos-mailserver/releases/v2.1)
+* [SNM v2.1.1](https://github.com/r-raymond/nixos-mailserver/releases/v2.1.1)
 
 [Latest Release (Candidate)](https://github.com/r-raymond/nixos-mailserver/releases/latest)
 
@@ -17,14 +17,6 @@ the gpg key with fingerprint
 ```
 D9FE 4119 F082 6F15 93BD  BD36 6162 DBA5 635E A16A
 ```
-
-## Release Candidate
-
-If you feel adventurous, give the new release candidate a spin. It adds quotas to
-the user accounts, and allows for managing sieve filters with the ManageSieve
-plugin.
-
-* [SNM v2.1](https://github.com/r-raymond/nixos-mailserver/releases/v2.1-rc2)
 
 
 ## Features
@@ -81,7 +73,7 @@ plugin.
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.1.tar.gz")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.1.1.tar.gz")
   ];
 
   mailserver = {
@@ -134,7 +126,7 @@ common ones.
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.1.tar.gz")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.1.1.tar.gz")
   ];
 
   mailserver = {
