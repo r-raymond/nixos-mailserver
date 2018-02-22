@@ -201,6 +201,64 @@ in
       '';
     };
 
+    useFsLayout = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Sets whether dovecot should organize mail in subdirectories:
+
+        - /var/vmail/example.com/user/.folder.subfolder/ (default layout)
+        - /var/vmail/example.com/user/folder/subfolder/  (FS layout)
+
+        See https://wiki2.dovecot.org/MailboxFormat/Maildir for details.
+      '';
+    };
+
+    hierarchySeparator = mkOption {
+      type = types.string;
+      default = ".";
+      description = ''
+        The hierarchy separator for mailboxes used by dovecot for the namespace 'inbox'.
+        Dovecot defaults to "." but recommends "/".
+        This affects how mailboxes appear to mail clients and sieve scripts.
+        For instance when using "." then in a sieve script "example.com" would refer to the mailbox "com" in the parent mailbox "example".
+        This does not determine the way your mails are stored on disk.
+        See https://wiki.dovecot.org/Namespaces for details.
+      '';
+    };
+
+    mailboxes = mkOption {
+      description = ''
+        The mailboxes for dovecot.
+        Depending on the mail client used it might be necessary to change some mailbox's name.
+      '';
+      default = [
+        {
+          name = "Trash";
+          auto = "no";
+          specialUse = "Trash";
+        }
+
+        {
+          name = "Junk";
+          auto = "subscribe";
+          specialUse = "Junk";
+        }
+
+        {
+          name = "Drafts";
+          auto = "subscribe";
+          specialUse = "Drafts";
+        }
+
+        {
+          name = "Sent";
+          auto = "subscribe";
+          specialUse = "Sent";
+        }
+      ];
+    };
+
     certificateScheme = mkOption {
       type = types.enum [ 1 2 3 ];
       default = 2;

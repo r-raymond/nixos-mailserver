@@ -21,11 +21,13 @@ with (import ./common.nix { inherit config lib; });
 let
   cfg = config.mailserver;
 
-  # maildir in format "/${domain}/${user}"
-  dovecot_maildir = "maildir:${cfg.mailDirectory}/%d/%n";
+  maildirLayoutAppendix = lib.optionalString cfg.useFsLayout ":LAYOUT=fs";
 
   dovecotVersion = builtins.fromJSON
     (builtins.readFile (pkgs.callPackage ./dovecot-version.nix {}));
+
+  # maildir in format "/${domain}/${user}"
+  dovecotMaildir = "maildir:${cfg.mailDirectory}/%d/%n${maildirLayoutAppendix}";
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -37,7 +39,7 @@ in
       enableQuota = true;
       mailGroup = vmailGroupName;
       mailUser = vmailUserName;
-      mailLocation = dovecot_maildir;
+      mailLocation = dovecotMaildir;
       sslServerCert = certificatePath;
       sslServerKey = keyPath;
       enableLmtp = true;
@@ -54,6 +56,8 @@ in
           }
         '';
       };
+
+      mailboxes = cfg.mailboxes;
 
       extraConfig = ''
         #Extra Config
@@ -102,27 +106,8 @@ in
         auth_mechanisms = plain login
 
         namespace inbox {
+          separator = ${cfg.hierarchySeparator}
           inbox = yes
-
-          mailbox "Trash" {
-            auto = no
-            special_use = \Trash
-          }
-
-          mailbox "Junk" {
-            auto = subscribe
-            special_use = \Junk
-          }
-
-          mailbox "Drafts" {
-            auto = subscribe
-            special_use = \Drafts
-          }
-
-          mailbox "Sent" {
-            auto = subscribe
-            special_use = \Sent
-          }
         }
 
         plugin {
