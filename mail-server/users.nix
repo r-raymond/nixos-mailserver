@@ -47,13 +47,13 @@ let
       if lib.isString sieveScript then ''
         if (! test -d "/var/sieve/${name}"); then
           mkdir -p "/var/sieve/${name}"
-          chown "${name}:${vmailGroupName}" "/var/sieve/${name}"
+          chown "${vmailUserName}:${vmailGroupName}" "/var/sieve/${name}"
           chmod 770 "/var/sieve/${name}"
         fi
         cat << 'EOF' > "/var/sieve/${name}/default.sieve"
         ${sieveScript}
         EOF
-        chown "${name}:${vmailGroupName}" "/var/sieve/${name}/default.sieve"
+        chown "${vmailUserName}:${vmailGroupName}" "/var/sieve/${name}/default.sieve"
       '' else ''
         if (test -f "/var/sieve/${name}/default.sieve"); then
           rm "/var/sieve/${name}/default.sieve"
