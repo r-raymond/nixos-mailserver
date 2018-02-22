@@ -477,12 +477,69 @@ in
         description = ''
           The configuration used for monitoring via monit.
           Use a mail address that you actively check and set it via 'set alert ...'.
+
+    backup = {
+      enable = mkEnableOption "backup via rsnapshot";
+
+      snapshotRoot = mkOption {
+        type = types.path;
+        default = "/var/rsnapshot";
+        description = ''
+          The directory where rsnapshot stores the backup.
+        '';
+      };
+
+      cmdPreexec = mkOption {
+        type = types.nullOr types.string;
+        default = null;
+        description = ''
+          The command to be executed before each backup operation. This is wrapped in a shell script to be called by rsnapshot.
+        '';
+      };
+
+      cmdPostexec = mkOption {
+        type = types.nullOr types.string;
+        default = null;
+        description = "The command to be executed after each backup operation. This is wrapped in a shell script to be called by rsnapshot.";
+      };
+
+      retain = {
+        hourly = mkOption {
+          type = types.int;
+          default = 24;
+          description = "How many hourly snapshots are retained.";
+        };
+        daily = mkOption {
+          type = types.int;
+          default = 7;
+          description = "How many daily snapshots are retained.";
+        };
+        weekly = mkOption {
+          type = types.int;
+          default = 54;
+          description = "How many weekly snapshots are retained.";
+        };
+      };
+
+      cronIntervals = mkOption {
+        type = types.attrsOf types.string;
+        default = {
+                   # minute, hour, day-in-month, month, weekday (0 = sunday)
+          hourly = " 0  *  *  *  *"; # Every full hour
+          daily  = "30  3  *  *  *"; # Every day at 3:30
+          weekly = " 0  5  *  *  0"; # Every sunday at 5:00 AM
+        };
+        description = ''
+          Periodicity at which intervals should be run by cron.
+          Note that the intervals also have to exist in configuration
+          as retain options.
         '';
       };
     };
   };
 
   imports = [
+    ./mail-server/rsnapshot.nix
     ./mail-server/clamav.nix
     ./mail-server/monit.nix
     ./mail-server/users.nix
