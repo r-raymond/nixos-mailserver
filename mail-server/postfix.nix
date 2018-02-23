@@ -125,7 +125,7 @@ in
         smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
 
         # quota
-        smtpd_recipient_restrictions = check_policy_service inet:mailstore.example.com:12340
+        smtpd_recipient_restrictions = check_policy_service inet:localhost:12340
 
         # TLS settings, inspired by https://github.com/jeaye/nix-files
         # Submission by mail clients is handled in submissionOptions
