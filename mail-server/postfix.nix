@@ -37,13 +37,7 @@ let
     cfg.loginAccounts);
 
   # extra_valiases_postfix :: [ String ]
-  # TODO: Remove virtualAliases when deprecated -> removed
-  extra_valiases_postfix = (map
-    (from:
-      let to = cfg.virtualAliases.${from};
-      in "${from} ${to}")
-    (builtins.attrNames cfg.virtualAliases))
-    ++
+  extra_valiases_postfix =
     (map
     (from:
       let to = cfg.extraVirtualAliases.${from};

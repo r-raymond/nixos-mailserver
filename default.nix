@@ -152,19 +152,6 @@ in
       default = {};
     };
 
-    virtualAliases = mkOption {
-      type = types.attrsOf (types.enum (builtins.attrNames cfg.loginAccounts));
-      example = {
-        "info@example.com" = "user1@example.com";
-        "postmaster@example.com" = "user1@example.com";
-        "abuse@example.com" = "user1@example.com";
-      };
-      description = ''
-        Alias for extraVirtualAliases. Deprecated.
-      '';
-      default = {};
-    };
-
     vmailUID = mkOption {
       type = types.int;
       default = 5000;
@@ -555,12 +542,4 @@ in
     ./mail-server/nginx.nix
     ./mail-server/kresd.nix
   ];
-
-  config = lib.mkIf config.mailserver.enable {
-    warnings = if (config.mailserver.virtualAliases != {}) then [ ''
-      virtualAliases had been derprecated. Use extraVirtualAliases instead or
-      use the `aliases` field of the loginAccount attribute set
-      '']
-      else [];
-  };
 }
