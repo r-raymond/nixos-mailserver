@@ -41,9 +41,13 @@ let
   createDhParameterFile =
     ''
       # Create a dh parameter file
-      ${pkgs.openssl}/bin/openssl \
-            dhparam ${builtins.toString cfg.dhParamBitLength} \
-            > "${cfg.certificateDirectory}/dh.pem"
+      if [ ! -f "''${cfg.certificateDirectory}/dh.pem" ]
+      then
+          mkdir -p "${cfg.certificateDirectory}"
+          ${pkgs.openssl}/bin/openssl \
+                dhparam ${builtins.toString cfg.dhParamBitLength} \
+                > "${cfg.certificateDirectory}/dh.pem"
+      fi
     '';
 
   createDomainDkimCert = dom:
