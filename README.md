@@ -100,28 +100,9 @@ Check out the [Complete Setup Guide](https://github.com/r-raymond/nixos-mailserv
 
 Checkout the [Complete Backup Guide](https://github.com/r-raymond/nixos-mailserver/wiki/A-Complete-Backup-Guide). Backups are easy with `SNM`.
 
-## How to Test for Development
+## Development
 
-You can test the setup via `nixops`. After installation, do
-
-```
-nixops create nixops/single-server.nix nixops/vbox.nix -d mail
-nixops deploy -d mail
-nixops info -d mail
-```
-
-You can then test the server via e.g. `telnet`. To log into it, use
-
-```
-nixops ssh -d mail mailserver
-```
-
-To test imap manually use
-
-```
-openssl s_client -host mail.example.com -port 143 -starttls imap
-```
-
+See the [How to Develop SNM](https://github.com/r-raymond/nixos-mailserver/wiki/How-to-Develop-SNM) wiki page.
 
 ## Contributors
 See the [contributor tab](https://github.com/r-raymond/nixos-mailserver/graphs/contributors)
