@@ -59,13 +59,7 @@ D9FE 4119 F082 6F15 93BD  BD36 6162 DBA5 635E A16A
 
 ### Changelog
 
-#### v1.0 -> v1.1
- * Changed structure to Nix Modules
- * Adds Sieve support
-
-#### v1.1 -> v2.0
- * rename domain to fqdn, seperate fqdn from domains
- * multi domain support
+See the [mailing list archive](https://www.freelists.org/archive/snm/)
 
 ### Quick Start
 
