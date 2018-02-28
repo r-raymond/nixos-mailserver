@@ -123,41 +123,8 @@ openssl s_client -host mail.example.com -port 143 -starttls imap
 ```
 
 
-## A Complete Mail Server Without Moving Parts
-
-### Used Technologies
- * Nixos
- * Nixpkgs
- * Dovecot
- * Postfix
- * Rmilter
- * Rspamd
- * Clamav
- * Opendkim
- * Pam
-
-### Features
- * unlimited domain
- * unlimited mail accounts
- * unlimited aliases for every mail account
- * spam and virus checking
- * dkim signing of outgoing emails
- * imap (optionally pop3)
- * startTLS
-
-### Nonfeatures
- * moving parts
- * SQL databases
- * configurations that need to be made after `nixos-rebuild switch`
- * complicated storage schemes
- * webclients / http-servers
-
 ## Contributors
- * Special thanks to @Infinisil for the module rewrite
- * Special thanks to @jbboehr for multidomain implementation
- * @danbst
- * @phdoerfler
- * @eqyiel
+See the [contributor tab](https://github.com/r-raymond/nixos-mailserver/graphs/contributors)
 
 ### Alternative Implementations
  * [NixCloud Webservices](https://github.com/nixcloud/nixcloud-webservices)
