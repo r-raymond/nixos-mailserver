@@ -108,6 +108,7 @@ in
         virtual_gid_maps = static:5000
         virtual_mailbox_base = ${mailDirectory}
         virtual_mailbox_domains = ${vhosts_file}
+        virtual_mailbox_maps = hash:/var/lib/postfix/conf/valias
         virtual_alias_maps = hash:/var/lib/postfix/conf/valias
         virtual_transport = lmtp:unix:private/dovecot-lmtp
 
