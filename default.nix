@@ -408,9 +408,19 @@ in
       type = types.bool;
       default = false;
       description = ''
-        Whether to enable verbose logging for mailserver related services.  This
+        Whether to enable verbose logging for mailserver related services. This
         intended be used for development purposes only, you probably don't want
         to enable this unless you're hacking on nixos-mailserver.
+      '';
+    };
+
+    maxConnectionsPerUser = mkOption {
+      type = types.int;
+      default = 100;
+      description = ''
+        Maximum number of IMAP/POP3 connections allowed for a user from each IP address.
+        E.g. a value of 50 allows for 50 IMAP and 50 POP3 connections at the same
+        time for a single user.
       '';
     };
 
