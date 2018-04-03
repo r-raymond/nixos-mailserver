@@ -135,19 +135,30 @@ in
     };
 
     extraVirtualAliases = mkOption {
-      type = types.attrsOf (types.enum (builtins.attrNames cfg.loginAccounts));
+      type = types.loaOf (mkOptionType {
+        name = "Login Account";
+        check = (ele:
+          let accounts = builtins.attrNames cfg.loginAccounts;
+          in if (builtins.isList ele)
+            then (builtins.all (x: builtins.elem x accounts) ele) && (builtins.length ele > 0)
+            else (builtins.elem ele accounts));
+      });
       example = {
         "info@example.com" = "user1@example.com";
         "postmaster@example.com" = "user1@example.com";
         "abuse@example.com" = "user1@example.com";
+        "multi@example.com" = [ "user1@example.com" "user2@example.com" ];
       };
       description = ''
-        Virtual Aliases. A virtual alias `"info@example2.com" = "user1@example.com"` means that
-        all mail to `info@example2.com` is forwarded to `user1@example.com`. Note
+        Virtual Aliases. A virtual alias `"info@example.com" = "user1@example.com"` means that
+        all mail to `info@example.com` is forwarded to `user1@example.com`. Note
         that it is expected that `postmaster@example.com` and `abuse@example.com` is
         forwarded to some valid email address. (Alternatively you can create login
         accounts for `postmaster` and (or) `abuse`). Furthermore, it also allows
-        the user `user1@example.com` to send emails as `info@example2.com`.
+        the user `user1@example.com` to send emails as `info@example.com`.
+        It's also possible to create an alias for multiple accounts. In this
+        example all mails for `multi@example.com` will be forwarded to both
+        `user1@example.com` and `user2@example.com`.
       '';
       default = {};
     };
@@ -160,7 +171,7 @@ in
         "abuse@example.com" = "user1@example.com";
       };
       description = ''
-        Alias for extraVirtualAliases. Deprecated.
+        Alias for extraVirtualAliases, but only for single aliases! Deprecated.
       '';
       default = {};
     };

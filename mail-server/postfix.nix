@@ -47,7 +47,10 @@ let
     (map
     (from:
       let to = cfg.extraVirtualAliases.${from};
-      in "${from} ${to}")
+          aliasList = (l: let aliasStr = builtins.foldl' (x: y: x + y + ", ") "" l;
+                          in builtins.substring 0 (builtins.stringLength aliasStr - 2) aliasStr);
+      in if (builtins.isList to) then "${from} " + (aliasList to)
+                                 else "${from} ${to}")
     (builtins.attrNames cfg.extraVirtualAliases));
 
   # all_valiases_postfix :: [ String ]
