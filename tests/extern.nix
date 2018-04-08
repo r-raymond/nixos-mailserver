@@ -306,10 +306,10 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       };
 
       subtest "no warnings or errors", sub {
-          $server->fail("journalctl -u postfix | grep -i error");
-          $server->fail("journalctl -u postfix | grep -i warning");
-          $server->fail("journalctl -u dovecot2 | grep -i error");
-          $server->fail("journalctl -u dovecot2 | grep -i warning");
+          $server->fail("journalctl -u postfix | grep -i error >&2");
+          $server->fail("journalctl -u postfix | grep -i warning >&2");
+          $server->fail("journalctl -u dovecot2 | grep -i error >&2");
+          $server->fail("journalctl -u dovecot2 | grep -i warning >&2");
       };
 
     '';
