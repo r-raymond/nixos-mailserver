@@ -5,7 +5,7 @@
 
 ## Stable Releases
 
-* [SNM v2.1.3](https://github.com/r-raymond/nixos-mailserver/releases/v2.1.3)
+* [SNM v2.1.4](https://github.com/r-raymond/nixos-mailserver/releases/v2.1.4)
 
 [Latest Release (Candidate)](https://github.com/r-raymond/nixos-mailserver/releases/latest)
 
@@ -67,7 +67,7 @@ See the [mailing list archive](https://www.freelists.org/archive/snm/)
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.1.3.tar.gz")
+    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.1.4.tar.gz")
   ];
 
   mailserver = {
