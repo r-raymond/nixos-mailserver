@@ -66,6 +66,8 @@ in
             default = [];
             description = ''
               A list of aliases of this login account.
+              Note: Use list entries like "@example.com" to create a catchAll
+              that allows sending from all email addresses in these domain.
             '';
           };
 
@@ -75,6 +77,7 @@ in
             default = [];
             description = ''
               For which domains should this account act as a catch all?
+              Note: Does not allow sending from all addresses of these domains.
             '';
           };
 
