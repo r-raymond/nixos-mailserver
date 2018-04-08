@@ -9,4 +9,4 @@ script:
 cache:
   directories:
       - /nix/store
-  timeout: 600
+  timeout: 1200
