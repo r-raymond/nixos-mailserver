@@ -29,6 +29,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               fqdn = "mail.example.com";
               domains = [ "example.com" "example2.com" ];
               dhParamBitLength = 512;
+              rewriteMessageId = true;
 
               loginAccounts = {
                   "user1@example.com" = {
@@ -65,9 +66,14 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           echo grep '${clientIP}' "$@" >&2
           exec grep '${clientIP}' "$@"
         '';
+        check-mail-id = pkgs.writeScriptBin "check-mail-id" ''
+          #!${pkgs.stdenv.shell}
+          echo grep '^Message-ID:.*@mail.example.com>$' "$@" >&2
+          exec grep '^Message-ID:.*@mail.example.com>$' "$@"
+        '';
       in {
         environment.systemPackages = with pkgs; [
-          fetchmail msmtp procmail findutils grep-ip
+          fetchmail msmtp procmail findutils grep-ip check-mail-id
         ];
         environment.etc = {
           "root/.fetchmailrc" = {
@@ -128,6 +134,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
             '';
           };
           "root/email1".text = ''
+            Message-ID: <12345qwerty@host.local.network>
             From: User2 <user2@example.com>
             To: User1 <user1@example.com>
             Cc:
@@ -140,6 +147,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
             how are you doing today?
           '';
           "root/email2".text = ''
+            Message-ID: <232323abc@host.local.network>
             From: User <user@example2.com>
             To: User1 <user1@example.com>
             Cc:
@@ -154,6 +162,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
             XOXO User1
           '';
           "root/email3".text = ''
+            Message-ID: <asdfghjkl42@host.local.network>
             From: Postmaster <postmaster@example.com>
             To: Chuck <chuck@example.com>
             Cc:
@@ -167,6 +176,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
             XOXO Postmaster
           '';
           "root/email4".text = ''
+            Message-ID: <sdfsdf@host.local.network>
             From: Single Alias <single-alias@example.com>
             To: User1 <user1@example.com>
             Cc:
@@ -181,6 +191,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
             XOXO User1 aka Single Alias
           '';
           "root/email5".text = ''
+            Message-ID: <789asdf@host.local.network>
             From: User2 <user2@example.com>
             To: Multi Alias <multi-alias@example.com>
             Cc:
@@ -234,6 +245,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         $client->succeed("cat ~/mail/* >&2");
         ## make sure our IP is _not_ in the email header
         $client->fail("grep-ip ~/mail/*");
+        $client->succeed("check-mail-id ~/mail/*");
       };
 
       subtest "have correct fqdn as sender", sub {

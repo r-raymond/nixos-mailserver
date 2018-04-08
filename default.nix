@@ -433,6 +433,16 @@ in
       '';
     };
 
+    rewriteMessageId = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Rewrites the Message-ID's hostname-part of outgoing emails to the FQDN.
+        Please be aware that this may cause problems with some mail clients
+        relying on the original Message-ID.
+      '';
+    };
+
     monitoring = {
       enable = mkEnableOption "monitoring via monit";
 

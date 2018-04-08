@@ -66,7 +66,7 @@ let
   # The user's own address is already in all_valiases_postfix.
   vaccounts_file = builtins.toFile "vaccounts" (lib.concatStringsSep "\n" all_valiases_postfix);
 
-  submissionHeaderCleanupRules = pkgs.writeText "submission_header_cleanup_rules" ''
+  submissionHeaderCleanupRules = pkgs.writeText "submission_header_cleanup_rules" (''
      # Removes sensitive headers from mails handed in via the submission port.
      # See https://thomas-leister.de/mailserver-debian-stretch/
      # Uses "pcre" style regex.
@@ -76,7 +76,13 @@ let
      /^X-Mailer:/            IGNORE
      /^User-Agent:/          IGNORE
      /^X-Enigmail:/          IGNORE
-  '';
+  '' + lib.optionalString cfg.rewriteMessageId ''
+
+     # Replaces the user submitted hostname with the server's FQDN to hide the
+     # user's host or network.
+
+     /^Message-ID:\s+<(.*?)@.*?>/ REPLACE Message-ID: <$1@${cfg.fqdn}>
+  '');
 in
 {
   config = with cfg; lib.mkIf enable {
