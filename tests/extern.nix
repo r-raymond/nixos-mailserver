@@ -49,6 +49,11 @@ import <nixpkgs/nixos/tests/make-test.nix> {
                   };
               };
 
+              extraVirtualAliases = {
+                "single-alias@example.com" = "user1@example.com";
+                "multi-alias@example.com" = [ "user1@example.com" "user2@example.com" ];
+              };
+
               enableImap = true;
             };
         };
@@ -113,6 +118,13 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               from           postmaster@example.com
               user           user1@example.com
               password       user1
+
+              account        test5
+              host           ${serverIP}
+              port           587
+              from           single-alias@example.com
+              user           user1@example.com
+              password       user1
             '';
           };
           "root/email1".text = ''
@@ -153,6 +165,34 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
             I think I may have misconfigured the mail server
             XOXO Postmaster
+          '';
+          "root/email4".text = ''
+            From: Single Alias <single-alias@example.com>
+            To: User1 <user1@example.com>
+            Cc:
+            Bcc:
+            Subject: This is a test Email from single-alias\@example.com to user1
+            Reply-To:
+
+            Hello User1,
+
+            how are you doing today?
+
+            XOXO User1 aka Single Alias
+          '';
+          "root/email5".text = ''
+            From: User2 <user2@example.com>
+            To: Multi Alias <multi-alias@example.com>
+            Cc:
+            Bcc:
+            Subject: This is a test Email from user2\@example.com to multi-alias
+            Reply-To:
+
+            Hello Multi Alias,
+
+            how are we doing today?
+
+            XOXO User1
           '';
         };
       };
@@ -238,6 +278,22 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           $client->fail("fetchmail -v");
       };
 
+      subtest "extraVirtualAliases", sub {
+          $client->execute("rm ~/mail/*");
+          # send email from single-alias to user1
+          $client->succeed("msmtp -a test5 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email4 >&2");
+          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          # fetchmail returns EXIT_CODE 0 when it retrieves mail
+          $client->succeed("fetchmail -v");
+
+          $client->execute("rm ~/mail/*");
+          # send email from user1 to multi-alias (user{1,2}@example.com)
+          $client->succeed("msmtp -a test --tls=on --tls-certcheck=off --auth=on multi-alias\@example.com < /etc/root/email5 >&2");
+          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          # fetchmail returns EXIT_CODE 0 when it retrieves mail
+          $client->succeed("fetchmail -v");
+      };
+
       subtest "quota", sub {
           $client->execute("rm ~/mail/*");
           $client->execute("mv ~/.fetchmailRcLowQuota ~/.fetchmailrc");
@@ -247,6 +303,13 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->fail("fetchmail -v");
 
+      };
+
+      subtest "no warnings or errors", sub {
+          $server->fail("journalctl -u postfix | grep -i error");
+          $server->fail("journalctl -u postfix | grep -i warning");
+          $server->fail("journalctl -u dovecot2 | grep -i error");
+          $server->fail("journalctl -u dovecot2 | grep -i warning");
       };
 
     '';

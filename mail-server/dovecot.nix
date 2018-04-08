@@ -67,6 +67,14 @@ in
           verbose_ssl = yes
         ''}
 
+        protocol imap {
+          mail_max_userip_connections = ${toString cfg.maxConnectionsPerUser}
+        }
+
+        protocol pop3 {
+          mail_max_userip_connections = ${toString cfg.maxConnectionsPerUser}
+        }
+
         mail_access_groups = ${vmailGroupName}
         ssl = required
         ${lib.optionalString (dovecotVersion.major == 2 && dovecotVersion.minor >= 3) ''

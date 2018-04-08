@@ -41,17 +41,14 @@ let
     (map
     (from:
       let to = cfg.extraVirtualAliases.${from};
-      in "${from} ${to}")
+          aliasList = (l: let aliasStr = builtins.foldl' (x: y: x + y + ", ") "" l;
+                          in builtins.substring 0 (builtins.stringLength aliasStr - 2) aliasStr);
+      in if (builtins.isList to) then "${from} " + (aliasList to)
+                                 else "${from} ${to}")
     (builtins.attrNames cfg.extraVirtualAliases));
 
   # all_valiases_postfix :: [ String ]
   all_valiases_postfix = valiases_postfix ++ extra_valiases_postfix;
-
-  # accountToIdentity :: User -> String
-  accountToIdentity = account: "${account.name} ${account.name}";
-
-  # vaccounts_identity :: [ String ]
-  vaccounts_identity = map accountToIdentity (lib.attrValues cfg.loginAccounts);
 
   # valiases_file :: Path
   valiases_file = builtins.toFile "valias"
@@ -65,10 +62,9 @@ let
   # see
   # https://blog.grimneko.de/2011/12/24/a-bunch-of-tips-for-improving-your-postfix-setup/
   # for details on how this file looks. By using the same file as valiases,
-  # every alias is owned (uniquely) by its user. We have to add the users own
-  # address though
-  vaccounts_file = builtins.toFile "vaccounts" (lib.concatStringsSep "\n"
-  (vaccounts_identity ++ all_valiases_postfix));
+  # every alias is owned (uniquely) by its user. 
+  # The user's own address is already in all_valiases_postfix.
+  vaccounts_file = builtins.toFile "vaccounts" (lib.concatStringsSep "\n" all_valiases_postfix);
 
   submissionHeaderCleanupRules = pkgs.writeText "submission_header_cleanup_rules" ''
      # Removes sensitive headers from mails handed in via the submission port.
@@ -98,7 +94,7 @@ in
       extraConfig =
       ''
         # Extra Config
-        mydestination = localhost
+        mydestination =
 
         smtpd_banner = ${fqdn} ESMTP NO UCE
         disable_vrfy_command = yes
@@ -109,6 +105,7 @@ in
         virtual_gid_maps = static:5000
         virtual_mailbox_base = ${mailDirectory}
         virtual_mailbox_domains = ${vhosts_file}
+        virtual_mailbox_maps = hash:/var/lib/postfix/conf/valias
         virtual_alias_maps = hash:/var/lib/postfix/conf/valias
         virtual_transport = lmtp:unix:private/dovecot-lmtp
 

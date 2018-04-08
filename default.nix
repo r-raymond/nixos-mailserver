@@ -66,6 +66,8 @@ in
             default = [];
             description = ''
               A list of aliases of this login account.
+              Note: Use list entries like "@example.com" to create a catchAll
+              that allows sending from all email addresses in these domain.
             '';
           };
 
@@ -75,6 +77,7 @@ in
             default = [];
             description = ''
               For which domains should this account act as a catch all?
+              Note: Does not allow sending from all addresses of these domains.
             '';
           };
 
@@ -135,19 +138,30 @@ in
     };
 
     extraVirtualAliases = mkOption {
-      type = types.attrsOf (types.enum (builtins.attrNames cfg.loginAccounts));
+      type = types.loaOf (mkOptionType {
+        name = "Login Account";
+        check = (ele:
+          let accounts = builtins.attrNames cfg.loginAccounts;
+          in if (builtins.isList ele)
+            then (builtins.all (x: builtins.elem x accounts) ele) && (builtins.length ele > 0)
+            else (builtins.elem ele accounts));
+      });
       example = {
         "info@example.com" = "user1@example.com";
         "postmaster@example.com" = "user1@example.com";
         "abuse@example.com" = "user1@example.com";
+        "multi@example.com" = [ "user1@example.com" "user2@example.com" ];
       };
       description = ''
-        Virtual Aliases. A virtual alias `"info@example2.com" = "user1@example.com"` means that
-        all mail to `info@example2.com` is forwarded to `user1@example.com`. Note
+        Virtual Aliases. A virtual alias `"info@example.com" = "user1@example.com"` means that
+        all mail to `info@example.com` is forwarded to `user1@example.com`. Note
         that it is expected that `postmaster@example.com` and `abuse@example.com` is
         forwarded to some valid email address. (Alternatively you can create login
         accounts for `postmaster` and (or) `abuse`). Furthermore, it also allows
-        the user `user1@example.com` to send emails as `info@example2.com`.
+        the user `user1@example.com` to send emails as `info@example.com`.
+        It's also possible to create an alias for multiple accounts. In this
+        example all mails for `multi@example.com` will be forwarded to both
+        `user1@example.com` and `user2@example.com`.
       '';
       default = {};
     };
@@ -395,9 +409,19 @@ in
       type = types.bool;
       default = false;
       description = ''
-        Whether to enable verbose logging for mailserver related services.  This
+        Whether to enable verbose logging for mailserver related services. This
         intended be used for development purposes only, you probably don't want
         to enable this unless you're hacking on nixos-mailserver.
+      '';
+    };
+
+    maxConnectionsPerUser = mkOption {
+      type = types.int;
+      default = 100;
+      description = ''
+        Maximum number of IMAP/POP3 connections allowed for a user from each IP address.
+        E.g. a value of 50 allows for 50 IMAP and 50 POP3 connections at the same
+        time for a single user.
       '';
     };
 
@@ -464,9 +488,138 @@ in
         description = ''
           The configuration used for monitoring via monit.
           Use a mail address that you actively check and set it via 'set alert ...'.
-          '';
-          };
+        '';
+      };
+    };
+
+    borgbackup = {
+      enable = mkEnableOption "backup via borgbackup";
+
+      repoLocation = mkOption {
+        type = types.string;
+        default = "/var/borgbackup";
+        description = ''
+          The location where borg saves the backups.
+          This can be a local path or a remote location such as user@host:/path/to/repo.
+          It is exported and thus available as an environment variable to cmdPreexec and cmdPostexec.
+        '';
+      };
+
+      startAt = mkOption {
+        type = types.string;
+        default = "hourly";
+        description = "When or how often the backup should run. Must be in the format described in systemd.time 7.";
+      };
+
+      user = mkOption {
+        type = types.string;
+        default = "virtualMail";
+        description = "The user borg and its launch script is run as.";
+      };
+
+      group = mkOption {
+        type = types.string;
+        default = "virtualMail";
+        description = "The group borg and its launch script is run as.";
+      };
+
+      compression = {
+        method = mkOption {
+          type = types.nullOr (types.enum ["none" "lz4" "zstd" "zlib" "lzma"]);
+          default = null;
+          description = "Leaving this unset allows borg to choose. The default for borg 1.1.4 is lz4.";
         };
+
+        level = mkOption {
+          type = types.nullOr types.int;
+          default = null;
+          description = ''
+            Denotes the level of compression used by borg.
+            Most methods accept levels from 0 to 9 but zstd which accepts values from 1 to 22.
+            If null the decision is left up to borg.
+          '';
+        };
+        
+        auto = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Leaves it to borg to determine whether an individual file should be compressed.";
+        };
+      };
+
+      encryption = {
+        method = mkOption {
+          type = types.enum [
+            "none"
+            "authenticated"
+            "authenticated-blake2"
+            "repokey"
+            "keyfile"
+            "repokey-blake2"
+            "keyfile-blake2"
+          ];
+          default = "none";
+          description = ''
+            The backup can be encrypted by choosing any other value than 'none'.
+            When using encryption the password / passphrase must be provided in passphraseFile.
+          '';
+        };
+        
+        passphraseFile = mkOption {
+          type = types.nullOr types.path;
+          default = null;
+        };
+      };
+
+      name = mkOption {
+        type = types.string;
+        default = "{hostname}-{user}-{now}";
+        description = ''
+          The name of the individual backups as used by borg.
+          Certain placeholders will be replaced by borg.
+        '';
+      };
+
+      locations = mkOption {
+        type = types.listOf types.path;
+        default = [cfg.mailDirectory];
+        description = "The locations that are to be backed up by borg.";
+      };
+
+      extraArgumentsForInit = mkOption {
+        type = types.listOf types.string;
+        default = ["--critical"];
+        description = "Additional arguments to add to the borg init command line.";
+      };
+
+      extraArgumentsForCreate = mkOption {
+        type = types.listOf types.string;
+        default = [ ];
+        description = "Additional arguments to add to the borg create command line e.g. '--stats'.";
+      };
+
+      cmdPreexec = mkOption {
+        type = types.nullOr types.string;
+        default = null;
+        description = ''
+          The command to be executed before each backup operation.
+          This is called prior to borg init in the same script that runs borg init and create and cmdPostexec.
+          Example:
+            export BORG_RSH="ssh -i /path/to/private/key"
+        '';
+      };
+
+      cmdPostexec = mkOption {
+        type = types.nullOr types.string;
+        default = null;
+        description = ''
+          The command to be executed after each backup operation.
+          This is called after borg create completed successfully and in the same script that runs
+          cmdPreexec, borg init and create.
+        '';
+      };
+
+    };
 
     backup = {
       enable = mkEnableOption "backup via rsnapshot";
@@ -529,6 +682,7 @@ in
   };
 
   imports = [
+    ./mail-server/borgbackup.nix
     ./mail-server/rsnapshot.nix
     ./mail-server/clamav.nix
     ./mail-server/monit.nix
