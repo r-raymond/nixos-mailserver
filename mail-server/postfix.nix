@@ -55,6 +55,13 @@ let
                       (lib.concatStringsSep "\n" (all_valiases_postfix ++
                                                   catchAllPostfix));
 
+  reject_recipients_postfix = (map
+    (recipient:
+      "${recipient} REJECT")
+    (cfg.rejectRecipients));
+  # rejectRecipients :: [ Path ]
+  reject_recipients_file = builtins.toFile "reject_recipients" (lib.concatStringsSep "\n" (reject_recipients_postfix))  ;
+
   # vhosts_file :: Path
   vhosts_file = builtins.toFile "vhosts" (concatStringsSep "\n" cfg.domains);
 
@@ -87,6 +94,7 @@ in
       networksStyle = "host";
       mapFiles."valias" = valiases_file;
       mapFiles."vaccounts" = vaccounts_file;
+      mapFiles."reject_recipients" = reject_recipients_file;
       sslCert = certificatePath;
       sslKey = keyPath;
       enableSubmission = true;
@@ -115,8 +123,8 @@ in
         smtpd_sasl_auth_enable = yes
         smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
 
-        # quota
-        smtpd_recipient_restrictions = check_policy_service inet:localhost:12340
+        # reject selected recipients, quota
+        smtpd_recipient_restrictions = check_recipient_access hash:/var/lib/postfix/conf/reject_recipients, check_policy_service inet:localhost:12340
 
         # TLS settings, inspired by https://github.com/jeaye/nix-files
         # Submission by mail clients is handled in submissionOptions

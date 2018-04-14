@@ -166,6 +166,17 @@ in
       default = {};
     };
 
+    rejectRecipients = mkOption {
+      type = types.listOf types.str;
+      example = [ "sales@example.com" "info@example.com" ];
+      description = ''
+        Reject emails addressed to these local addresses from unauthorized senders.
+        Use if a spammer has found email addresses in a catchall domain but you do
+        not want to disable the catchall.
+      '';
+      default = [];
+    };
+
     vmailUID = mkOption {
       type = types.int;
       default = 5000;
