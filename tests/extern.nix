@@ -87,7 +87,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           "root/.fetchmailRcLowQuota" = {
             text = ''
                 poll ${serverIP} with proto IMAP
-                user 'lowquota\@example.com' there with password 'user1' is 'root' here
+                user 'lowquota@example.com' there with password 'user2' is 'root' here
                 mda procmail
             '';
             mode = "0700";
@@ -217,7 +217,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       $client->waitForUnit("multi-user.target");
 
       $client->execute("cp -p /etc/root/.* ~/");
-      $client->succeed("mkdir ~/mail");
+      $client->succeed("mkdir -p ~/mail");
       $client->succeed("ls -la ~/ >&2");
       $client->succeed("cat ~/.fetchmailrc >&2");
       $client->succeed("cat ~/.procmailrc >&2");
