@@ -90,6 +90,17 @@ let
 
      /^Message-ID:\s+<(.*?)@.*?>/ REPLACE Message-ID: <$1@${cfg.fqdn}>
   '');
+
+  inetSocket = addr: port: "inet:[${toString port}@${addr}]";
+  unixSocket = sock: "unix:${sock}";
+
+  rmilter = config.services.rmilter;
+  rmilterSocket = if rmilter.bindSocket.type == "unix" then unixSocket rmilter.bindSocket.path
+    else inetSocket rmilter.bindSocket.address rmilter.bindSocket.port;
+
+  smtpdMilters =
+   (lib.optional cfg.dkimSigning "unix:/run/opendkim/opendkim.sock")
+   ++ [ rmilterSocket ];
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -151,6 +162,11 @@ in
 
         # Configure a non blocking source of randomness
         tls_random_source = dev:/dev/urandom
+
+        smtpd_milters = ${lib.concatStringsSep "," smtpdMilters}
+        ${lib.optionalString cfg.dkimSigning "non_smtpd_milters = unix:/run/opendkim/opendkim.sock"}
+        milter_protocol = 6
+        milter_mail_macros = i {mail_addr} {client_addr} {client_name} {auth_type} {auth_authen} {auth_author} {mail_addr} {mail_host} {mail_mailer}
       '';
 
       submissionOptions =

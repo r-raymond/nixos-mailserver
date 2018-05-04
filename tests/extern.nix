@@ -23,6 +23,14 @@ import <nixpkgs/nixos/tests/make-test.nix> {
                 ../default.nix
             ];
 
+            services.rsyslogd = {
+              enable = true;
+              defaultConfig = ''
+              *.*   /dev/console
+              '';
+            };
+
+
             mailserver = {
               enable = true;
               debug = true;

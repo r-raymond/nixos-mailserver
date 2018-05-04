@@ -19,33 +19,6 @@
 let
   cfg = config.mailserver;
 
-  createDomainDkimCert = dom:
-    let
-      dkim_key = "${cfg.dkimKeyDirectory}/${dom}.${cfg.dkimSelector}.key";
-      dkim_txt = "${cfg.dkimKeyDirectory}/${dom}.${cfg.dkimSelector}.txt";
-    in
-        ''
-          if [ ! -f "${dkim_key}" ] || [ ! -f "${dkim_txt}" ]
-          then
-              ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
-                                                   -d "${dom}" \
-                                                   --directory="${cfg.dkimKeyDirectory}"
-              mv "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private" "${dkim_key}"
-              mv "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.txt" "${dkim_txt}"
-          fi
-        '';
-  createAllCerts = lib.concatStringsSep "\n" (map createDomainDkimCert cfg.domains);
-  create_dkim_cert =
-        ''
-          # Create dkim dir
-          mkdir -p "${cfg.dkimKeyDirectory}"
-          chown rmilter:rmilter "${cfg.dkimKeyDirectory}"
-
-          ${createAllCerts}
-
-          chown -R rmilter:rmilter "${cfg.dkimKeyDirectory}"
-        '';
-
   createDhParameterFile = let
      dovecotVersion = builtins.fromJSON
        (builtins.readFile (pkgs.callPackage ./dovecot-version.nix {}));
@@ -121,19 +94,16 @@ in
 
     # Postfix requires rmilter socket, dovecot lmtp socket, dovecot auth socket and certificate to work
     systemd.services.postfix = {
-      after = [ "rmilter.socket" "dovecot2.service" "mailserver-certificates.target" ];
+      after = [ "rmilter.socket" "dovecot2.service" "mailserver-certificates.target" ]
+        ++ (lib.optional cfg.dkimSigning "opendkim.service");
       wants = [ "mailserver-certificates.target" ];
-      requires = [ "rmilter.socket" "dovecot2.service" ];
+      requires = [ "rmilter.socket" "dovecot2.service" ]
+        ++ (lib.optional cfg.dkimSigning "opendkim.service");
     };
 
-    # Create dkim certificates
     systemd.services.rmilter = {
       requires = [ "rmilter.socket" ];
       after = [ "rmilter.socket" ];
-      preStart =
-      ''
-        ${create_dkim_cert}
-      '';
     };
   };
 }

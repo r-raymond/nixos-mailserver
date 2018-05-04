@@ -27,23 +27,8 @@ let
              };
            ''
            else "";
-  dkim = if cfg.dkimSigning
-  # Note: domain = "*"; causes Rmilter to try to search key in the key path
-  # as keypath/domain.selector.key for any domain.
-         then
-         ''
-            dkim {
-              domain {
-                key = "${cfg.dkimKeyDirectory}";
-                domain = "*";
-                selector = "${cfg.dkimSelector}";
-              };
-              sign_alg = sha256;
-              auth_only = yes;
-              header_canon = relaxed;
-            }
-         ''
-         else "";
+  postfixCfg = config.services.postfix;
+  rmilter = config.services.rmilter;
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -54,7 +39,6 @@ in
     services.rmilter = {
       inherit debug;
       enable = true;
-      postfix.enable = true;
       rspamd = {
         enable = true;
         extraConfig = "extended_spam_headers = yes;";
@@ -65,10 +49,9 @@ in
       max_size = 20M;
 
       ${clamav}
-
-      ${dkim}
       '';
     };
+    users.extraUsers.${postfixCfg.user}.extraGroups = [ rmilter.group ];
   };
 }
 

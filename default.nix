@@ -733,6 +733,7 @@ in
     ./mail-server/networking.nix
     ./mail-server/systemd.nix
     ./mail-server/dovecot.nix
+    ./mail-server/opendkim.nix
     ./mail-server/postfix.nix
     ./mail-server/rmilter.nix
     ./mail-server/nginx.nix
