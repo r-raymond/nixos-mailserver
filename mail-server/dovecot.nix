@@ -28,6 +28,8 @@ let
 
   # maildir in format "/${domain}/${user}"
   dovecotMaildir = "maildir:${cfg.mailDirectory}/%d/%n${maildirLayoutAppendix}";
+
+  postfixCfg = config.services.postfix;
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -83,9 +85,9 @@ in
 
         service lmtp {
           unix_listener /var/lib/postfix/queue/private/dovecot-lmtp {
-            group = postfix
+            group = ${postfixCfg.group}
             mode = 0600
-            user = postfix  # TODO: < make variable
+            user = ${postfixCfg.user}
           }
         }
 
@@ -106,8 +108,8 @@ in
         service auth {
           unix_listener /var/lib/postfix/queue/private/auth {
             mode = 0660
-            user = postfix  # TODO: < make variable
-            group = postfix  # TODO: < make variable
+            user = ${postfixCfg.user}
+            group = ${postfixCfg.group}
           }
         }
 
