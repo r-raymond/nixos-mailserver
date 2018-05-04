@@ -19,37 +19,6 @@
 let
   cfg = config.mailserver;
 
-  create_certificate = if cfg.certificateScheme == 2 then
-        ''
-          # Create certificates if they do not exist yet
-          dir="${cfg.certificateDirectory}"
-          fqdn="${cfg.fqdn}"
-          case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
-          key="''${dir}/key-${cfg.fqdn}.pem";
-          cert="''${dir}/cert-${cfg.fqdn}.pem";
-
-          if [ ! -f "''${key}" ] || [ ! -f "''${cert}" ]
-          then
-              mkdir -p "${cfg.certificateDirectory}"
-              (umask 077; "${pkgs.openssl}/bin/openssl" genrsa -out "''${key}" 2048) &&
-                  "${pkgs.openssl}/bin/openssl" req -new -key "''${key}" -x509 -subj "/CN=''${fqdn}" \
-                          -days 3650 -out "''${cert}"
-          fi
-        ''
-        else "";
-
-  createDhParameterFile =
-    ''
-      # Create a dh parameter file
-      if [ ! -s "${cfg.certificateDirectory}/dh.pem" ]
-      then
-          mkdir -p "${cfg.certificateDirectory}"
-          ${pkgs.openssl}/bin/openssl \
-                dhparam ${builtins.toString cfg.dhParamBitLength} \
-                > "${cfg.certificateDirectory}/dh.pem"
-      fi
-    '';
-
   createDomainDkimCert = dom:
     let
       dkim_key = "${cfg.dkimKeyDirectory}/${dom}.${cfg.dkimSelector}.key";
@@ -76,32 +45,85 @@ let
 
           chown -R rmilter:rmilter "${cfg.dkimKeyDirectory}"
         '';
+
+  createDhParameterFile = let
+     dovecotVersion = builtins.fromJSON
+       (builtins.readFile (pkgs.callPackage ./dovecot-version.nix {}));
+    in lib.optionalString
+      (dovecotVersion.major == 2 && dovecotVersion.minor >= 3)
+      ''
+        # Create a dh parameter file
+        if [ ! -s "${cfg.certificateDirectory}/dh.pem" ]
+        then
+            mkdir -p "${cfg.certificateDirectory}"
+            ${pkgs.openssl}/bin/openssl \
+                  dhparam ${builtins.toString cfg.dhParamBitLength} \
+                  > "${cfg.certificateDirectory}/dh.pem"
+        fi
+      '';
+
+  preliminarySelfsigned = config.security.acme.preliminarySelfsigned;
+  acmeWantsTarget = [ "acme-certificates.target" ]
+    ++ (lib.optional preliminarySelfsigned "acme-selfsigned-certificates.target");
+  acmeAfterTarget = if preliminarySelfsigned
+    then [ "acme-selfsigned-certificates.target" ]
+    else [ "acme-certificates.target" ];
 in
 {
   config = with cfg; lib.mkIf enable {
-    # Make sure postfix gets started first, so that the certificates are in place
-    systemd.services.dovecot2.after = [ "postfix.service" ];
+    # Add target for when certificates are available
+    systemd.targets."mailserver-certificates" = {
+      wants = lib.mkIf (cfg.certificateScheme == 3) acmeWantsTarget;
+      after = lib.mkIf (cfg.certificateScheme == 3) acmeAfterTarget;
+    };
 
-    # Create certificates and maildir folder
-    systemd.services.postfix = {
-      after = (if (certificateScheme == 3) then [ "nginx.service" ] else []);
-      preStart =
-      ''
-      # Create mail directory and set permissions. See
-      # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>.
-      mkdir -p "${mailDirectory}"
-      chgrp "${vmailGroupName}" "${mailDirectory}"
-      chmod 02770 "${mailDirectory}"
+    # Create self signed certificate
+    systemd.services.mailserver-selfsigned-certificate = lib.mkIf (cfg.certificateScheme == 2) {
+      wantedBy = [ "mailserver-certificates.target" ];
+      after    = [ "local-fs.target" ];
+      before   = [ "mailserver-certificates.target" ];
+      script = ''
+        # Create certificates if they do not exist yet
+        dir="${cfg.certificateDirectory}"
+        fqdn="${cfg.fqdn}"
+        case $fqdn in /*) fqdn=$(cat "$fqdn");; esac
+        key="''${dir}/key-${cfg.fqdn}.pem";
+        cert="''${dir}/cert-${cfg.fqdn}.pem";
 
-        ${create_certificate}
-
-        ${let
-           dovecotVersion = builtins.fromJSON
-             (builtins.readFile (pkgs.callPackage ./dovecot-version.nix {}));
-          in lib.optionalString
-            (dovecotVersion.major == 2 && dovecotVersion.minor >= 3)
-            createDhParameterFile}
+        if [ ! -f "''${key}" ] || [ ! -f "''${cert}" ]
+        then
+            mkdir -p "${cfg.certificateDirectory}"
+            (umask 077; "${pkgs.openssl}/bin/openssl" genrsa -out "''${key}" 2048) &&
+                "${pkgs.openssl}/bin/openssl" req -new -key "''${key}" -x509 -subj "/CN=''${fqdn}" \
+                        -days 3650 -out "''${cert}"
+        fi
       '';
+      serviceConfig = {
+        Type = "oneshot";
+        PrivateTmp = true;
+      };
+    };
+
+    # Create maildir folder and dh parameters before dovecot startup
+    systemd.services.dovecot2 = {
+      after = [ "mailserver-certificates.target" ];
+      wants = [ "mailserver-certificates.target" ];
+      preStart = ''
+        # Create mail directory and set permissions. See
+        # <http://wiki2.dovecot.org/SharedMailboxes/Permissions>.
+        mkdir -p "${mailDirectory}"
+        chgrp "${vmailGroupName}" "${mailDirectory}"
+        chmod 02770 "${mailDirectory}"
+
+        ${createDhParameterFile}
+      '';
+    };
+
+    # Postfix requires rmilter socket, dovecot lmtp socket, dovecot auth socket and certificate to work
+    systemd.services.postfix = {
+      after = [ "rmilter.socket" "dovecot2.service" "mailserver-certificates.target" ];
+      wants = [ "mailserver-certificates.target" ];
+      requires = [ "rmilter.socket" "dovecot2.service" ];
     };
 
     # Create dkim certificates

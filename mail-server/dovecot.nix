@@ -84,7 +84,7 @@ in
         ''}
 
         service lmtp {
-          unix_listener /var/lib/postfix/queue/private/dovecot-lmtp {
+          unix_listener dovecot-lmtp {
             group = ${postfixCfg.group}
             mode = 0600
             user = ${postfixCfg.user}
@@ -106,7 +106,7 @@ in
         }
 
         service auth {
-          unix_listener /var/lib/postfix/queue/private/auth {
+          unix_listener auth {
             mode = 0660
             user = ${postfixCfg.user}
             group = ${postfixCfg.group}

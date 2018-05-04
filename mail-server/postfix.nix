@@ -121,11 +121,11 @@ in
         virtual_mailbox_domains = ${vhosts_file}
         virtual_mailbox_maps = hash:/var/lib/postfix/conf/valias
         virtual_alias_maps = hash:/var/lib/postfix/conf/valias
-        virtual_transport = lmtp:unix:private/dovecot-lmtp
+        virtual_transport = lmtp:unix:/run/dovecot2/dovecot-lmtp
 
         # sasl with dovecot
         smtpd_sasl_type = dovecot
-        smtpd_sasl_path = private/auth
+        smtpd_sasl_path = /run/dovecot2/auth
         smtpd_sasl_auth_enable = yes
         smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
 
@@ -158,7 +158,7 @@ in
         smtpd_tls_security_level = "encrypt";
         smtpd_sasl_auth_enable = "yes";
         smtpd_sasl_type = "dovecot";
-        smtpd_sasl_path = "private/auth";
+        smtpd_sasl_path = "/run/dovecot2/auth";
         smtpd_sasl_security_options = "noanonymous";
         smtpd_sasl_local_domain = "$myhostname";
         smtpd_client_restrictions = "permit_sasl_authenticated,reject";
