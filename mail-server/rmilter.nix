@@ -40,6 +40,7 @@ let
               };
               sign_alg = sha256;
               auth_only = yes;
+              header_canon = relaxed;
             }
          ''
          else "";
