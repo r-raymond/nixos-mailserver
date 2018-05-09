@@ -41,7 +41,7 @@ let
   createDhParameterFile =
     ''
       # Create a dh parameter file
-      if [ ! -f "${cfg.certificateDirectory}/dh.pem" ]
+      if [ ! -s "${cfg.certificateDirectory}/dh.pem" ]
       then
           mkdir -p "${cfg.certificateDirectory}"
           ${pkgs.openssl}/bin/openssl \
