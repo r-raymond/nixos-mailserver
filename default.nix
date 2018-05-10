@@ -642,6 +642,27 @@ in
 
     };
 
+    rebootAfterKernelUpgrade = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = ''
+          Whether to enable automatic reboot after kernel upgrades.
+          This is to be used in conjunction with system.autoUpgrade.enable = true"
+        '';
+      };
+      method = mkOption {
+        type = types.enum [ "reboot" "systemctl kexec" ];
+        default = "reboot";
+        description = ''
+          Whether to issue a full "reboot" or just a "systemctl kexec"-only reboot.
+          It is recommended to use the default value because the quicker kexec reboot has a number of problems.
+          Also if your server is running in a virtual machine the regular reboot will already be very quick.
+        '';
+      };
+    };
+
     backup = {
       enable = mkEnableOption "backup via rsnapshot";
 
@@ -716,5 +737,6 @@ in
     ./mail-server/rmilter.nix
     ./mail-server/nginx.nix
     ./mail-server/kresd.nix
+    ./mail-server/post-upgrade-check.nix
   ];
 }
