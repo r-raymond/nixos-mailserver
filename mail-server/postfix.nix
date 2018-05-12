@@ -101,6 +101,20 @@ let
   smtpdMilters =
    (lib.optional cfg.dkimSigning "unix:/run/opendkim/opendkim.sock")
    ++ [ rmilterSocket ];
+
+  policyd-spf = pkgs.writeText "policyd-spf.conf" (''
+    TestOnly = 1
+
+    HELO_reject = Fail
+    Mail_From_reject = Fail
+
+    PermError_reject = False
+    TempError_Defer = False
+
+    skip_addresses = 127.0.0.0/8,::ffff:127.0.0.0/104,::1
+  '' + (lib.optionalString cfg.debug ''
+    debugLevel = 4
+  ''));
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -140,8 +154,13 @@ in
         smtpd_sasl_auth_enable = yes
         smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
 
-        # reject selected recipients, quota
-        smtpd_recipient_restrictions = check_recipient_access hash:/var/lib/postfix/conf/reject_recipients, check_policy_service inet:localhost:12340
+        policy-spf_time_limit = 3600s
+
+        # quota and spf checking
+        smtpd_recipient_restrictions =
+          check_recipient_access hash:/var/lib/postfix/conf/reject_recipients,
+          check_policy_service inet:localhost:12340,
+          check_policy_service unix:private/policy-spf
 
         # TLS settings, inspired by https://github.com/jeaye/nix-files
         # Submission by mail clients is handled in submissionOptions
@@ -184,6 +203,13 @@ in
         cleanup_service_name = "submission-header-cleanup";
       };
       masterConfig = {
+        "policy-spf" = {
+          type = "unix";
+          privileged = true;
+          chroot = false;
+          command = "spawn";
+          args = [ "user=nobody" "argv=${pkgs.pypolicyd-spf}/bin/policyd-spf" "${policyd-spf}"];
+        };
         "submission-header-cleanup" = {
           type = "unix";
           private = false;
