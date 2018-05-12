@@ -183,11 +183,16 @@ in
         smtpd_recipient_restrictions = "reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject";
         cleanup_service_name = "submission-header-cleanup";
       };
-
-      extraMasterConf = ''
-        submission-header-cleanup unix n - n    -       0       cleanup
-            -o header_checks=pcre:${submissionHeaderCleanupRules}
-      '';
+      masterConfig = {
+        "submission-header-cleanup" = {
+          type = "unix";
+          private = false;
+          chroot = false;
+          maxproc = 0;
+          command = "cleanup";
+          args = ["-o" "header_checks=pcre:${submissionHeaderCleanupRules}"];
+        };
+      };
     };
   };
 }
