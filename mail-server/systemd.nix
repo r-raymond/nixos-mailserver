@@ -102,8 +102,8 @@ in
     };
 
     systemd.services.rmilter = {
-      requires = [ "rmilter.socket" ];
-      after = [ "rmilter.socket" ];
+      requires = [ "rmilter.socket" ] ++ (lib.optional cfg.virusScanning "clamav-daemon.service");
+      after = [ "rmilter.socket" ] ++ (lib.optional cfg.virusScanning "clamav-daemon.service");
     };
   };
 }

@@ -23,7 +23,7 @@ let
            then
            ''
              clamav {
-               servers = /var/run/clamav/clamd.ctl;
+               servers = /run/clamav/clamd.ctl;
              };
            ''
            else "";
