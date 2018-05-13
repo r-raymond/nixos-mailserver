@@ -94,13 +94,9 @@ let
   inetSocket = addr: port: "inet:[${toString port}@${addr}]";
   unixSocket = sock: "unix:${sock}";
 
-  rmilter = config.services.rmilter;
-  rmilterSocket = if rmilter.bindSocket.type == "unix" then unixSocket rmilter.bindSocket.path
-    else inetSocket rmilter.bindSocket.address rmilter.bindSocket.port;
-
   smtpdMilters =
    (lib.optional cfg.dkimSigning "unix:/run/opendkim/opendkim.sock")
-   ++ [ rmilterSocket ];
+   ++ [ "unix:/run/rspamd/rspamd-milter.sock" ];
 
   policyd-spf = pkgs.writeText "policyd-spf.conf" (''
     TestOnly = 1

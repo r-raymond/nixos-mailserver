@@ -735,7 +735,7 @@ in
     ./mail-server/dovecot.nix
     ./mail-server/opendkim.nix
     ./mail-server/postfix.nix
-    ./mail-server/rmilter.nix
+    ./mail-server/rspamd.nix
     ./mail-server/nginx.nix
     ./mail-server/kresd.nix
     ./mail-server/post-upgrade-check.nix

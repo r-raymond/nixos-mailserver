@@ -89,18 +89,13 @@ in
       '';
     };
 
-    # Postfix requires rmilter socket, dovecot lmtp socket, dovecot auth socket and certificate to work
+    # Postfix requires dovecot lmtp socket, dovecot auth socket and certificate to work
     systemd.services.postfix = {
-      after = [ "rmilter.socket" "dovecot2.service" "mailserver-certificates.target" ]
+      after = [ "dovecot2.service" "mailserver-certificates.target" ]
         ++ (lib.optional cfg.dkimSigning "opendkim.service");
       wants = [ "mailserver-certificates.target" ];
-      requires = [ "rmilter.socket" "dovecot2.service" ]
+      requires = [ "dovecot2.service" ]
         ++ (lib.optional cfg.dkimSigning "opendkim.service");
-    };
-
-    systemd.services.rmilter = {
-      requires = [ "rmilter.socket" ] ++ (lib.optional cfg.virusScanning "clamav-daemon.service");
-      after = [ "rmilter.socket" ] ++ (lib.optional cfg.virusScanning "clamav-daemon.service");
     };
   };
 }
