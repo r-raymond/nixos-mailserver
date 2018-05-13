@@ -19,11 +19,8 @@
 let
   cfg = config.mailserver;
 
-  createDhParameterFile = let
-     dovecotVersion = builtins.fromJSON
-       (builtins.readFile (pkgs.callPackage ./dovecot-version.nix {}));
-    in lib.optionalString
-      (dovecotVersion.major == 2 && dovecotVersion.minor >= 3)
+  createDhParameterFile =
+    lib.optionalString (lib.versionAtLeast (lib.getVersion pkgs.dovecot) "2.3")
       ''
         # Create a dh parameter file
         if [ ! -s "${cfg.certificateDirectory}/dh.pem" ]

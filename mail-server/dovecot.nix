@@ -23,9 +23,6 @@ let
 
   maildirLayoutAppendix = lib.optionalString cfg.useFsLayout ":LAYOUT=fs";
 
-  dovecotVersion = builtins.fromJSON
-    (builtins.readFile (pkgs.callPackage ./dovecot-version.nix {}));
-
   # maildir in format "/${domain}/${user}"
   dovecotMaildir = "maildir:${cfg.mailDirectory}/%d/%n${maildirLayoutAppendix}";
 
@@ -79,7 +76,7 @@ in
 
         mail_access_groups = ${vmailGroupName}
         ssl = required
-        ${lib.optionalString (dovecotVersion.major == 2 && dovecotVersion.minor >= 3) ''
+        ${lib.optionalString (lib.versionAtLeast (lib.getVersion pkgs.dovecot) "2.3") ''
           ssl_dh = <${certificateDirectory}/dh.pem
         ''}
 
