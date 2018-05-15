@@ -61,6 +61,16 @@ in
           }
         '';
       };
+      workers.controller = {
+        type = "controller";
+        count = 1;
+        bindSockets = [{
+          socket = "/run/rspamd/worker-controller.sock";
+          mode = "0666";
+        }];
+        includes = [];
+      };
+
     };
     systemd.services.rspamd = {
       requires = (lib.optional cfg.virusScanning "clamav-daemon.service");

@@ -64,6 +64,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               };
 
               enableImap = true;
+              enableImapSsl = true;
             };
         };
       client = { nodes, config, pkgs, ... }: let
@@ -79,9 +80,63 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           echo grep '^Message-ID:.*@mail.example.com>$' "$@" >&2
           exec grep '^Message-ID:.*@mail.example.com>$' "$@"
         '';
+        test-imap-spam = pkgs.writeScriptBin "imap-mark-spam" ''
+          #!${pkgs.python3.interpreter}
+          import imaplib
+
+          with imaplib.IMAP4_SSL('${serverIP}') as imap:
+            imap.login('user1@example.com', 'user1')
+            imap.select()
+            status, [response] = imap.search(None, 'ALL')
+            msg_ids = response.decode("utf-8").split(' ')
+            print(msg_ids)
+            assert status == 'OK'
+            assert len(msg_ids) == 1
+
+            imap.copy(','.join(msg_ids), 'Junk')
+            for num in msg_ids:
+              imap.store(num, '+FLAGS', '\\Deleted')
+            imap.expunge()
+
+            imap.select('Junk')
+            status, [response] = imap.search(None, 'ALL')
+            msg_ids = response.decode("utf-8").split(' ')
+            print(msg_ids)
+            assert status == 'OK'
+            assert len(msg_ids) == 1
+
+            imap.close()
+        '';
+        test-imap-ham = pkgs.writeScriptBin "imap-mark-ham" ''
+          #!${pkgs.python3.interpreter}
+          import imaplib
+
+          with imaplib.IMAP4_SSL('${serverIP}') as imap:
+            imap.login('user1@example.com', 'user1')
+            imap.select('Junk')
+            status, [response] = imap.search(None, 'ALL')
+            msg_ids = response.decode("utf-8").split(' ')
+            print(msg_ids)
+            assert status == 'OK'
+            assert len(msg_ids) == 1
+
+            imap.copy(','.join(msg_ids), 'INBOX')
+            for num in msg_ids:
+              imap.store(num, '+FLAGS', '\\Deleted')
+            imap.expunge()
+
+            imap.select('INBOX')
+            status, [response] = imap.search(None, 'ALL')
+            msg_ids = response.decode("utf-8").split(' ')
+            print(msg_ids)
+            assert status == 'OK'
+            assert len(msg_ids) == 1
+
+            imap.close()
+        '';
       in {
         environment.systemPackages = with pkgs; [
-          fetchmail msmtp procmail findutils grep-ip check-mail-id
+          fetchmail msmtp procmail findutils grep-ip check-mail-id test-imap-spam test-imap-ham
         ];
         environment.etc = {
           "root/.fetchmailrc" = {
@@ -323,6 +378,18 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->fail("fetchmail -v");
 
+      };
+
+      subtest "imap sieve junk trainer", sub {
+          # send email from user2 to user1
+          $client->succeed("msmtp -a test --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email1 >&2");
+          # give the mail server some time to process the mail
+          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+
+          $client->succeed("imap-mark-spam >&2");
+          $server->waitUntilSucceeds("journalctl -u dovecot2 | grep -i sa-learn-spam.sh >&2");
+          $client->succeed("imap-mark-ham >&2");
+          $server->waitUntilSucceeds("journalctl -u dovecot2 | grep -i sa-learn-ham.sh >&2");
       };
 
       subtest "no warnings or errors", sub {
