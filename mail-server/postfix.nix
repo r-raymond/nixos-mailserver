@@ -98,17 +98,9 @@ let
    (lib.optional cfg.dkimSigning "unix:/run/opendkim/opendkim.sock")
    ++ [ "unix:/run/rspamd/rspamd-milter.sock" ];
 
-  policyd-spf = pkgs.writeText "policyd-spf.conf" (''
-    TestOnly = 1
-
-    HELO_reject = Fail
-    Mail_From_reject = Fail
-
-    PermError_reject = False
-    TempError_Defer = False
-
-    skip_addresses = 127.0.0.0/8,::ffff:127.0.0.0/104,::1
-  '' + (lib.optionalString cfg.debug ''
+  policyd-spf = pkgs.writeText "policyd-spf.conf" (
+    cfg.policydSPFExtraConfig
+    + (lib.optionalString cfg.debug ''
     debugLevel = 4
   ''));
 in
