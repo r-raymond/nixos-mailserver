@@ -22,17 +22,17 @@ let
   cfg = config.mailserver;
 in
 {
-  config = mkIf cfg.rebootAfterKernelUpgrade.enable {
+  config = mkIf (cfg.enable && cfg.rebootAfterKernelUpgrade.enable) {
     systemd.services.nixos-upgrade.serviceConfig.ExecStartPost = pkgs.writeScript "post-upgrade-check" ''
       #!${pkgs.stdenv.shell}
-      
+
       # Checks whether the "current" kernel is different from the booted kernel
       # and then triggers a reboot so that the "current" kernel will be the booted one.
       # This is just an educated guess. If the links do not differ the kernels might still be different, according to spacefrogg in #nixos.
-      
+
       current=$(readlink -f /run/current-system/kernel)
       booted=$(readlink -f /run/booted-system/kernel)
-      
+
       if [ "$current" == "$booted" ]; then
         echo "kernel version seems unchanged, skipping reboot" | systemd-cat --priority 4 --identifier "post-upgrade-check";
       else

@@ -39,7 +39,7 @@ let
   '';
   postexecString = optionalString postexecDefined "cmd_postexec	${postexecWrapped}";
 in {
-  config = mkIf cfg.backup.enable {
+  config = mkIf (cfg.enable && cfg.backup.enable) {
     services.rsnapshot = {
       enable = true;
       cronIntervals = cfg.backup.cronIntervals;
