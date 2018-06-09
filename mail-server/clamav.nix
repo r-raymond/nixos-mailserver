@@ -23,6 +23,10 @@ in
   config = lib.mkIf cfg.virusScanning {
     services.clamav.daemon.enable = true;
     services.clamav.updater.enable = true;
+
+    services.clamav.daemon.extraConfig = ''
+      PhishingScanURLs no
+    '';
   };
 }
 
