@@ -24,7 +24,7 @@ let
   acmeRoot = "/var/lib/acme/acme-challenge";
 in
 {
-  config = lib.mkIf (cfg.certificateScheme == 3) {
+  config = lib.mkIf (cfg.enable && cfg.certificateScheme == 3) {
     services.nginx = {
       enable = true;
       virtualHosts."${cfg.fqdn}" = {

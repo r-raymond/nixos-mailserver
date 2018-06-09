@@ -20,7 +20,7 @@ let
   cfg = config.mailserver;
 in
 {
-  config = lib.mkIf cfg.monitoring.enable {
+  config = lib.mkIf (cfg.enable && cfg.monitoring.enable) {
     services.monit = {
       enable = true;
       config = ''

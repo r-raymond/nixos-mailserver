@@ -19,7 +19,7 @@
 let
   cfg = config.mailserver.borgbackup;
 
-  methodFragment = lib.optional (cfg.compression.method != null) cfg.compression.method;  
+  methodFragment = lib.optional (cfg.compression.method != null) cfg.compression.method;
   autoFragment =
     if cfg.compression.auto && cfg.compression.method == null
     then throw "compression.method must be set when using auto."
@@ -56,7 +56,7 @@ let
     ${cmdPostexec}
   '';
 in {
-  config = lib.mkIf config.mailserver.borgbackup.enable {
+  config = lib.mkIf (config.mailserver.enable && cfg.enable) {
     environment.systemPackages = with pkgs; [
       borgbackup
     ];
