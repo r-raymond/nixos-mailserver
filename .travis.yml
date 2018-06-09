@@ -5,8 +5,3 @@ env:
 script:
     - nix-build tests/intern.nix
     - nix-build tests/extern.nix
-
-cache:
-  directories:
-      - /nix/store
-  timeout: 1200
