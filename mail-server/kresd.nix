@@ -20,7 +20,7 @@ let
   cfg = config.mailserver;
 in
 {
-  config = lib.mkIf cfg.localDnsResolver {
+  config = lib.mkIf (cfg.enable && cfg.localDnsResolver) {
     services.kresd.enable = true;
     networking.nameservers = [ "127.0.0.1" ];
   };

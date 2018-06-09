@@ -20,9 +20,13 @@ let
   cfg = config.mailserver;
 in
 {
-  config = lib.mkIf cfg.virusScanning {
+  config = lib.mkIf (cfg.enable && cfg.virusScanning) {
     services.clamav.daemon.enable = true;
     services.clamav.updater.enable = true;
+
+    services.clamav.daemon.extraConfig = ''
+      PhishingScanURLs no
+    '';
   };
 }
 
