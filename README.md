@@ -3,6 +3,12 @@
 ![status](https://travis-ci.org/r-raymond/nixos-mailserver.svg?branch=master)
 
 
+**THIS REPO IS NOT UPDATED ANYMORE, IT HAS BEEN MOVED TO GITLAB. PLEASE DON'T OPEN
+ANY MORE PR'S OR ISSUES IN GITHUB**
+
+[LINK TO REPO](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver)
+
+
 ## Stable Releases
 
 * [SNM v2.1.4](https://github.com/r-raymond/nixos-mailserver/releases/v2.1.4)
