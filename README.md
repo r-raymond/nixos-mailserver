@@ -4,7 +4,7 @@
 
 
 **THIS REPO IS NOT UPDATED ANYMORE, IT HAS BEEN MOVED TO GITLAB. PLEASE DON'T OPEN
-ANY MORE PR'S OR ISSUES IN GITHUB**
+ANY MORE PR'S OR ISSUES ON GITHUB**
 
 [LINK TO REPO](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver)
 
