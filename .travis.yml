@@ -5,3 +5,4 @@ env:
 script:
     - nix-build tests/intern.nix
     - nix-build tests/extern.nix
+    - nix-build tests/clamav.nix

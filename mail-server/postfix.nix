@@ -90,6 +90,19 @@ let
 
      /^Message-ID:\s+<(.*?)@.*?>/ REPLACE Message-ID: <$1@${cfg.fqdn}>
   '');
+
+  inetSocket = addr: port: "inet:[${toString port}@${addr}]";
+  unixSocket = sock: "unix:${sock}";
+
+  smtpdMilters =
+   (lib.optional cfg.dkimSigning "unix:/run/opendkim/opendkim.sock")
+   ++ [ "unix:/run/rspamd/rspamd-milter.sock" ];
+
+  policyd-spf = pkgs.writeText "policyd-spf.conf" (
+    cfg.policydSPFExtraConfig
+    + (lib.optionalString cfg.debug ''
+    debugLevel = 4
+  ''));
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -121,16 +134,21 @@ in
         virtual_mailbox_domains = ${vhosts_file}
         virtual_mailbox_maps = hash:/var/lib/postfix/conf/valias
         virtual_alias_maps = hash:/var/lib/postfix/conf/valias
-        virtual_transport = lmtp:unix:private/dovecot-lmtp
+        virtual_transport = lmtp:unix:/run/dovecot2/dovecot-lmtp
 
         # sasl with dovecot
         smtpd_sasl_type = dovecot
-        smtpd_sasl_path = private/auth
+        smtpd_sasl_path = /run/dovecot2/auth
         smtpd_sasl_auth_enable = yes
         smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
 
-        # reject selected recipients, quota
-        smtpd_recipient_restrictions = check_recipient_access hash:/var/lib/postfix/conf/reject_recipients, check_policy_service inet:localhost:12340
+        policy-spf_time_limit = 3600s
+
+        # quota and spf checking
+        smtpd_recipient_restrictions =
+          check_recipient_access hash:/var/lib/postfix/conf/reject_recipients,
+          check_policy_service inet:localhost:12340,
+          check_policy_service unix:private/policy-spf
 
         # TLS settings, inspired by https://github.com/jeaye/nix-files
         # Submission by mail clients is handled in submissionOptions
@@ -151,6 +169,11 @@ in
 
         # Configure a non blocking source of randomness
         tls_random_source = dev:/dev/urandom
+
+        smtpd_milters = ${lib.concatStringsSep "," smtpdMilters}
+        ${lib.optionalString cfg.dkimSigning "non_smtpd_milters = unix:/run/opendkim/opendkim.sock"}
+        milter_protocol = 6
+        milter_mail_macros = i {mail_addr} {client_addr} {client_name} {auth_type} {auth_authen} {auth_author} {mail_addr} {mail_host} {mail_mailer}
       '';
 
       submissionOptions =
@@ -158,7 +181,7 @@ in
         smtpd_tls_security_level = "encrypt";
         smtpd_sasl_auth_enable = "yes";
         smtpd_sasl_type = "dovecot";
-        smtpd_sasl_path = "private/auth";
+        smtpd_sasl_path = "/run/dovecot2/auth";
         smtpd_sasl_security_options = "noanonymous";
         smtpd_sasl_local_domain = "$myhostname";
         smtpd_client_restrictions = "permit_sasl_authenticated,reject";
@@ -167,11 +190,23 @@ in
         smtpd_recipient_restrictions = "reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject";
         cleanup_service_name = "submission-header-cleanup";
       };
-
-      extraMasterConf = ''
-        submission-header-cleanup unix n - n    -       0       cleanup
-            -o header_checks=pcre:${submissionHeaderCleanupRules}
-      '';
+      masterConfig = {
+        "policy-spf" = {
+          type = "unix";
+          privileged = true;
+          chroot = false;
+          command = "spawn";
+          args = [ "user=nobody" "argv=${pkgs.pypolicyd-spf}/bin/policyd-spf" "${policyd-spf}"];
+        };
+        "submission-header-cleanup" = {
+          type = "unix";
+          private = false;
+          chroot = false;
+          maxproc = 0;
+          command = "cleanup";
+          args = ["-o" "header_checks=pcre:${submissionHeaderCleanupRules}"];
+        };
+      };
     };
   };
 }

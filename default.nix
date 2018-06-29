@@ -454,6 +454,18 @@ in
       '';
     };
 
+    policydSPFExtraConfig = mkOption {
+      type = types.lines;
+      default = "";
+      example = ''
+        skip_addresses = 127.0.0.0/8,::ffff:127.0.0.0/104,::1
+      '';
+      description = ''
+        Extra configuration options for policyd-spf. This can be use to among
+        other things skip spf checking for some IP addresses.
+      '';
+    };
+
     monitoring = {
       enable = mkEnableOption "monitoring via monit";
 
@@ -733,8 +745,9 @@ in
     ./mail-server/networking.nix
     ./mail-server/systemd.nix
     ./mail-server/dovecot.nix
+    ./mail-server/opendkim.nix
     ./mail-server/postfix.nix
-    ./mail-server/rmilter.nix
+    ./mail-server/rspamd.nix
     ./mail-server/nginx.nix
     ./mail-server/kresd.nix
     ./mail-server/post-upgrade-check.nix
