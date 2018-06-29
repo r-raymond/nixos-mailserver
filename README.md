@@ -6,7 +6,7 @@
 **THIS REPO IS NOT UPDATED ANYMORE, IT HAS BEEN MOVED TO GITLAB. PLEASE DON'T OPEN
 ANY MORE PR'S OR ISSUES ON GITHUB**
 
-[LINK TO REPO](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver)
+[Link to SNM on Gitlab](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver)
 
 
 ## Stable Releases
